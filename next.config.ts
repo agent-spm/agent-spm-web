@@ -2,10 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   turbopack: {
-    // Set to project root to avoid climbing to /Users/lakshitsoni/Desktop and hitting permission errors
-    // You may need to change this string if your project path changes
-    root: "/Users/lakshitsoni/Desktop/freelancing/agent-spm-web",
-  } as any,
+    // Set to __dirname to avoid climbing to the user's home directory due to multiple lockfiles
+    root: __dirname,
+  },
   images: {
     remotePatterns: [
       {

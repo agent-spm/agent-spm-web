@@ -1,22 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import { ThemeProvider } from "next-themes";
-import { SEO_DEFAULTS } from "@/lib/constants";
-import "@/app/globals.css";
+import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sans",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-mono",
-});
-
-export const metadata: Metadata = SEO_DEFAULTS;
+export const metadata: Metadata = {
+  title: "Agent Skills Package Manager",
+  description: "Stop rebuilding. Start compounding. Skills arm your agents with battle-tested procedural knowledge.",
+};
 
 export default function RootLayout({
   children,
@@ -24,20 +12,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
-    >
-      <body className="min-h-screen font-sans">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased font-sans" suppressHydrationWarning>
+        {children}
       </body>
     </html>
   );
