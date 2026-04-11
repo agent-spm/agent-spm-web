@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   turbopack: {
-    // Set to __dirname to avoid climbing to the user's home directory due to multiple lockfiles
-    root: __dirname,
+    // Set to project root to avoid climbing up and hitting permission errors
+    root: process.cwd(),
   },
   images: {
     remotePatterns: [

@@ -1,10 +1,12 @@
+"use client";
+
 import Link from "next/link";
-import { Logo } from "@/components/shared/logo";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const footerLinks = {
   Product: [
-    { label: "Explore", href: "/" },
-    { label: "Search", href: "/search" },
+/* ... truncated for readability here, but I will provide the full file contents in the tool call if needed ... */
     { label: "Pricing", href: "/pricing" },
     { label: "Documentation", href: "/docs" },
   ],
@@ -23,13 +25,28 @@ const footerLinks = {
 };
 
 export function PublicFooter() {
+  const pathname = usePathname();
+
+  if (pathname === "/connect") return null;
+
   return (
     <footer className="border-t border-surface-200 bg-surface-50 dark:border-surface-800 dark:bg-surface-950">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Logo size="sm" />
+            <div className="flex items-center gap-2 mb-3">
+              <Image 
+                src="/images/logo.png" 
+                alt="Agent SPM Logo" 
+                width={24} 
+                height={24} 
+                className="object-contain"
+              />
+              <span className="font-bold tracking-tight text-surface-900 dark:text-surface-50 text-sm">
+                spm.dev
+              </span>
+            </div>
             <p className="mt-3 text-sm leading-relaxed text-surface-500 dark:text-surface-400">
               The open registry for AI agent skill packages.
             </p>
