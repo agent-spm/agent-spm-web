@@ -1,18 +1,21 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const NavButton = ({ 
   prefixChar, 
   label, 
   active = false,
-  icon
+  icon,
+  href
 }: { 
   prefixChar?: string; 
   label?: string; 
   active?: boolean;
   icon?: React.ReactNode;
+  href?: string;
 }) => {
-  return (
+  const content = (
     <button className={`bracket-btn ${active ? 'active' : ''}`}>
       {icon ? (
         <span className="flex items-center justify-center">
@@ -26,6 +29,16 @@ const NavButton = ({
       )}
     </button>
   );
+
+  if (href) {
+    return (
+      <Link href={href}>
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 };
 
 export const Navbar = () => {
@@ -46,11 +59,12 @@ export const Navbar = () => {
       
 
       {/* Nav Links Group */}
-      <NavButton prefixChar="B" label="BLOG" />
-      <NavButton prefixChar="D" label="DOCS" />
-      <NavButton prefixChar="Y" label="YOUTUBE" />
-      <NavButton prefixChar="G" label="GITHUB"  />
-      <NavButton prefixChar="C" label="CONNECT" />
+      <NavButton prefixChar="H" label="HOME" href="/" />
+      <NavButton prefixChar="B" label="BLOG" href="/blog" />
+      <NavButton prefixChar="D" label="DOCS" href="/docs" />
+      <NavButton prefixChar="Y" label="YOUTUBE" href="/youtube" />
+      <NavButton prefixChar="G" label="GITHUB" href="/github"  />
+      <NavButton prefixChar="C" label="CONNECT" href="/connect" />
 
       <NavButton 
         icon={
