@@ -4,6 +4,7 @@ import { SearchBar } from "@/components/search/search-bar";
 import { SearchFilters } from "@/components/search/search-filters";
 import { SearchResults } from "@/components/search/search-results";
 import { buildSearchMetadata } from "@/lib/seo/metadata";
+import { registryApi } from "@/lib/registry/api";
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string; sort?: string; page?: string }>;
@@ -20,18 +21,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = params.q || "";
 
-  // In production, this fetches from the registry API:
-  // const results = await registryApi.searchPackages({
-  //   query,
-  //   sort: params.sort as any,
-  //   page: Number(params.page) || 1,
-  // });
+  // Fetch from the real registry API
+  const searchResponse = await registryApi.searchPackages({
+    query,
+    sort: params.sort as any,
+    page: Number(params.page) || 1,
+  });
 
-  // Placeholder data for development
   const results = {
-    packages: [],
-    total: 0,
-    page: 1,
+    packages: searchResponse.packages,
+    total: searchResponse.total,
+    page: Number(params.page) || 1,
     pageSize: 20,
   };
 
