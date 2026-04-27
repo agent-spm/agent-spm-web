@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Download, Package, Terminal, Zap } from "lucide-react";
 import { JsonLd } from "@/components/shared/json-ld";
 import { generateOrganizationJsonLd } from "@/lib/seo/json-ld";
+import { FeaturedPackages } from "@/components/packages/featured-packages";
 
 export default function HomePage() {
   return (
@@ -73,6 +74,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── Featured Packages ── */}
+      <FeaturedPackages />
 
       {/* ── Features ── */}
       <section className="border-t border-surface-200 bg-surface-50 py-24 dark:border-surface-800 dark:bg-surface-900/50">

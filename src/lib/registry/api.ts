@@ -52,7 +52,7 @@ class RegistryApiClient {
     if (params.sort) searchParams.set("sort", params.sort);
 
     return this.fetch<PackageSearchResponse>(
-      `/packages?${searchParams.toString()}`,
+      `/packages/search?${searchParams.toString()}`,
       { revalidate: 30 }
     );
   }
