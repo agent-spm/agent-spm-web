@@ -68,7 +68,7 @@ export const Navbar = () => {
       {/* Nav Links Group */}
       <NavButton prefixChar="H" label="HOME" href="/" />
       <NavButton prefixChar="B" label="BLOG" href="/blog" />
-      <NavButton prefixChar="D" label="DOCS" href="/docs" />
+      <NavButton prefixChar="D" label="DOCS" href="/search" />
       <NavButton prefixChar="Y" label="YOUTUBE" href="/youtube" />
       <NavButton prefixChar="G" label="GITHUB" href="/github"  />
       <NavButton prefixChar="C" label="CONNECT" href="/connect" />
