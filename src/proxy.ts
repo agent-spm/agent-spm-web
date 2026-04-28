@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { PROTECTED_ROUTES } from "@/lib/constants";
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { user, supabaseResponse } = await updateSession(request);
 
   const isProtected = PROTECTED_ROUTES.some((route) =>

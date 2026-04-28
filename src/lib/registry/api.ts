@@ -1,5 +1,6 @@
 import { REGISTRY_API_URL } from "@/lib/constants";
 import type { Package, PackageSearchResponse } from "@/types/package";
+import { MOCK_PACKAGES } from "./mock";
 import type { DashboardAnalytics } from "@/types/analytics";
 
 class RegistryApiClient {
@@ -51,17 +52,42 @@ class RegistryApiClient {
       searchParams.set("pageSize", params.pageSize.toString());
     if (params.sort) searchParams.set("sort", params.sort);
 
-    return this.fetch<PackageSearchResponse>(
-      `/packages/search?${searchParams.toString()}`,
-      { revalidate: 30 }
-    );
+    try {
+      return await this.fetch<PackageSearchResponse>(
+        `/packages/search?${searchParams.toString()}`,
+        { revalidate: 30 }
+      );
+    } catch (e) {
+      console.warn("Using mock data for searchPackages due to API error", e);
+      let results = MOCK_PACKAGES;
+      if (params.query) {
+        const q = params.query.toLowerCase();
+        results = results.filter(p => p.name.includes(q) || p.namespace.includes(q) || p.description?.toLowerCase().includes(q));
+      }
+      return {
+        packages: results,
+        total: results.length,
+        page: params.page || 1,
+        pageSize: params.pageSize || 20,
+      };
+    }
   }
 
   async getFeaturedPackages(): Promise<PackageSearchResponse> {
-    return this.fetch<PackageSearchResponse>("/packages/featured", {
-      tags: ["featured-packages"],
-      revalidate: 600,
-    });
+    try {
+      return await this.fetch<PackageSearchResponse>("/packages/featured", {
+        tags: ["featured-packages"],
+        revalidate: 600,
+      });
+    } catch (e) {
+      console.warn("Using mock data for getFeaturedPackages due to API error", e);
+      return {
+        packages: MOCK_PACKAGES.slice(0, 3),
+        total: Math.min(MOCK_PACKAGES.length, 3),
+        page: 1,
+        pageSize: 3,
+      };
+    }
   }
 
   async getDashboardAnalytics(

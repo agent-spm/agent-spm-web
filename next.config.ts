@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { securityHeaders } from "./src/lib/security/headers";
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -24,6 +25,16 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ["shiki"],
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
+

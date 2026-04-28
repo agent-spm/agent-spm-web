@@ -1,30 +1,37 @@
 import Link from "next/link";
+import { Home, Search } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-4">
-      <div className="text-center">
-        <p className="font-mono text-7xl font-bold text-brand-500">404</p>
-        <h1 className="mt-4 text-2xl font-bold text-surface-900 dark:text-surface-50">
-          Package not found
-        </h1>
-        <p className="mt-2 text-surface-500">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
-        </p>
-        <div className="mt-8 flex items-center justify-center gap-4">
-          <Link
-            href="/"
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
-          >
-            Go Home
-          </Link>
-          <Link
-            href="/search"
-            className="rounded-lg border border-surface-200 px-4 py-2 text-sm font-medium text-surface-700 transition-colors hover:bg-surface-100 dark:border-surface-800 dark:text-surface-300 dark:hover:bg-surface-800"
-          >
-            Search Packages
-          </Link>
-        </div>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-bg-gray px-4 text-center">
+      {/* 404 Badge */}
+      <span className="mono rounded-full bg-brand-blue/10 px-4 py-1.5 text-xs font-bold tracking-widest text-brand-blue">
+        404
+      </span>
+
+      <h1 className="mt-6 text-4xl font-bold tracking-tighter text-brand-black">
+        Page not found
+      </h1>
+      <p className="mt-3 max-w-md text-base text-brand-black/60">
+        The page you&apos;re looking for doesn&apos;t exist or has been moved.
+        Check the URL or head back to safety.
+      </p>
+
+      <div className="mt-8 flex items-center gap-3">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 rounded-lg bg-brand-blue px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-blue/90 active:scale-[0.98]"
+        >
+          <Home className="h-4 w-4" />
+          Home
+        </Link>
+        <Link
+          href="/search"
+          className="inline-flex items-center gap-2 rounded-lg border border-btn-gray bg-white px-5 py-2.5 text-sm font-semibold text-brand-black transition-all hover:bg-bg-gray active:scale-[0.98]"
+        >
+          <Search className="h-4 w-4" />
+          Search Packages
+        </Link>
       </div>
     </div>
   );
