@@ -49,8 +49,6 @@ const NavButton = ({
 export const Navbar = () => {
   const pathname = usePathname();
 
-  if (pathname === "/connect") return null;
-
   return (
     <nav className="flex items-center px-2 py-6 w-full gap-[10px]" aria-label="Main navigation">
       {/* Logo Container */}
