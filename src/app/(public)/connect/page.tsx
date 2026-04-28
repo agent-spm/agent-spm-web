@@ -37,19 +37,23 @@ export default function ConnectPage() {
   };
 
   return (
-    <div className="h-screen bg-[#F5F5F5] flex items-center justify-center p-8 overflow-hidden relative">
-      {/* Background Grid Pattern */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.06]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, #1B5FED 1px, transparent 1px),
-            linear-gradient(to bottom, #1B5FED 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px'
-        }}
-      />
-      <div className="w-full max-w-[1100px] h-[580px] bg-white rounded-[16px] border border-[#E8E9ED] shadow-[0_8px_40px_rgba(0,0,0,0.06)] flex flex-col md:flex-row overflow-hidden transition-all duration-500">
+    <>
+      {/* Fixed Background Grid Pattern for the entire page (under navbar too) */}
+      <div className="fixed inset-0 -z-10 bg-[#F5F5F5]">
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-[0.06]"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, #1B5FED 1px, transparent 1px),
+              linear-gradient(to bottom, #1B5FED 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px'
+          }}
+        />
+      </div>
+
+      <div className="w-full flex-1 flex items-center justify-center p-8 overflow-hidden relative min-h-[calc(100vh-120px)]">
+        <div className="w-full max-w-[1100px] h-[580px] bg-white rounded-[16px] border border-[#E8E9ED] shadow-[0_8px_40px_rgba(0,0,0,0.06)] flex flex-col md:flex-row overflow-hidden transition-all duration-500">
         
         {/* Left Side: Permanently Visible Info */}
         <aside className="w-full md:w-[320px] border-r border-[#E8E9ED] p-8 md:p-8 bg-white z-10 shrink-0">
@@ -88,6 +92,7 @@ export default function ConnectPage() {
           )}
         </main>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

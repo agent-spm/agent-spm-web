@@ -40,7 +40,10 @@ export async function FeaturedPackages() {
       </section>
     );
   } catch (error) {
-    console.error("Failed to fetch featured packages:", error);
+    console.error(
+      "Failed to fetch featured packages:",
+      error instanceof Error ? error.message : String(error)
+    );
     return null;
   }
 }

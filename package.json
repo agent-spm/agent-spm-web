@@ -12,6 +12,8 @@
   "dependencies": {
     "@polar-sh/nextjs": "^0.9.5",
     "@polar-sh/sdk": "^0.47.0",
+    "@splinetool/react-spline": "^4.1.0",
+    "@splinetool/runtime": "^1.12.89",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
     "class-variance-authority": "^0.7.1",

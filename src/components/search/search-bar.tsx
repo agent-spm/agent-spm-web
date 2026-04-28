@@ -28,7 +28,7 @@ export function SearchBar({
   );
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} role="search" aria-label="Search packages">
       <div className="relative">
         <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-surface-400" />
         <input
@@ -39,6 +39,7 @@ export function SearchBar({
           className={`w-full rounded-xl border border-surface-200 bg-surface-0 pl-12 pr-4 text-surface-900 placeholder:text-surface-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-surface-800 dark:bg-surface-900 dark:text-surface-50 ${
             size === "lg" ? "py-4 text-lg" : "py-2.5 text-sm"
           }`}
+          aria-label="Search packages"
         />
         <kbd className="absolute right-4 top-1/2 hidden -translate-y-1/2 rounded border border-surface-300 bg-surface-100 px-1.5 py-0.5 font-mono text-xs text-surface-400 dark:border-surface-700 dark:bg-surface-800 sm:inline">
           ⏎
