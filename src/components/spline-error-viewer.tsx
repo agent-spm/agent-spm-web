@@ -12,6 +12,7 @@ export default function SplineErrorViewer() {
     script.src = 'https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js';
     document.head.appendChild(script);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
 
     return () => {
@@ -24,7 +25,7 @@ export default function SplineErrorViewer() {
   return (
     <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
       <div className="w-full h-full pointer-events-auto">
-        {/* @ts-ignore - custom web component */}
+        {/* @ts-expect-error - custom web component */}
         <spline-viewer 
           url="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode" 
           style={{ width: '100%', height: '100%' }}

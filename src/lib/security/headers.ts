@@ -35,12 +35,13 @@ export const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "default-src 'self' blob:",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com blob:",
+      "worker-src 'self' blob:",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://*.supabase.co",
-      "connect-src 'self' https://*.supabase.co https://api.polar.sh",
+      "connect-src 'self' blob: https://*.supabase.co https://api.polar.sh https://raw.githack.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },

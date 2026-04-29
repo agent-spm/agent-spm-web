@@ -32,7 +32,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   try {
     searchResponse = await registryApi.searchPackages({
       query,
-      sort: params.sort as any,
+      sort: params.sort as "downloads" | "updated" | "name",
       page: Number(params.page) || 1,
     });
   } catch (error) {

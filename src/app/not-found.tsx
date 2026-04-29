@@ -33,7 +33,7 @@ export default function NotFound() {
         
         <div className="rounded-2xl border border-black/5 bg-white/50 px-6 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-black/20">
           <p className="text-sm font-medium tracking-wide text-surface-900 dark:text-white">
-            Looks like this skill hasn't been discovered yet.
+            Looks like this skill hasn&apos;t been discovered yet.
           </p>
         </div>
         

@@ -3,7 +3,6 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
 const NavButton = ({ 
   prefixChar, 
@@ -47,7 +46,6 @@ const NavButton = ({
 };
 
 export const Navbar = () => {
-  const pathname = usePathname();
 
   return (
     <nav className="flex items-center px-2 py-6 w-full gap-[10px]" aria-label="Main navigation">
