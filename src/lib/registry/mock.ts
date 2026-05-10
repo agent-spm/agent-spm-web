@@ -7,7 +7,38 @@ export const MOCK_PACKAGES: Package[] = [
     name: "http",
     displayName: "core/http",
     description: "High-performance HTTP client for agent workflows with automatic retries and rate limiting.",
-    readme: "# core/http\n\nHTTP client skill.",
+    readme: `# core/http
+
+High-performance HTTP client tailored for AI agent workflows.
+
+## Features
+
+- **Automatic Retries:** Seamlessly handles transient network failures.
+- **Rate Limiting:** Built-in token bucket rate limiting to respect API constraints.
+- **Agent Integration:** Native support for tool-calling interfaces.
+
+## Installation
+
+\`\`\`bash
+spm install core/http
+\`\`\`
+
+## Usage
+
+\`\`\`typescript
+import { HttpClient } from "core/http";
+
+const client = new HttpClient({
+  retries: 3,
+  timeout: 5000
+});
+
+const response = await client.get("https://api.example.com/data");
+console.log(response.data);
+\`\`\`
+
+## License
+MIT`,
     license: "MIT",
     repositoryUrl: "https://github.com/core/http",
     homepageUrl: undefined,
@@ -29,7 +60,42 @@ export const MOCK_PACKAGES: Package[] = [
     name: "json",
     displayName: "utils/json",
     description: "Robust JSON parsing and validation with schema support.",
-    readme: "# utils/json\n\nJSON parser skill.",
+    readme: `# utils/json
+
+Robust JSON parsing and validation with schema support, designed specifically for ensuring LLM outputs conform to expected structures.
+
+## Features
+
+- **Strict Validation:** Validate parsed JSON against JSON Schema.
+- **Auto-Fixing:** Heuristics to fix common LLM JSON formatting errors (e.g., missing quotes, trailing commas).
+
+## Installation
+
+\`\`\`bash
+spm install utils/json
+\`\`\`
+
+## Usage
+
+\`\`\`typescript
+import { parseAndValidate } from "utils/json";
+
+const schema = {
+  type: "object",
+  properties: {
+    name: { type: "string" },
+    age: { type: "number" }
+  },
+  required: ["name", "age"]
+};
+
+// LLM output with a trailing comma
+const rawOutput = '{ "name": "Alice", "age": 30, }';
+
+const data = parseAndValidate(rawOutput, schema);
+// Successfully parses and validates!
+\`\`\`
+`,
     license: "MIT",
     repositoryUrl: "https://github.com/utils/json",
     homepageUrl: undefined,
@@ -51,7 +117,36 @@ export const MOCK_PACKAGES: Package[] = [
     name: "vision",
     displayName: "ai/vision",
     description: "Computer vision skill for analyzing images and extracting text using state-of-the-art models.",
-    readme: "# ai/vision\n\nVision analysis skill.",
+    readme: `# ai/vision
+
+Computer vision skill for analyzing images and extracting text using state-of-the-art models.
+
+## Features
+
+- **Object Detection:** Identify objects and their bounding boxes.
+- **OCR:** Extract text from images with high accuracy.
+- **Image Captioning:** Generate descriptive captions for images.
+
+## Installation
+
+\`\`\`bash
+spm install ai/vision
+\`\`\`
+
+## Usage
+
+\`\`\`typescript
+import { VisionAgent } from "ai/vision";
+
+const agent = new VisionAgent({ apiKey: process.env.VISION_API_KEY });
+
+const result = await agent.analyzeImage("./receipt.jpg", {
+  features: ["OCR", "DOCUMENT_TEXT_DETECTION"]
+});
+
+console.log(result.text);
+\`\`\`
+`,
     license: "MIT",
     repositoryUrl: "https://github.com/ai/vision",
     homepageUrl: undefined,
@@ -80,7 +175,25 @@ export function getMockPackage(namespace: string, name: string): Package {
     name,
     displayName: `${namespace}/${name}`,
     description: `A powerful AI agent skill package for ${name} operations. Provides composable tools and middleware for building intelligent agent workflows.`,
-    readme: `# ${namespace}/${name}\n\nA powerful skill package for AI agents.`,
+    readme: `# ${namespace}/${name}
+
+A powerful skill package for AI agents.
+
+## Features
+
+- Fully typed interface.
+- Seamless integration with SPM.
+- Extensible middleware support.
+
+## Usage
+
+\`\`\`typescript
+import { ${name} } from "${namespace}/${name}";
+
+const agent = new ${name}();
+agent.execute();
+\`\`\`
+`,
     license: "MIT",
     repositoryUrl: `https://github.com/${namespace}/${name}`,
     homepageUrl: undefined,
