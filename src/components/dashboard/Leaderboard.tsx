@@ -1,146 +1,150 @@
-import React from 'react';
+"use client";
 
-const LeaderboardTag = ({ 
-  label, 
-  color 
-}: { 
-  label: string; 
-  color: string 
-}) => {
-  return (
-    <div className="flex items-center gap-2.5 px-3 py-1.5 bg-white border border-black/[0.04] rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }}></div>
-      <span className="text-[13.5px] font-sans font-medium text-brand-black/90 whitespace-nowrap tracking-tight">{label}</span>
-    </div>
-  );
-};
+import React from 'react';
+import { useRouter } from 'next/navigation';
+
+const LeaderboardTag = ({ label, color }: { label: string; color: string }) => (
+  <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-2 rounded-full shadow-sm border border-[#C9C9C9] backdrop-blur-sm"
+    style={{ background: '#F5F5F2' }}>
+    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+    <span className="text-[11px] sm:text-[13px] lg:text-[16px] font-sans font-normal text-black tracking-tight whitespace-nowrap">{label}</span>
+  </div>
+);
 
 export const Leaderboard = () => {
-  // Mock data for the dot chart to match the figma curve precisely
-  const points = [
-    { x: 10, y: 380 }, { x: 18, y: 372 }, { x: 26, y: 365 }, { x: 34, y: 360 },
-    { x: 42, y: 350 }, { x: 42, y: 340 }, { x: 50, y: 335 }, { x: 58, y: 345 },
-    { x: 66, y: 355 }, { x: 74, y: 345 }, { x: 82, y: 335 }, { x: 90, y: 325 },
-    { x: 98, y: 315 }, { x: 106, y: 305 }, { x: 114, y: 295 }, { x: 122, y: 285 },
-    { x: 130, y: 275 }, { x: 138, y: 265 }, { x: 146, y: 255 }, { x: 154, y: 245 },
-    { x: 162, y: 235 }, { x: 170, y: 225 }, { x: 178, y: 215 }, { x: 186, y: 205 },
-    { x: 194, y: 195 }, { x: 202, y: 185 }, { x: 210, y: 175 }, { x: 218, y: 165 },
-    { x: 226, y: 155 }, { x: 234, y: 145 }, { x: 242, y: 135 }, { x: 250, y: 125 },
-    { x: 258, y: 132 }, { x: 266, y: 138 }, { x: 274, y: 132 }, { x: 282, y: 125 },
-    { x: 290, y: 115 }, { x: 298, y: 105 }, { x: 306, y: 95 }, { x: 314, y: 85 },
-    { x: 314, y: 75 }, { x: 314, y: 65 }, { x: 322, y: 55 }, { x: 330, y: 45 },
-    { x: 338, y: 35 }, { x: 346, y: 25 }, { x: 354, y: 18 }, { x: 362, y: 12 },
-    { x: 370, y: 8 },
+  const router = useRouter();
+  // Exact dot positions from Figma SVG, viewBox 0 0 440 812
+  const dots: [number, number][] = [
+    [6,808],[14,800],[14,790],[22,782],[30,774],[38,766],[38,756],
+    [48,756],[58,756],[66,764],[74,772],[82,764],[90,756],
+    [98,748],[106,740],[114,732],[122,724],[130,716],[138,708],
+    [146,700],[154,692],[162,684],[170,676],[178,668],[186,660],
+    [194,652],[202,644],[210,636],[218,628],[226,620],[234,612],
+    [242,604],[250,596],[258,588],[266,580],[274,572],[284,572],
+    [292,580],[300,572],[308,564],[316,556],[324,548],[332,540],
+    [340,532],[348,524],[356,516],[364,508],[374,508],[374,498],
+    [374,488],[374,478],[374,468],[382,460],[390,452],[398,444],
+    [406,436],[414,428],[414,418],[422,410],[430,402],
   ];
 
+  const gridXs = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400];
+
   return (
-    <div className="flex flex-col bg-[#E2E0E6] border border-[#E8E9ED] rounded-[16px] p-7 w-full max-w-none shadow-[0_4px_20px_rgba(0,0,0,0.01)] h-full">
+    <div className="flex flex-col w-full h-full overflow-hidden rounded-[4px] border-2 border-[#E3E2DF]"
+      style={{ background: '#EFEDE9' }}>
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[22px] text-brand-blue mono tracking-tight">SKILLS LEADERBOARD</h2>
-        <span className="text-[14px] text-brand-black/40 font-sans font-medium">Week of April 6</span>
-      </div>
-      
-      {/* Filters */}
-      <div className="flex gap-1.5 mb-1.5">
-        <button className="bracket-btn active h-[30px] px-3.5 text-[12px] rounded-[4px]">ALL TIME</button>
-        <button className="bracket-btn h-[30px] px-3.5 text-[12px] rounded-[4px]">TRENDING (24H)</button>
-        <button className="bracket-btn h-[30px] px-3.5 text-[12px] rounded-[4px]">HOT</button>
+      <div className="flex items-center justify-between px-3 sm:px-5 pt-3 sm:pt-5 lg:pt-7">
+        <h2 className="text-[14px] sm:text-[18px] lg:text-[22px] text-[#1A5FED] mono tracking-tight font-normal leading-tight">
+          SKILLS LEADERBOARD
+        </h2>
+        <span className="text-[10px] sm:text-[13px] lg:text-[18px] text-[#979794] font-sans font-medium tracking-tight whitespace-nowrap ml-2">
+          2nd Week of April
+        </span>
       </div>
 
-      {/* Chart Main Container */}
-      <div className="relative flex-1 w-full flex min-h-[550px] bg-[#E2E0E6] rounded-[12px]">
-        
-        {/* Y-axis Labels */}
-        <div className="absolute left-0 top-[30px] bottom-[20px] flex flex-col justify-between text-[14px] text-brand-black/30 font-sans font-medium z-10 pointer-events-none pr-4">
-          <div>350k</div>
-          <div>120k</div>
-          <div>100k</div>
-        </div>
+      {/* Filter Buttons */}
+      <div className="flex gap-1 sm:gap-1.5 px-3 sm:px-5 mt-2 sm:mt-3">
+        <button className="bracket-btn active h-[24px] sm:h-[28px] lg:h-[36px] px-2 sm:px-3 lg:px-4 text-[9px] sm:text-[11px] lg:text-[16px] rounded-[2px]">ALL TIME</button>
+        <button className="bracket-btn h-[24px] sm:h-[28px] lg:h-[36px] px-2 sm:px-3 lg:px-4 text-[9px] sm:text-[11px] lg:text-[16px] rounded-[2px]">TRENDING (24H)</button>
+        <button className="bracket-btn h-[24px] sm:h-[28px] lg:h-[36px] px-2 sm:px-3 lg:px-4 text-[9px] sm:text-[11px] lg:text-[16px] rounded-[2px]">HOT</button>
+      </div>
 
-        {/* The Grid and Chart Area */}
-        <div className="relative flex-1 ml-14 mr-[200px] h-full">
-          {/* Vertical Grid Lines - Dotted style */}
-          <div className="absolute inset-0 flex justify-between pointer-events-none">
-            {[...Array(13)].map((_, i) => (
-              <div 
-                key={i} 
-                className="w-[1px] h-full" 
-                style={{ 
-                  backgroundImage: 'linear-gradient(to bottom, #adadaaff 40%, rgba(255,255,255,0) 0%)',
-                  backgroundPosition: 'left',
-                  backgroundSize: '1px 8px',
-                   backgroundRepeat: 'repeat-y'
-                }} 
-              />
-            ))}
+      {/* ── MOBILE LAYOUT (< lg): chart full width, tags below ── */}
+      <div className="flex-1 flex flex-col lg:hidden mt-2 sm:mt-3 mx-1 sm:mx-2 min-h-0">
+        {/* Chart row: y-axis + SVG */}
+        <div className="flex-1 flex min-h-[220px] sm:min-h-[320px]">
+          {/* Y-axis labels */}
+          <div className="relative w-[28px] sm:w-[36px] flex-shrink-0 text-[8px] sm:text-[11px] text-[#979794] font-sans font-medium tracking-tight">
+            <div style={{ position: 'absolute', top: '10.5%' }}>350k</div>
+            <div style={{ position: 'absolute', top: '29.3%' }}>120k</div>
+            <div style={{ position: 'absolute', top: '50.5%' }}>100k</div>
           </div>
-
-          {/* Solid Blue Line at the end of grid */}
-          <div className="absolute right-0 top-0 bottom-0 w-[1.5px] bg-brand-blue z-20" />
-
-          {/* SVG Chart */}
-          <svg 
-            width="100%" 
-            height="100%" 
-            viewBox="0 0 370 400" 
-            preserveAspectRatio="none"
-            className="absolute inset-0 z-10 overflow-visible"
-          >
-            {/* Connecting Line */}
-            <path 
-              d={`M ${points[0].x} ${points[0].y} ${points.map(p => `L ${p.x} ${p.y}`).join(' ')}`}
-              fill="none"
-              stroke="#1B5FED"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            {points.map((p, i) => (
-              <circle 
-                key={i} 
-                cx={p.x} 
-                cy={p.y} 
-                r="4.5" 
-                fill="#1B5FED" 
-                stroke="white"
-                strokeWidth="1.5"
-              />
-            ))}
-          </svg>
-
-          {/* Labels aligned to the blue line */}
-          <div className="absolute left-full top-0 bottom-0 flex flex-col z-30 justify-start pt-14 gap-24 ml-4 pointer-events-none">
-            <div className="translate-x-0">
-              <LeaderboardTag label="@lakshit/web2-ui" color="#FFB800" />
-            </div>
-            <div className="translate-x-0 translate-y-10">
-              <LeaderboardTag label="@daksh/system-design" color="#EE0000" />
-            </div>
-            <div className="translate-x-0 translate-y-24">
-              <LeaderboardTag label="@rahul/web2-security" color="#1B5FED" />
-            </div>
+          {/* SVG chart — takes full remaining width */}
+          <div className="flex-1 relative min-w-0">
+            <svg className="w-full h-full" viewBox="0 0 440 812" preserveAspectRatio="none">
+              {gridXs.map((x, i) => (
+                <line key={`g-${i}`} x1={x} y1={0} x2={x} y2={812}
+                  stroke="black" strokeOpacity={0.08} strokeWidth={1}
+                  vectorEffect="non-scaling-stroke" />
+              ))}
+              <line x1={440} y1={-20} x2={440} y2={830}
+                stroke="#1A5FED" strokeWidth={3}
+                strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              {dots.map(([cx, cy], i) => (
+                <rect key={i} x={cx - 4} y={cy - 4} width={8} height={8} rx={4}
+                  fill="#1A5FED" vectorEffect="non-scaling-stroke" />
+              ))}
+            </svg>
           </div>
         </div>
+        {/* Tags — horizontal row below chart on mobile */}
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3 justify-center">
+          <LeaderboardTag label="@lakshit/web2-ui" color="#FFB300" />
+          <LeaderboardTag label="@daksh/system-design" color="#CF0003" />
+          <LeaderboardTag label="@rahul/web2-security" color="#1A5FED" />
+        </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="mt-8 relative">
-        <div className="absolute left-[18px] top-1/2 -translate-y-1/2 opacity-40">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+      {/* ── DESKTOP LAYOUT (>= lg): chart + tags side by side ── */}
+      <div className="hidden lg:flex flex-1 mt-3 mx-3 min-h-[450px]">
+        {/* Y-axis labels */}
+        <div className="relative w-[48px] flex-shrink-0 text-[16px] text-[#979794] font-sans font-medium tracking-tight">
+          <div style={{ position: 'absolute', top: '10.5%' }}>350k</div>
+          <div style={{ position: 'absolute', top: '29.3%' }}>120k</div>
+          <div style={{ position: 'absolute', top: '50.5%' }}>100k</div>
+        </div>
+        {/* SVG chart */}
+        <div className="flex-1 relative min-w-0">
+          <svg className="w-full h-full" viewBox="0 0 440 812" preserveAspectRatio="none">
+            {gridXs.map((x, i) => (
+              <line key={`g-${i}`} x1={x} y1={0} x2={x} y2={812}
+                stroke="black" strokeOpacity={0.08} strokeWidth={1}
+                vectorEffect="non-scaling-stroke" />
+            ))}
+            <line x1={440} y1={-20} x2={440} y2={830}
+              stroke="#1A5FED" strokeWidth={3}
+              strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+            {dots.map(([cx, cy], i) => (
+              <rect key={i} x={cx - 4} y={cy - 4} width={8} height={8} rx={4}
+                fill="#1A5FED" vectorEffect="non-scaling-stroke" />
+            ))}
           </svg>
         </div>
-        <input 
-          type="text" 
-          placeholder="Search skills ..." 
-          className="w-full h-[54px] bg-white border border-black/10 rounded-[10px] pl-[52px] pr-12 text-[17px] font-sans text-brand-black placeholder:text-black outline-none focus:border-brand-blue/30 transition-all font-medium"
+        {/* Tags — positioned vertically alongside chart on desktop */}
+        <div className="relative w-[200px] flex-shrink-0 ml-2">
+          <div style={{ position: 'absolute', top: '10.5%', transform: 'translateY(-50%)' }}>
+            <LeaderboardTag label="@lakshit/web2-ui" color="#FFB300" />
+          </div>
+          <div style={{ position: 'absolute', top: '29.3%', transform: 'translateY(-50%)' }}>
+            <LeaderboardTag label="@daksh/system-design" color="#CF0003" />
+          </div>
+          <div style={{ position: 'absolute', top: '50.5%', transform: 'translateY(-50%)' }}>
+            <LeaderboardTag label="@rahul/web2-security" color="#1A5FED" />
+          </div>
+        </div>
+      </div>
+
+      {/* Search Bar — navigates to /search/ */}
+      <div className="mx-3 sm:mx-5 mb-3 sm:mb-5 mt-3 sm:mt-4 relative cursor-pointer" onClick={() => router.push('/search/')}>
+        <div className="absolute left-[10px] sm:left-[16px] top-1/2 -translate-y-1/2 opacity-60 pointer-events-none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="sm:w-[18px] sm:h-[18px] lg:w-[24px] lg:h-[24px]">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          placeholder="Search skills ..."
+          readOnly
+          onClick={() => router.push('/search/')}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === '/') router.push('/search/'); }}
+          className="w-full h-[34px] sm:h-[44px] lg:h-[56px] border border-[#E2E0E6] rounded-[4px] pl-[30px] sm:pl-[40px] lg:pl-[52px] pr-8 sm:pr-10 lg:pr-12 text-[11px] sm:text-[14px] lg:text-[20px] font-mono text-black placeholder:text-black/60 outline-none focus:border-[#1A5FED]/30 transition-all font-light tracking-tight cursor-pointer"
+          style={{ background: '#F5F5F2' }}
         />
-      
+        <div className="absolute right-[10px] sm:right-[14px] lg:right-[16px] top-1/2 -translate-y-1/2 pointer-events-none">
+          <span className="text-[12px] sm:text-[16px] lg:text-[22px] text-black/60 font-mono font-light tracking-tight">/</span>
+        </div>
       </div>
     </div>
   );
 };
-
-
-

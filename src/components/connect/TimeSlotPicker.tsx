@@ -31,10 +31,8 @@ export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
     return `${hour12}:${minutes} ${ampm}`;
   };
 
-  const formattedDate = selectedDate.toLocaleDateString('en-US', { 
-    weekday: 'short', 
-    day: 'numeric' 
-  });
+  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const formattedDate = `${DAYS[selectedDate.getDay()]} ${selectedDate.getDate()}`;
 
   return (
     <div className="flex flex-col w-full h-full max-w-[320px]">

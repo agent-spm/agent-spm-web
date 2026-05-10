@@ -40,7 +40,7 @@ export default function HomePage() {
             {/* CTA */}
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
-                href="/search"
+                href="/search/"
                 className="group inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-500/25 transition-all hover:bg-brand-700 hover:shadow-brand-500/40"
               >
                 Explore Packages

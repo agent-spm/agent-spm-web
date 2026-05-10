@@ -1,18 +1,16 @@
 import type { NextConfig } from "next";
-import { securityHeaders } from "./src/lib/security/headers";
 
 const nextConfig: NextConfig = {
+  // Static export for easy deployment on Hostinger Shared Hosting
+  output: "export",
+  trailingSlash: true,
   turbopack: {
     // Set to project root to avoid climbing up and hitting permission errors
     root: process.cwd(),
   },
   images: {
+    unoptimized: true, // Required for static export
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "*.supabase.co",
-        pathname: "/storage/v1/object/public/**",
-      },
       {
         protocol: "https",
         hostname: "avatars.githubusercontent.com",
@@ -25,16 +23,6 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ["shiki"],
-  poweredByHeader: false,
-  async headers() {
-    return [
-      {
-        source: "/(.*)",
-        headers: securityHeaders,
-      },
-    ];
-  },
 };
 
 export default nextConfig;
-
