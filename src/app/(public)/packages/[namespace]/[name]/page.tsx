@@ -127,7 +127,7 @@ export default async function PackageDetailPage({
         <div className="space-y-8">
           {/* Metadata Section */}
           <div>
-            <h3 className="text-sm font-semibold text-surface-900 dark:text-surface-50 mb-4 uppercase tracking-wider">About</h3>
+              <h3 className="text-sm font-semibold text-surface-900 dark:text-surface-50 mb-4 uppercase tracking-wider">About</h3>
             <dl className="space-y-5">
               {pkg.author && (
                 <div>
@@ -145,9 +145,9 @@ export default async function PackageDetailPage({
                     <GitBranch className="h-4 w-4" /> Source
                   </dt>
                   <dd>
-                    <a href={pkg.repositoryUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline dark:text-brand-400">
+                    <Link href="/404/" className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline dark:text-brand-400">
                       GitHub Repository <ExternalLink className="inline-block h-3 w-3 ml-1" />
-                    </a>
+                    </Link>
                   </dd>
                 </div>
               )}
