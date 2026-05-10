@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Download, Clock } from "lucide-react";
 import { formatNumber, timeAgo } from "@/lib/utils";
 import type { PackageSearchResult } from "@/types/package";
@@ -11,13 +12,16 @@ interface PackageCardProps {
 export function PackageCard({ pkg }: PackageCardProps) {
   const installCmd = `spm install ${pkg.namespace}/${pkg.name}`;
 
-  const handleCopy = () => {
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault(); // Don't navigate when clicking copy
+    e.stopPropagation();
     navigator.clipboard.writeText(installCmd);
   };
 
   return (
-    <div
-      className="group block rounded-xl border border-surface-200 bg-surface-0 p-5 transition-all hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/5 dark:border-surface-800 dark:bg-surface-950 dark:hover:border-brand-700 cursor-default"
+    <Link
+      href={`/packages/${pkg.namespace}/${pkg.name}/`}
+      className="group block rounded-xl border border-surface-200 bg-surface-0 p-5 transition-all hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/5 dark:border-surface-800 dark:bg-surface-950 dark:hover:border-brand-700"
     >
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -77,6 +81,6 @@ export function PackageCard({ pkg }: PackageCardProps) {
           ))}
         </div>
       )}
-    </div>
+    </Link>
   );
 }
