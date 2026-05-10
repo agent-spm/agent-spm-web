@@ -8,8 +8,8 @@ export const REGISTRY_API_URL =
 
 export const NAV_ITEMS = [
   { label: "Explore", href: "/" },
-  { label: "Search", href: "/search" },
-  { label: "Documentation", href: "/docs" },
+  { label: "Search", href: "/search/" },
+  { label: "Documentation", href: "/search/" },
 ] as const;
 
 export const DASHBOARD_NAV_ITEMS = [

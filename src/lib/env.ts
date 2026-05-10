@@ -1,19 +1,10 @@
 /**
  * Centralized environment variable validation.
- * Throws at build/boot time if any required variable is missing,
- * preventing hard-to-debug runtime errors.
+ * 
+ * NOTE: Supabase and Polar env vars are temporarily made optional
+ * so the site can be deployed as a static coming-soon page
+ * without requiring backend credentials.
  */
-
-function required(key: string): string {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(
-      `❌ Missing required environment variable: ${key}\n` +
-        `   Add it to your .env.local file or deployment environment.`
-    );
-  }
-  return value;
-}
 
 function optional(key: string, fallback = ""): string {
   return process.env[key] || fallback;
@@ -27,12 +18,12 @@ function optional(key: string, fallback = ""): string {
  *   const url = env.NEXT_PUBLIC_SUPABASE_URL;
  */
 export const env = {
-  // ── Supabase ──────────────────────────────────────────────
-  NEXT_PUBLIC_SUPABASE_URL: required("NEXT_PUBLIC_SUPABASE_URL"),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: required("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
-  SUPABASE_SERVICE_KEY: required("SUPABASE_SERVICE_KEY"),
+  // ── Supabase (temporarily optional for coming-soon deploy) ──
+  NEXT_PUBLIC_SUPABASE_URL: optional("NEXT_PUBLIC_SUPABASE_URL"),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: optional("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+  SUPABASE_SERVICE_KEY: optional("SUPABASE_SERVICE_KEY"),
 
-  // ── Polar.sh ──────────────────────────────────────────────
+  // ── Polar.sh (temporarily optional for coming-soon deploy) ──
   POLAR_ACCESS_TOKEN: optional("POLAR_ACCESS_TOKEN"),
   POLAR_WEBHOOK_SECRET: optional("POLAR_WEBHOOK_SECRET"),
 

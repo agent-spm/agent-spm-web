@@ -18,7 +18,7 @@ export function SearchFilters() {
   function handleSort(sort: string) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("sort", sort);
-    router.push(`/search?${params.toString()}`);
+    router.push(`/search/?${params.toString()}`);
   }
 
   return (

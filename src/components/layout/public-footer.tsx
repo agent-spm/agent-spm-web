@@ -6,28 +6,27 @@ import { usePathname } from "next/navigation";
 
 const footerLinks = {
   Product: [
-/* ... truncated for readability here, but I will provide the full file contents in the tool call if needed ... */
-    { label: "Pricing", href: "/pricing" },
-    { label: "Documentation", href: "/docs" },
+    { label: "Pricing", href: "/search/" },
+    { label: "Documentation", href: "/search/" },
   ],
   Resources: [
-    { label: "CLI Guide", href: "/docs/cli" },
-    { label: "Publishing", href: "/docs/publishing" },
-    { label: "API Reference", href: "/docs/api" },
+    { label: "CLI Guide", href: "/search/" },
+    { label: "Publishing", href: "/search/" },
+    { label: "API Reference", href: "/search/" },
     { label: "Status", href: "https://status.spm.dev" },
   ],
   Company: [
-    { label: "About", href: "/about" },
-    { label: "Blog", href: "/blog" },
-    { label: "Terms", href: "/terms" },
-    { label: "Privacy", href: "/privacy" },
+    { label: "About", href: "/search/" },
+    { label: "Blog", href: "/search/" },
+    { label: "Terms", href: "/search/" },
+    { label: "Privacy", href: "/search/" },
   ],
 };
 
 export function PublicFooter() {
   const pathname = usePathname();
 
-  if (pathname === "/connect") return null;
+  if (pathname === "/connect" || pathname === "/connect/") return null;
 
   return (
     <footer className="border-t border-surface-200 bg-surface-50 dark:border-surface-800 dark:bg-surface-950">
@@ -60,7 +59,7 @@ export function PublicFooter() {
               </h3>
               <ul className="mt-3 space-y-2">
                 {links.map((link) => (
-                  <li key={link.href}>
+                  <li key={link.label}>
                     <Link
                       href={link.href}
                       className="text-sm text-surface-500 transition-colors hover:text-brand-500 dark:text-surface-400 dark:hover:text-brand-400"

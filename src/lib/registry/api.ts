@@ -58,7 +58,7 @@ class RegistryApiClient {
         { revalidate: 30 }
       );
     } catch (e) {
-      console.warn("Using mock data for searchPackages due to API error", e);
+      console.warn(`[SPM] API unavailable — using mock data for search (${e instanceof Error ? e.message : e})`);
       let results = MOCK_PACKAGES;
       if (params.query) {
         const q = params.query.toLowerCase();
@@ -80,7 +80,7 @@ class RegistryApiClient {
         revalidate: 600,
       });
     } catch (e) {
-      console.warn("Using mock data for getFeaturedPackages due to API error", e);
+      console.warn(`[SPM] API unavailable — using mock data for featured (${e instanceof Error ? e.message : e})`);
       return {
         packages: MOCK_PACKAGES.slice(0, 3),
         total: Math.min(MOCK_PACKAGES.length, 3),

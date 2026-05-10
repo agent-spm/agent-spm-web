@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Download, Clock } from "lucide-react";
 import { formatNumber, timeAgo } from "@/lib/utils";
@@ -8,9 +10,17 @@ interface PackageCardProps {
 }
 
 export function PackageCard({ pkg }: PackageCardProps) {
+  const installCmd = `spm install ${pkg.namespace}/${pkg.name}`;
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault(); // Don't navigate when clicking copy
+    e.stopPropagation();
+    navigator.clipboard.writeText(installCmd);
+  };
+
   return (
     <Link
-      href={`/packages/${pkg.namespace}/${pkg.name}`}
+      href={`/packages/${pkg.namespace}/${pkg.name}/`}
       className="group block rounded-xl border border-surface-200 bg-surface-0 p-5 transition-all hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/5 dark:border-surface-800 dark:bg-surface-950 dark:hover:border-brand-700"
     >
       {/* Header */}
@@ -29,8 +39,22 @@ export function PackageCard({ pkg }: PackageCardProps) {
         </span>
       </div>
 
+      {/* Install command */}
+      <div className="mt-3 flex items-center gap-2">
+        <code className="flex-1 truncate rounded-md bg-surface-100 px-3 py-1.5 font-mono text-xs text-surface-600 dark:bg-surface-900 dark:text-surface-300">
+          $ {installCmd}
+        </code>
+        <button
+          onClick={handleCopy}
+          className="shrink-0 rounded-md border border-surface-200 bg-surface-50 px-2 py-1.5 text-xs text-surface-500 transition-colors hover:bg-brand-50 hover:text-brand-600 hover:border-brand-300 dark:border-surface-700 dark:bg-surface-800 dark:hover:bg-brand-950 dark:hover:text-brand-400"
+          title="Copy install command"
+        >
+          Copy
+        </button>
+      </div>
+
       {/* Footer */}
-      <div className="mt-4 flex items-center gap-4 text-xs text-surface-400">
+      <div className="mt-3 flex items-center gap-4 text-xs text-surface-400">
         <span className="flex items-center gap-1">
           <Download className="h-3.5 w-3.5" />
           {formatNumber(pkg.weeklyDownloads)}/wk

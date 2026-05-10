@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+
 
 const NavButton = ({ 
   prefixChar, 
@@ -47,10 +47,9 @@ const NavButton = ({
 };
 
 export const Navbar = () => {
-  const pathname = usePathname();
 
   return (
-    <nav className="flex items-center px-2 py-6 w-full gap-[10px]" aria-label="Main navigation">
+    <nav className="flex flex-wrap items-center gap-2 sm:gap-[10px] py-4 sm:py-6 w-full" aria-label="Main navigation">
       {/* Logo Container */}
       <div className="flex items-center justify-center -mr-0.5">
         <Image 
@@ -67,11 +66,11 @@ export const Navbar = () => {
 
       {/* Nav Links Group */}
       <NavButton prefixChar="H" label="HOME" href="/" />
-      <NavButton prefixChar="B" label="BLOG" href="/blog" />
-      <NavButton prefixChar="D" label="DOCS" href="/search" />
-      <NavButton prefixChar="Y" label="YOUTUBE" href="/youtube" />
-      <NavButton prefixChar="G" label="GITHUB" href="/github"  />
-      <NavButton prefixChar="C" label="CONNECT" href="/connect" />
+      <NavButton prefixChar="B" label="BLOG" href="/search/" />
+      <NavButton prefixChar="D" label="DOCS" href="/search/" />
+      <NavButton prefixChar="Y" label="YOUTUBE" href="/search/" />
+      <NavButton prefixChar="G" label="GITHUB" href="/search/"  />
+      <NavButton prefixChar="C" label="CONNECT" href="/connect/" />
 
       <NavButton 
         ariaLabel="Follow us on X (Twitter)"

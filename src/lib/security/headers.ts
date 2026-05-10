@@ -1,6 +1,9 @@
 /**
  * Security headers for the Next.js application.
  * Applied via next.config.ts headers() function.
+ * 
+ * NOTE: Supabase and Polar CSP connect-src entries are temporarily
+ * kept as comments. Re-enable when backend services are connected.
  */
 
 export const securityHeaders = [
@@ -39,8 +42,10 @@ export const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https://*.supabase.co",
-      "connect-src 'self' https://*.supabase.co https://api.polar.sh",
+      "img-src 'self' data: blob: https:",
+      // Supabase & Polar connect-src temporarily removed
+      // Re-enable: "connect-src 'self' blob: https://*.supabase.co https://api.polar.sh https://raw.githack.com",
+      "connect-src 'self' blob: https://raw.githack.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },
