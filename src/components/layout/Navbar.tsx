@@ -85,7 +85,7 @@ const MobileNavItem = ({ num, label, shortcut, href, onClick, index }: MobileNav
       onClick={onClick}
       className="flex items-center justify-between py-5 border-b border-black/5 group cursor-pointer active:bg-black/[0.02] transition-colors"
       style={{
-        animation: `slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both`,
+        animation: `slideInRightElastic 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both`,
         animationDelay: `${0.06 * index}s`
       }}
     >
@@ -149,68 +149,74 @@ export const Navbar = () => {
 
       </nav>
 
-      {/* ── MOBILE FULL SCREEN TOP-DOWN OVERLAY ── */}
+      {/* ── PREMIUM MOBILE FLOATING CARD SPRING OVERLAY ── */}
       {menuOpen && (
         <div 
-          className="fixed inset-0 z-[9999] bg-[#F4F4F2] flex flex-col justify-between p-6 overflow-y-auto animate-[slideInDown_0.35s_cubic-bezier(0.16,1,0.3,1)]"
+          className="fixed inset-0 z-[9999] bg-black/35 backdrop-blur-[10px] p-3 sm:p-4 flex flex-col justify-stretch animate-[fadeIn_0.25s_ease-out]"
+          onClick={() => setMenuOpen(false)}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-black/5">
-            <div className="flex items-center gap-2">
-              <Image src="/images/logo.png" alt="Agent SPM Logo" width={28} height={28} className="object-contain" />
-              <span className="font-mono text-xs font-bold tracking-widest text-black/40 uppercase">NAVIGATION</span>
-            </div>
-            
-            {/* Morphing close icon */}
-            <button 
-              className="bracket-btn p-2 flex items-center justify-center active:scale-95 transition-transform" 
-              onClick={() => setMenuOpen(false)}
-              aria-label="Close menu"
-            >
-              <CloseIcon />
-            </button>
-          </div>
-
-          {/* Premium custom list items with index numbering, hover states, and micro-staggering */}
-          <div className="flex flex-col my-auto pt-6 pb-8">
-            <MobileNavItem num="01" label="Home"    shortcut="[H]" href="/"         onClick={() => setMenuOpen(false)} index={0} />
-            <MobileNavItem num="02" label="Blog"    shortcut="[B]" href="/search/"  onClick={() => setMenuOpen(false)} index={1} />
-            <MobileNavItem num="03" label="Docs"    shortcut="[D]" href="/search/"  onClick={() => setMenuOpen(false)} index={2} />
-            <MobileNavItem num="04" label="Youtube" shortcut="[Y]" href="/search/"  onClick={() => setMenuOpen(false)} index={3} />
-            <MobileNavItem num="05" label="Github"  shortcut="[G]" href="/search/"  onClick={() => setMenuOpen(false)} index={4} />
-            <MobileNavItem num="06" label="Connect" shortcut="[C]" href="/connect/" onClick={() => setMenuOpen(false)} index={5} />
-          </div>
-
-          {/* Footer socials and developer branding */}
-          <div className="pt-6 border-t border-black/5 flex flex-col gap-5">
-            <div className="flex items-center justify-between">
-              <span className="font-sans text-xs text-black/40 font-medium">FOLLOW US</span>
-              <div className="flex items-center gap-3">
-                <a 
-                  href="https://x.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bracket-btn w-10 h-10 flex items-center justify-center active:scale-95 transition-all"
-                  aria-label="Follow us on X"
-                >
-                  <XIcon size={18} />
-                </a>
-                <a 
-                  href="https://discord.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bracket-btn w-10 h-10 flex items-center justify-center active:scale-95 transition-all"
-                  aria-label="Join Discord"
-                >
-                  <DiscordIcon size={20} />
-                </a>
+          {/* Unfolding Elastic Card Container */}
+          <div 
+            className="w-full h-full bg-[#F4F4F2]/98 backdrop-blur-md rounded-[20px] shadow-2xl border border-white/40 p-6 flex flex-col justify-between overflow-y-auto animate-[scaleInFade_0.4s_cubic-bezier(0.34,1.56,0.64,1)_both]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-black/5">
+              <div className="flex items-center gap-2">
+                <Image src="/images/logo.png" alt="Agent SPM Logo" width={28} height={28} className="object-contain" />
+                <span className="font-mono text-xs font-bold tracking-widest text-black/40 uppercase">NAVIGATION</span>
               </div>
+              
+              <button 
+                className="bracket-btn p-2 flex items-center justify-center active:scale-95 transition-transform" 
+                onClick={() => setMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <CloseIcon />
+              </button>
             </div>
-            <span className="font-mono text-[10px] text-black/35 tracking-wider text-center">
-              © {new Date().getFullYear()} AGENT SPM PLATFORM
-            </span>
-          </div>
 
+            {/* Staggered Elastic Items */}
+            <div className="flex flex-col my-auto pt-4 pb-6">
+              <MobileNavItem num="01" label="Home"    shortcut="[H]" href="/"         onClick={() => setMenuOpen(false)} index={0} />
+              <MobileNavItem num="02" label="Blog"    shortcut="[B]" href="/search/"  onClick={() => setMenuOpen(false)} index={1} />
+              <MobileNavItem num="03" label="Docs"    shortcut="[D]" href="/search/"  onClick={() => setMenuOpen(false)} index={2} />
+              <MobileNavItem num="04" label="Youtube" shortcut="[Y]" href="/search/"  onClick={() => setMenuOpen(false)} index={3} />
+              <MobileNavItem num="05" label="Github"  shortcut="[G]" href="/search/"  onClick={() => setMenuOpen(false)} index={4} />
+              <MobileNavItem num="06" label="Connect" shortcut="[C]" href="/connect/" onClick={() => setMenuOpen(false)} index={5} />
+            </div>
+
+            {/* Footer with branding */}
+            <div className="pt-5 border-t border-black/5 flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <span className="font-sans text-xs text-black/40 font-medium">FOLLOW US</span>
+                <div className="flex items-center gap-3">
+                  <a 
+                    href="https://x.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bracket-btn w-9 h-9 flex items-center justify-center active:scale-95 transition-all"
+                    aria-label="Follow us on X"
+                  >
+                    <XIcon size={16} />
+                  </a>
+                  <a 
+                    href="https://discord.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bracket-btn w-9 h-9 flex items-center justify-center active:scale-95 transition-all"
+                    aria-label="Join Discord"
+                  >
+                    <DiscordIcon size={18} />
+                  </a>
+                </div>
+              </div>
+              <span className="font-mono text-[9px] text-black/35 tracking-wider text-center">
+                © {new Date().getFullYear()} AGENT SPM PLATFORM
+              </span>
+            </div>
+
+          </div>
         </div>
       )}
     </>
