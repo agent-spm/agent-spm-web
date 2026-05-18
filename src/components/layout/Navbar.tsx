@@ -129,6 +129,7 @@ export const Navbar = () => {
           <NavButton prefixChar="H" label="HOME"    href="/" />
           <NavButton prefixChar="B" label="BLOG"    href="/search/" />
           <NavButton prefixChar="D" label="DOCS"    href="/search/" />
+          <NavButton prefixChar="P" label="PRICING" href="/pricing/" />
           <NavButton prefixChar="Y" label="YOUTUBE" href="/search/" />
           <NavButton prefixChar="G" label="GITHUB"  href="/search/" />
           <NavButton prefixChar="C" label="CONNECT" href="/connect/" />
@@ -181,9 +182,10 @@ export const Navbar = () => {
               <MobileNavItem num="01" label="Home"    shortcut="[H]" href="/"         onClick={() => setMenuOpen(false)} index={0} />
               <MobileNavItem num="02" label="Blog"    shortcut="[B]" href="/search/"  onClick={() => setMenuOpen(false)} index={1} />
               <MobileNavItem num="03" label="Docs"    shortcut="[D]" href="/search/"  onClick={() => setMenuOpen(false)} index={2} />
-              <MobileNavItem num="04" label="Youtube" shortcut="[Y]" href="/search/"  onClick={() => setMenuOpen(false)} index={3} />
-              <MobileNavItem num="05" label="Github"  shortcut="[G]" href="/search/"  onClick={() => setMenuOpen(false)} index={4} />
-              <MobileNavItem num="06" label="Connect" shortcut="[C]" href="/connect/" onClick={() => setMenuOpen(false)} index={5} />
+              <MobileNavItem num="04" label="Pricing" shortcut="[P]" href="/pricing/" onClick={() => setMenuOpen(false)} index={3} />
+              <MobileNavItem num="05" label="Youtube" shortcut="[Y]" href="/search/"  onClick={() => setMenuOpen(false)} index={4} />
+              <MobileNavItem num="06" label="Github"  shortcut="[G]" href="/search/"  onClick={() => setMenuOpen(false)} index={5} />
+              <MobileNavItem num="07" label="Connect" shortcut="[C]" href="/connect/" onClick={() => setMenuOpen(false)} index={6} />
             </div>
 
             {/* Footer with branding */}
