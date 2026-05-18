@@ -126,9 +126,9 @@ export const Leaderboard = () => {
       </div>
 
       {/* Search Bar — navigates to /search/ */}
-      <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 mt-2 sm:mt-3 relative cursor-pointer" onClick={() => router.push('/search/')}>
-        <div className="absolute left-[8px] sm:left-[12px] top-1/2 -translate-y-1/2 opacity-50 pointer-events-none">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="sm:w-[13px] sm:h-[13px] lg:w-[14px] lg:h-[14px]">
+      <div className="mx-3 sm:mx-4 mb-3 sm:mb-4 mt-2 sm:mt-3 relative cursor-pointer" onClick={() => router.push('/search/')}>
+        <div className="absolute left-[10px] sm:left-[14px] top-1/2 -translate-y-1/2 opacity-50 pointer-events-none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="sm:w-[15px] sm:h-[15px] lg:w-[16px] lg:h-[16px]">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
           </svg>
         </div>
@@ -138,7 +138,7 @@ export const Leaderboard = () => {
           readOnly
           onClick={() => router.push('/search/')}
           onKeyDown={(e) => { if (e.key === 'Enter') router.push('/search/'); }}
-          className="w-full h-[30px] sm:h-[34px] lg:h-[38px] border border-[#E2E0E6] rounded-[4px] pl-[26px] sm:pl-[30px] lg:pl-[34px] pr-3 text-[10px] sm:text-[11px] lg:text-[12px] font-mono text-black placeholder:text-black/50 outline-none focus:border-[#1A5FED]/30 transition-all font-light tracking-tight cursor-pointer"
+          className="w-full h-[44px] sm:h-[48px] lg:h-[50px] border border-[#E2E0E6] rounded-[4px] pl-[32px] sm:pl-[36px] lg:pl-[38px] pr-4 text-[12px] sm:text-[13px] lg:text-[14px] font-mono text-black placeholder:text-black/50 outline-none focus:border-[#1A5FED]/30 transition-all font-light tracking-tight cursor-pointer"
           style={{ background: '#F5F5F2' }}
         />
       </div>
