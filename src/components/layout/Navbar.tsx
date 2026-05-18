@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -10,7 +10,8 @@ const NavButton = ({
   active = false,
   icon,
   href,
-  ariaLabel
+  ariaLabel,
+  onClick
 }: { 
   prefixChar?: string; 
   label?: string; 
@@ -18,9 +19,14 @@ const NavButton = ({
   icon?: React.ReactNode;
   href?: string;
   ariaLabel?: string;
+  onClick?: () => void;
 }) => {
   const content = (
-    <button className={`bracket-btn ${active ? 'active' : ''}`} aria-label={ariaLabel || label}>
+    <button 
+      className={`bracket-btn ${active ? 'active' : ''}`} 
+      aria-label={ariaLabel || label}
+      onClick={onClick}
+    >
       {icon ? (
         <span className="flex items-center justify-center">{icon}</span>
       ) : (
@@ -31,7 +37,7 @@ const NavButton = ({
       )}
     </button>
   );
-  if (href) return <Link href={href}>{content}</Link>;
+  if (href) return <Link href={href} onClick={onClick}>{content}</Link>;
   return content;
 };
 
@@ -50,6 +56,13 @@ const GridMenuIcon = () => (
   </svg>
 );
 
+const CloseIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+);
+
 const XIcon = ({ size = 20 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -63,39 +76,114 @@ const DiscordIcon = ({ size = 22 }: { size?: number }) => (
 );
 
 export const Navbar = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <nav className="flex items-center gap-2 sm:gap-[10px] py-4 sm:py-5 w-full" aria-label="Main navigation">
+    <>
+      <nav className="flex items-center gap-2 sm:gap-[10px] py-4 sm:py-5 w-full" aria-label="Main navigation">
 
-      {/* Logo — always visible */}
-      <div className="flex items-center justify-center flex-shrink-0">
-        <Image src="/images/logo.png" alt="Agent SPM Logo" width={32} height={32} className="object-contain" />
-      </div>
+        {/* Logo — Wrap in Link to refresh/navigate home */}
+        <Link href="/" className="flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-80 active:scale-95 transition-all">
+          <Image src="/images/logo.png" alt="Agent SPM Logo" width={32} height={32} className="object-contain" />
+        </Link>
 
-      {/* ── MOBILE ONLY: X + Discord right next to logo ── */}
-      <div className="flex items-center gap-2 lg:hidden">
-        <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={18} />} />
-        <NavButton ariaLabel="Join us on Discord"       icon={<DiscordIcon size={20} />} />
-      </div>
+        {/* ── MOBILE ONLY: X + Discord right next to logo ── */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={18} />} />
+          <NavButton ariaLabel="Join us on Discord"       icon={<DiscordIcon size={20} />} />
+        </div>
 
-      {/* ── DESKTOP ONLY: all text nav links + social icons ── */}
-      <div className="hidden lg:flex items-center gap-[10px] flex-nowrap">
-        <NavButton prefixChar="H" label="HOME"    href="/" />
-        <NavButton prefixChar="B" label="BLOG"    href="/search/" />
-        <NavButton prefixChar="D" label="DOCS"    href="/search/" />
-        <NavButton prefixChar="Y" label="YOUTUBE" href="/search/" />
-        <NavButton prefixChar="G" label="GITHUB"  href="/search/" />
-        <NavButton prefixChar="C" label="CONNECT" href="/connect/" />
-        <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={20} />} />
-        <NavButton ariaLabel="Join us on Discord"       icon={<DiscordIcon size={22} />} />
-      </div>
+        {/* ── DESKTOP ONLY: all text nav links + social icons ── */}
+        <div className="hidden lg:flex items-center gap-[10px] flex-nowrap">
+          <NavButton prefixChar="H" label="HOME"    href="/" />
+          <NavButton prefixChar="B" label="BLOG"    href="/search/" />
+          <NavButton prefixChar="D" label="DOCS"    href="/search/" />
+          <NavButton prefixChar="Y" label="YOUTUBE" href="/search/" />
+          <NavButton prefixChar="G" label="GITHUB"  href="/search/" />
+          <NavButton prefixChar="C" label="CONNECT" href="/connect/" />
+          <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={20} />} />
+          <NavButton ariaLabel="Join us on Discord"       icon={<DiscordIcon size={22} />} />
+        </div>
 
-      {/* ── MOBILE ONLY: 3×3 grid menu icon pushed to the far right ── */}
-      <div className="ml-auto lg:hidden">
-        <button className="bracket-btn" aria-label="Open menu">
-          <GridMenuIcon />
-        </button>
-      </div>
+        {/* ── MOBILE ONLY: 3×3 grid menu icon pushed to the far right ── */}
+        <div className="ml-auto lg:hidden">
+          <button 
+            className="bracket-btn flex items-center justify-center" 
+            aria-label="Open menu"
+            onClick={() => setMenuOpen(true)}
+          >
+            <GridMenuIcon />
+          </button>
+        </div>
 
-    </nav>
+      </nav>
+
+      {/* ── MOBILE MENU OVERLAY: Beautiful animated drawer with micro-interactions ── */}
+      {menuOpen && (
+        <div 
+          className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex justify-end animate-[fadeIn_0.2s_ease-out]"
+          onClick={() => setMenuOpen(false)}
+        >
+          {/* Drawer Container */}
+          <div 
+            className="w-[280px] h-full bg-[#F4F4F2] shadow-2xl p-6 flex flex-col gap-6 animate-[slideInRight_0.25s_cubic-bezier(0.16,1,0.3,1)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-black/5">
+              <div className="flex items-center gap-2">
+                <Image src="/images/logo.png" alt="Agent SPM Logo" width={28} height={28} className="object-contain" />
+                <span className="font-mono text-sm font-semibold tracking-tight text-black">SPM MENU</span>
+              </div>
+              <button 
+                className="bracket-btn p-1.5 flex items-center justify-center active:scale-95 transition-transform" 
+                onClick={() => setMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+
+            {/* Nav Links */}
+            <div className="flex flex-col gap-3">
+              <NavButton prefixChar="H" label="HOME"    href="/" onClick={() => setMenuOpen(false)} />
+              <NavButton prefixChar="B" label="BLOG"    href="/search/" onClick={() => setMenuOpen(false)} />
+              <NavButton prefixChar="D" label="DOCS"    href="/search/" onClick={() => setMenuOpen(false)} />
+              <NavButton prefixChar="Y" label="YOUTUBE" href="/search/" onClick={() => setMenuOpen(false)} />
+              <NavButton prefixChar="G" label="GITHUB"  href="/search/" onClick={() => setMenuOpen(false)} />
+              <NavButton prefixChar="C" label="CONNECT" href="/connect/" onClick={() => setMenuOpen(false)} />
+            </div>
+
+            {/* Footer with social accounts & branding */}
+            <div className="mt-auto pt-6 border-t border-black/5 flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <a 
+                  href="https://x.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bracket-btn w-10 h-10 flex items-center justify-center active:scale-95 transition-all"
+                  aria-label="Follow us on X"
+                >
+                  <XIcon size={18} />
+                </a>
+                <a 
+                  href="https://discord.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bracket-btn w-10 h-10 flex items-center justify-center active:scale-95 transition-all"
+                  aria-label="Join Discord"
+                >
+                  <DiscordIcon size={20} />
+                </a>
+              </div>
+              <span className="font-sans text-[11px] text-black/40 font-medium">
+                © {new Date().getFullYear()} Agent SPM. All rights reserved.
+              </span>
+            </div>
+
+          </div>
+        </div>
+      )}
+    </>
   );
 };
