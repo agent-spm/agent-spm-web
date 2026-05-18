@@ -87,7 +87,7 @@ export const Leaderboard = () => {
       </div>
 
       {/* ── DESKTOP LAYOUT (>= lg): chart + tags side by side ── */}
-      <div className="hidden lg:flex flex-1 mt-3 mx-3 min-h-[450px]">
+      <div className="hidden lg:flex flex-1 mt-2 mx-3 min-h-0 overflow-hidden">
         {/* Y-axis labels */}
         <div className="relative w-[48px] flex-shrink-0 text-[16px] text-[#979794] font-sans font-medium tracking-tight">
           <div style={{ position: 'absolute', top: '10.5%' }}>350k</div>

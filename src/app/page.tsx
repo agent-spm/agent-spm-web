@@ -4,23 +4,20 @@ import { Leaderboard } from "@/components/dashboard/Leaderboard";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#F4F4F2] overflow-x-hidden">
-      <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-12">
-        {/* Navbar spans full width */}
-        <Navbar />
+    <main className="h-screen overflow-hidden bg-[#F4F4F2]">
+      <div className="w-full max-w-[1500px] mx-auto h-full flex">
 
-        {/* Content grid: stacks on mobile, side-by-side on desktop */}
-        <div className="flex flex-col lg:flex-row gap-8 xl:gap-16 min-h-[calc(100vh-80px)] pb-8 lg:pb-0">
-          {/* Left Column: Hero */}
-          <div className="w-full lg:w-[55%] xl:w-[50%] flex-shrink-0">
-            <Hero />
-          </div>
-          
-          {/* Right Column: Leaderboard Widget */}
-          <div className="w-full lg:flex-1 min-w-0">
-            <Leaderboard />
-          </div>
+        {/* ── LEFT HALF: Navbar (top) + Hero text + Bubbles (below) ── */}
+        <div className="flex flex-col w-full lg:w-[50%] xl:w-[52%] h-full px-4 sm:px-6 lg:px-10 flex-shrink-0 overflow-hidden">
+          <Navbar />
+          <Hero />
         </div>
+
+        {/* ── RIGHT HALF: Leaderboard — full height, top to bottom ── */}
+        <div className="hidden lg:flex flex-col flex-1 h-full py-4 pr-4 sm:pr-6 lg:pr-10 min-w-0">
+          <Leaderboard />
+        </div>
+
       </div>
     </main>
   );
