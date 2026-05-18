@@ -7,12 +7,12 @@ import { usePathname } from "next/navigation";
 const footerLinks = {
   Product: [
     { label: "Pricing", href: "/pricing/" },
-    { label: "Documentation", href: "/search/" },
+    { label: "Documentation", href: "/docs" },
   ],
   Resources: [
-    { label: "CLI Guide", href: "/search/" },
-    { label: "Publishing", href: "/search/" },
-    { label: "API Reference", href: "/search/" },
+    { label: "CLI Guide", href: "/docs/getting-started" },
+    { label: "Publishing", href: "/docs/publishing" },
+    { label: "API Reference", href: "/docs/skill-api" },
     { label: "Status", href: "https://status.spm.dev" },
   ],
   Company: [
