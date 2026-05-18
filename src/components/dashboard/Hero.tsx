@@ -251,14 +251,14 @@ export const Hero = () => {
     <section className="relative flex flex-col flex-1 min-h-0 pt-3 sm:pt-4 pb-3 sm:pb-4">
       {/* Text */}
       <div className="relative z-10 w-full flex-shrink-0">
-        <h1 className="text-[clamp(1.8rem,4.5vw,3.75rem)] leading-[0.95] font-extralight text-brand-black">
+        <h1 className="text-[clamp(2.4rem,5vw,3.75rem)] leading-[0.93] font-extralight text-brand-black">
           Welcome to
         </h1>
-        <h1 className="text-[clamp(1.8rem,4.5vw,3.75rem)] leading-[0.95] font-medium text-brand-blue">
+        <h1 className="text-[clamp(2.4rem,5vw,3.75rem)] leading-[0.93] font-medium text-brand-blue">
           Agent Skills<br />
           Package Manager
         </h1>
-        <p className="mt-3 sm:mt-4 text-[clamp(0.8rem,1.2vw,1.1rem)] leading-[1.5] font-normal font-sans text-brand-black/80 max-w-[640px]">
+        <p className="mt-3 sm:mt-4 text-[clamp(0.85rem,1.2vw,1.1rem)] leading-[1.55] font-normal font-sans text-brand-black/80 max-w-[640px]">
           Stop rebuilding. Start compounding. Skills arm your agents with
           battle-tested procedural knowledge — installed in seconds,
           shared across teams, refined over time. We&apos;re building the arsenal.
