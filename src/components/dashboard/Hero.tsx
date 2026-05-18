@@ -61,7 +61,7 @@ function PhysicsBubbles({ width, height }: { width: number; height: number }) {
 
   // Auto-scale bubbles to fill ~65% of the invisible box
   const totalArea = BUBBLES_DATA.reduce((s, b) => s + Math.PI * b.r * b.r, 0);
-  const scale = Math.sqrt((width * height * 0.62) / totalArea);
+  const scale = Math.sqrt((width * height * 0.50) / totalArea);
 
   useEffect(() => {
     if (initRef.current && bubblesRef.current.length > 0) return;
@@ -248,17 +248,17 @@ export const Hero = () => {
   }, []);
 
   return (
-    <section className="relative flex flex-col pt-4 sm:pt-8 pb-4 sm:pb-6">
+    <section className="relative flex flex-col flex-1 min-h-0 pt-3 sm:pt-4 pb-3 sm:pb-4">
       {/* Text */}
-      <div className="relative z-10 w-full">
-        <h1 className="text-[clamp(2.2rem,6vw,4.375rem)] leading-[0.95] font-extralight text-brand-black">
+      <div className="relative z-10 w-full flex-shrink-0">
+        <h1 className="text-[clamp(1.8rem,4.5vw,3.75rem)] leading-[0.95] font-extralight text-brand-black">
           Welcome to
         </h1>
-        <h1 className="text-[clamp(2.2rem,6vw,4.375rem)] leading-[0.95] font-medium text-brand-blue">
+        <h1 className="text-[clamp(1.8rem,4.5vw,3.75rem)] leading-[0.95] font-medium text-brand-blue">
           Agent Skills<br />
           Package Manager
         </h1>
-        <p className="mt-4 sm:mt-5 text-[clamp(0.875rem,1.5vw,1.25rem)] leading-[1.5] font-normal font-sans text-brand-black/80 max-w-[760px]">
+        <p className="mt-3 sm:mt-4 text-[clamp(0.8rem,1.2vw,1.1rem)] leading-[1.5] font-normal font-sans text-brand-black/80 max-w-[640px]">
           Stop rebuilding. Start compounding. Skills arm your agents with
           battle-tested procedural knowledge — installed in seconds,
           shared across teams, refined over time. We&apos;re building the arsenal.
@@ -266,11 +266,11 @@ export const Hero = () => {
         </p>
       </div>
 
-      {/* Invisible physics boundary — no border, no background difference */}
+      {/* Physics bubbles — flex-1 fills all remaining left-column height */}
       <div
         ref={boxRef}
-        className="relative z-0 mt-5 sm:mt-8 w-full"
-        style={{ height: 'clamp(280px, 40vw, 420px)' }}
+        className="relative z-0 mt-4 sm:mt-5 w-full flex-1 min-h-0"
+        style={{ minHeight: 180 }}
       >
         {dims.w > 0 && <PhysicsBubbles width={dims.w} height={dims.h} />}
       </div>
