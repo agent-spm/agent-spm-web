@@ -126,9 +126,9 @@ export const Leaderboard = () => {
       </div>
 
       {/* Search Bar — navigates to /search/ */}
-      <div className="mx-3 sm:mx-5 mb-3 sm:mb-5 mt-3 sm:mt-4 relative cursor-pointer" onClick={() => router.push('/search/')}>
-        <div className="absolute left-[10px] sm:left-[16px] top-1/2 -translate-y-1/2 opacity-60 pointer-events-none">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="sm:w-[18px] sm:h-[18px] lg:w-[24px] lg:h-[24px]">
+      <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 mt-2 sm:mt-3 relative cursor-pointer" onClick={() => router.push('/search/')}>
+        <div className="absolute left-[8px] sm:left-[12px] top-1/2 -translate-y-1/2 opacity-50 pointer-events-none">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="sm:w-[13px] sm:h-[13px] lg:w-[14px] lg:h-[14px]">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
           </svg>
         </div>
@@ -137,13 +137,10 @@ export const Leaderboard = () => {
           placeholder="Search skills ..."
           readOnly
           onClick={() => router.push('/search/')}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === '/') router.push('/search/'); }}
-          className="w-full h-[34px] sm:h-[44px] lg:h-[56px] border border-[#E2E0E6] rounded-[4px] pl-[30px] sm:pl-[40px] lg:pl-[52px] pr-8 sm:pr-10 lg:pr-12 text-[11px] sm:text-[14px] lg:text-[20px] font-mono text-black placeholder:text-black/60 outline-none focus:border-[#1A5FED]/30 transition-all font-light tracking-tight cursor-pointer"
+          onKeyDown={(e) => { if (e.key === 'Enter') router.push('/search/'); }}
+          className="w-full h-[30px] sm:h-[34px] lg:h-[38px] border border-[#E2E0E6] rounded-[4px] pl-[26px] sm:pl-[30px] lg:pl-[34px] pr-3 text-[10px] sm:text-[11px] lg:text-[12px] font-mono text-black placeholder:text-black/50 outline-none focus:border-[#1A5FED]/30 transition-all font-light tracking-tight cursor-pointer"
           style={{ background: '#F5F5F2' }}
         />
-        <div className="absolute right-[10px] sm:right-[14px] lg:right-[16px] top-1/2 -translate-y-1/2 pointer-events-none">
-          <span className="text-[12px] sm:text-[16px] lg:text-[22px] text-black/60 font-mono font-light tracking-tight">/</span>
-        </div>
       </div>
     </div>
   );
