@@ -125,7 +125,7 @@ export const Navbar = () => {
         </div>
 
         {/* ── DESKTOP ONLY: nav links ── */}
-        <div className="hidden lg:flex items-center gap-[10px] flex-nowrap">
+        <div className="hidden lg:flex items-center gap-[5px] xl:gap-[10px] flex-nowrap">
           <NavButton prefixChar="H" label="HOME"    href="/" />
           <NavButton prefixChar="B" label="BLOG"    href="/search/" />
           <NavButton prefixChar="D" label="DOCS"    href="/search/" />

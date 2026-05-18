@@ -87,7 +87,7 @@ export default async function PackageDetailPage({
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumb Navigation */}
-      <nav className="mb-6 flex items-center space-x-2 text-sm font-medium text-surface-500">
+      <nav className="mb-6 flex flex-wrap items-center gap-y-2 space-x-2 text-sm font-medium text-surface-500">
         <Link href="/search/" className="hover:text-brand-600 transition-colors">Packages</Link>
         <ChevronRight className="h-4 w-4 shrink-0 text-surface-300" />
         <span className="text-surface-600">{namespace}</span>
@@ -98,8 +98,8 @@ export default async function PackageDetailPage({
       {/* Main Header Area */}
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between mb-10">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-4">
-            <h1 className="text-4xl font-extrabold tracking-tight text-surface-900 dark:text-surface-50">
+          <div className="flex flex-wrap items-center gap-4">
+            <h1 className="text-4xl font-extrabold tracking-tight text-surface-900 dark:text-surface-50 break-words max-w-full">
               <span className="text-surface-400 font-medium">{namespace}/</span>{name}
             </h1>
             <span className="inline-flex items-center rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700 ring-1 ring-inset ring-brand-600/20 dark:bg-brand-500/10 dark:text-brand-400 dark:ring-brand-500/20">

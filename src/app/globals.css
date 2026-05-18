@@ -59,6 +59,7 @@
   .bracket-btn {
     display: inline-flex;
     align-items: center;
+    white-space: nowrap;
     padding: 6px 6px;
     border-radius: 4px;
     background: var(--color-btn-gray);
@@ -190,5 +191,13 @@
   .bracket-btn {
     font-size: 14px;
     padding: 5px 5px;
+  }
+}
+
+/* Intermediate screen sizes (1024px to 1280px) to prevent navbar wrapping/overflow */
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .bracket-btn {
+    font-size: 14px !important;
+    padding: 4px 6px !important;
   }
 }
