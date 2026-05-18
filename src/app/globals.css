@@ -135,6 +135,24 @@
     from { transform: translateX(100%); }
     to { transform: translateX(0); }
   }
+
+  /* Full Screen Slide Down from Top */
+  @keyframes slideInDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+  }
+
+  /* Menu Items Cascade Fade In & Up */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 /* Responsive bracket button sizing */
