@@ -59,30 +59,52 @@ function PhysicsBubbles({ width, height }: { width: number; height: number }) {
   const [tick, setTick] = useState(0);
   const initRef = useRef(false);
 
-  // Auto-scale bubbles to fill ~65% of the invisible box
+  const prevWidthRef = useRef(width);
+  const prevHeightRef = useRef(height);
+
+  // Auto-scale bubbles to fill ~50% of the invisible box, clamping to premium safe bounds (0.40 to 1.1)
   const totalArea = BUBBLES_DATA.reduce((s, b) => s + Math.PI * b.r * b.r, 0);
-  const scale = Math.sqrt((width * height * 0.50) / totalArea);
+  const rawScale = Math.sqrt((width * height * 0.48) / totalArea);
+  const scale = Math.max(0.40, Math.min(1.1, rawScale));
 
   useEffect(() => {
-    if (initRef.current && bubblesRef.current.length > 0) return;
     if (width === 0 || height === 0) return;
-    initRef.current = true;
 
-    const cols = 5;
-    const shuffled = jitterData(BUBBLES_DATA);
-    bubblesRef.current = shuffled.map((b, i) => {
-      const col = i % cols;
-      const spacing = width / (cols + 0.5);
-      return {
-        x: spacing * (col + 0.5) + (Math.random() - 0.5) * 20,
-        y: -(b.r * scale) - Math.random() * 150 - i * 45,
-        vx: (Math.random() - 0.5) * 1.2,
-        vy: Math.random() * 1.5,
-        r: Math.round(b.r * scale),
-        label: b.label,
-        value: b.value,
-      };
-    });
+    if (!initRef.current || bubblesRef.current.length === 0) {
+      initRef.current = true;
+      const cols = 5;
+      const shuffled = jitterData(BUBBLES_DATA);
+      bubblesRef.current = shuffled.map((b, i) => {
+        const col = i % cols;
+        const spacing = width / (cols + 0.5);
+        return {
+          x: spacing * (col + 0.5) + (Math.random() - 0.5) * 20,
+          y: -(b.r * scale) - Math.random() * 150 - i * 45,
+          vx: (Math.random() - 0.5) * 1.2,
+          vy: Math.random() * 1.5,
+          r: Math.round(b.r * scale),
+          label: b.label,
+          value: b.value,
+        };
+      });
+    } else {
+      // Dynamic responsive scaling for resize / rotation / viewport adjustments
+      const prevW = prevWidthRef.current || width;
+      const prevH = prevHeightRef.current || height;
+
+      bubblesRef.current = bubblesRef.current.map(b => {
+        const originalBase = BUBBLES_DATA.find(x => x.label === b.label)?.r || 50;
+        return {
+          ...b,
+          x: (b.x / prevW) * width,
+          y: (b.y / prevH) * height,
+          r: Math.round(originalBase * scale),
+        };
+      });
+    }
+
+    prevWidthRef.current = width;
+    prevHeightRef.current = height;
   }, [width, height, scale]);
 
   useEffect(() => {
