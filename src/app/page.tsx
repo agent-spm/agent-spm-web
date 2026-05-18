@@ -8,7 +8,7 @@ export default function Home() {
       <div className="w-full max-w-[1500px] mx-auto h-full flex">
 
         {/* ── LEFT HALF: Navbar (top) + Hero text + Bubbles (below) ── */}
-        <div className="flex flex-col w-full lg:w-[55%] xl:w-[57%] h-full px-4 sm:px-6 lg:px-8 flex-shrink-0 overflow-hidden">
+        <div className="flex flex-col w-full lg:w-[62%] xl:w-[62%] h-full px-4 sm:px-6 lg:px-8 flex-shrink-0 overflow-hidden">
           <Navbar />
           <Hero />
         </div>
