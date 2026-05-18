@@ -54,7 +54,7 @@ export default function DocsLayout({
             onClick={() => setMobileOpen(false)}
           />
           {/* Sliding Drawer Container */}
-          <div className="fixed inset-y-0 left-0 z-50 w-72 bg-surface-0 dark:bg-surface-950 p-6 overflow-y-auto border-r border-surface-200 dark:border-surface-800 shadow-2xl lg:hidden flex flex-col justify-between animate-[slideInLeftElastic_0.4s_cubic-bezier(0.34,1.56,0.64,1)_both]">
+          <div className="fixed inset-y-0 left-0 z-50 w-72 bg-[#F4F4F2] p-6 overflow-y-auto border-r border-black/10 shadow-2xl lg:hidden flex flex-col justify-between animate-[slideInLeftElastic_0.4s_cubic-bezier(0.34,1.56,0.64,1)_both] [&_span]:!text-black/80 [&_h4]:!text-black/45 [&_svg]:!text-black/40 [&_a]:!text-black/70 [&_a:hover]:!text-black [&_a:hover]:!bg-black/5 [&_a.text-brand-blue]:!text-brand-blue [&_a.text-brand-blue_svg]:!text-brand-blue [&_a.text-brand-blue]:!bg-brand-blue/5">
             <div className="space-y-6">
               {/* Drawer Title Header */}
               <div className="flex items-center justify-between pb-4 border-b border-surface-100 dark:border-surface-800">
@@ -74,7 +74,7 @@ export default function DocsLayout({
               {/* Sidebar Links */}
               <DocsSidebar onLinkClick={() => setMobileOpen(false)} />
             </div>
-            
+
             <div className="pt-4 border-t border-surface-100 dark:border-surface-800">
               <span className="text-[10px] font-mono text-surface-400">
                 spm.dev &copy; {new Date().getFullYear()}
@@ -87,7 +87,7 @@ export default function DocsLayout({
       {/* ── MAIN LAYOUT GRID ── */}
       <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-12 py-8 lg:py-12">
         <div className="flex flex-col lg:flex-row gap-12 items-start">
-          
+
           {/* Desktop Sticky Sidebar (Hidden on Mobile) */}
           <aside className="hidden lg:block w-64 shrink-0 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-surface-200 dark:scrollbar-thumb-surface-800">
             <DocsSidebar />

@@ -3,12 +3,12 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  BookOpen, 
-  Terminal, 
-  FileCode2, 
-  CloudLightning, 
-  Cpu 
+import {
+  BookOpen,
+  Terminal,
+  FileCode2,
+  CloudLightning,
+  Cpu
 } from "lucide-react";
 
 interface DocsSidebarProps {
@@ -77,15 +77,13 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
                   key={linkIdx}
                   href={link.href}
                   onClick={onLinkClick}
-                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer ${
-                    isActive
+                  className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer ${isActive
                       ? "text-brand-blue bg-brand-blue/5 dark:bg-brand-blue/10 font-semibold"
                       : "text-surface-600 hover:text-surface-900 hover:bg-surface-100 dark:text-surface-400 dark:hover:text-surface-200 dark:hover:bg-surface-900/60"
-                  }`}
+                    }`}
                 >
-                  <Icon className={`h-4.5 w-4.5 shrink-0 ${
-                    isActive ? "text-brand-blue" : "text-surface-400 dark:text-surface-500"
-                  }`} />
+                  <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? "text-brand-blue" : "text-surface-400 dark:text-surface-500"
+                    }`} />
                   <span>{link.label}</span>
                 </Link>
               );
