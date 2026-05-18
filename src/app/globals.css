@@ -153,6 +153,36 @@
       transform: translateY(0);
     }
   }
+
+  /* Premium Scale-In Spring Animation for Card */
+  @keyframes scaleInFade {
+    0% {
+      opacity: 0;
+      transform: scale(0.93) translateY(-8px);
+    }
+    70% {
+      transform: scale(1.01) translateY(1px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Staggered Elastic Slide from Right */
+  @keyframes slideInRightElastic {
+    0% {
+      opacity: 0;
+      transform: translateX(36px);
+    }
+    75% {
+      transform: translateX(-4px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
 }
 
 /* Responsive bracket button sizing */
