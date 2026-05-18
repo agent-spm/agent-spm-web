@@ -5,12 +5,51 @@ import { Download, Clock, ExternalLink, GitBranch, ChevronRight, Terminal, BookO
 import { formatNumber, timeAgo } from "@/lib/utils";
 import { CopyButton } from "@/components/ui/copy-button";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import rehypeSanitize from "rehype-sanitize";
 
-export function generateStaticParams() {
-  return MOCK_PACKAGES.map((pkg) => ({
-    namespace: pkg.namespace,
-    name: pkg.name,
-  }));
+export async function generateStaticParams() {
+  const paramsList = [
+    ...MOCK_PACKAGES.map((pkg) => ({
+      namespace: pkg.namespace,
+      name: pkg.name,
+    })),
+    // Power skills from dashboard & README
+    { namespace: "@spm", name: "env-wizard" },
+    { namespace: "@spm", name: "git-hero" },
+    { namespace: "@spm", name: "ghost-scanner" },
+    // Leaderboard entries
+    { namespace: "@lakshit", name: "web2-ui" },
+    { namespace: "@daksh", name: "system-design" },
+    { namespace: "@rahul", name: "web2-security" },
+  ];
+
+  try {
+    // Fetch live packages from the backend registry to automatically pre-render them during build-time
+    const response = await registryApi.searchPackages({ pageSize: 100 });
+    if (response && response.packages) {
+      response.packages.forEach((pkg) => {
+        paramsList.push({
+          namespace: pkg.namespace,
+          name: pkg.name,
+        });
+      });
+    }
+  } catch (error) {
+    console.warn("[SPM] Could not dynamically fetch packages during static param generation fallback:", error);
+  }
+  
+  // Clean parameter lists, removing duplicate entries if any
+  const uniqueParams = paramsList.filter(
+    (item, index, self) =>
+      self.findIndex(
+        (t) => t.namespace === item.namespace && t.name === item.name
+      ) === index
+  );
+
+  return uniqueParams;
 }
 
 export async function generateMetadata({
@@ -18,7 +57,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ namespace: string; name: string }>;
 }): Promise<Metadata> {
-  const { namespace, name } = await params;
+  const rawParams = await params;
+  const namespace = decodeURIComponent(rawParams.namespace);
+  const name = decodeURIComponent(rawParams.name);
   return {
     title: `${namespace}/${name} — SPM`,
     description: `Install and use the ${namespace}/${name} skill package for your AI agents.`,
@@ -30,7 +71,9 @@ export default async function PackageDetailPage({
 }: {
   params: Promise<{ namespace: string; name: string }>;
 }) {
-  const { namespace, name } = await params;
+  const rawParams = await params;
+  const namespace = decodeURIComponent(rawParams.namespace);
+  const name = decodeURIComponent(rawParams.name);
 
   let pkg;
   try {
@@ -114,11 +157,90 @@ export default async function PackageDetailPage({
               <BookOpen className="h-5 w-5 text-brand-600 dark:text-brand-400" />
               <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-50">Readme</h2>
             </div>
-            <div className="mt-6 prose prose-surface dark:prose-invert max-w-none prose-headings:font-semibold prose-a:text-brand-600 dark:prose-a:text-brand-400 prose-pre:bg-surface-100 dark:prose-pre:bg-surface-900 prose-pre:border prose-pre:border-surface-200 dark:prose-pre:border-surface-800">
-              {/* In a real app, you'd use a markdown parser here. For now, formatting <pre> */}
-              <pre className="whitespace-pre-wrap rounded-xl !bg-surface-50 !p-6 text-sm leading-relaxed text-surface-700 dark:!bg-surface-900/50 dark:text-surface-300 font-sans border border-surface-200 dark:border-surface-800 shadow-sm">
+            <div className="mt-6 prose prose-surface dark:prose-invert max-w-none prose-headings:font-semibold prose-a:text-brand-600 dark:prose-a:text-brand-400 prose-pre:bg-transparent prose-pre:p-0">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeHighlight, rehypeSanitize]}
+                components={{
+                  // Premium typography styling
+                  h1: ({ children }) => (
+                    <h1 className="text-3xl font-extrabold tracking-tight text-surface-900 dark:text-surface-50 mt-8 mb-4 border-b border-surface-200 dark:border-surface-800 pb-3">
+                      {children}
+                    </h1>
+                  ),
+                  h2: ({ children }) => (
+                    <h2 className="text-2xl font-bold tracking-tight text-surface-900 dark:text-surface-50 mt-8 mb-4">
+                      {children}
+                    </h2>
+                  ),
+                  h3: ({ children }) => (
+                    <h3 className="text-xl font-bold tracking-tight text-surface-800 dark:text-surface-100 mt-6 mb-3">
+                      {children}
+                    </h3>
+                  ),
+                  p: ({ children }) => (
+                    <p className="text-base leading-relaxed text-surface-600 dark:text-surface-300 my-4">
+                      {children}
+                    </p>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="list-disc pl-6 space-y-2 my-4 text-surface-600 dark:text-surface-300 text-base">
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="list-decimal pl-6 space-y-2 my-4 text-surface-600 dark:text-surface-300 text-base">
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="leading-relaxed pl-1">
+                      {children}
+                    </li>
+                  ),
+                  strong: ({ children }) => (
+                    <strong className="font-bold text-surface-900 dark:text-surface-50">
+                      {children}
+                    </strong>
+                  ),
+                  a: ({ children, href }) => (
+                    <a href={href} className="text-brand-600 dark:text-brand-400 font-semibold hover:underline hover:text-brand-700 transition-colors">
+                      {children}
+                    </a>
+                  ),
+                  // Premium styled pre for full-block code highlighting
+                  pre: ({ children }) => (
+                    <pre className="rounded-xl !bg-surface-50 !p-6 text-sm leading-relaxed text-surface-700 dark:!bg-surface-900/50 dark:text-surface-300 border border-surface-200 dark:border-surface-800 shadow-sm overflow-x-auto font-mono my-6">
+                      {children}
+                    </pre>
+                  ),
+                  // Inline code formatting to make it stand out beautifully
+                  code: ({ children, className }) => {
+                    const isInline = !className;
+                    if (isInline) {
+                      return (
+                        <code className="bg-surface-100 dark:bg-surface-800 px-1.5 py-0.5 rounded text-xs font-mono font-semibold text-brand-600 dark:text-brand-400">
+                          {children}
+                        </code>
+                      );
+                    }
+                    return <code className={className}>{children}</code>;
+                  },
+                  // Clean responsive developer tables
+                  table: ({ children }) => (
+                    <div className="overflow-x-auto my-6 border border-surface-200 dark:border-surface-800 rounded-xl">
+                      <table className="min-w-full divide-y divide-surface-200 dark:divide-surface-800">
+                        {children}
+                      </table>
+                    </div>
+                  ),
+                  thead: ({ children }) => <thead className="bg-surface-50 dark:bg-surface-900/50">{children}</thead>,
+                  th: ({ children }) => <th className="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase tracking-wider">{children}</th>,
+                  td: ({ children }) => <td className="px-6 py-4 whitespace-nowrap text-sm text-surface-900 dark:text-surface-100">{children}</td>,
+                }}
+              >
                 {pkg.readme}
-              </pre>
+              </ReactMarkdown>
             </div>
           </div>
         </div>
