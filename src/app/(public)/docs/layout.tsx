@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DocsSidebar } from "@/components/docs/DocsSidebar";
 import { Menu, X, ChevronRight, BookOpen } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function DocsLayout({
   children,
@@ -11,6 +12,13 @@ export default function DocsLayout({
   children: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Force instant scroll to very top to make navbar visible
+    window.scrollTo({ top: 0, behavior: "auto" });
+    document.documentElement.scrollTo({ top: 0, behavior: "auto" });
+  }, [pathname]);
 
   return (
     <div className="w-full bg-surface-50 dark:bg-surface-950 min-h-screen">
