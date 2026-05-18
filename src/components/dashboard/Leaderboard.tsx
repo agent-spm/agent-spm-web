@@ -4,10 +4,10 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 
 const LeaderboardTag = ({ label, color }: { label: string; color: string }) => (
-  <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-2 rounded-full shadow-sm border border-[#C9C9C9] backdrop-blur-sm min-w-0"
+  <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-sm border border-[#C9C9C9] backdrop-blur-sm min-w-0"
     style={{ background: '#F5F5F2' }}>
-    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-    <span className="text-[11px] sm:text-[13px] lg:text-[15px] font-sans font-normal text-black tracking-tight truncate max-w-[150px] lg:max-w-[170px]">{label}</span>
+    <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+    <span className="text-[10px] sm:text-[11px] lg:text-[12px] font-sans font-normal text-black tracking-tight truncate max-w-[100px] lg:max-w-[120px]">{label}</span>
   </div>
 );
 
@@ -112,7 +112,7 @@ export const Leaderboard = () => {
           </svg>
         </div>
         {/* Tags — positioned vertically alongside chart on desktop */}
-        <div className="relative w-[230px] flex-shrink-0 ml-2 overflow-hidden">
+        <div className="relative w-[155px] flex-shrink-0 ml-1 overflow-hidden">
           <div style={{ position: 'absolute', top: '10.5%', transform: 'translateY(-50%)' }}>
             <LeaderboardTag label="@lakshit/web2-ui" color="#FFB300" />
           </div>
