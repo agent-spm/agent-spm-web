@@ -128,7 +128,7 @@ export const Navbar = () => {
         <div className="hidden lg:flex items-center gap-[5px] xl:gap-[10px] flex-nowrap">
           <NavButton prefixChar="H" label="HOME"    href="/" />
           {/* <NavButton prefixChar="B" label="BLOG"    href="/search/" /> */}
-          <NavButton prefixChar="D" label="DOCS"    href="/search/" />
+          <NavButton prefixChar="D" label="DOCS"    href="/docs" />
           <NavButton prefixChar="P" label="PRICING" href="/pricing/" />
           <NavButton prefixChar="Y" label="YOUTUBE" href="/search/" />
           <NavButton prefixChar="G" label="GITHUB"  href="/search/" />
@@ -181,7 +181,7 @@ export const Navbar = () => {
             <div className="flex flex-col my-auto pt-4 pb-6">
               <MobileNavItem num="01" label="Home"    shortcut="[H]" href="/"         onClick={() => setMenuOpen(false)} index={0} />
               {/* <MobileNavItem num="02" label="Blog"    shortcut="[B]" href="/search/"  onClick={() => setMenuOpen(false)} index={1} /> */}
-              <MobileNavItem num="03" label="Docs"    shortcut="[D]" href="/search/"  onClick={() => setMenuOpen(false)} index={2} />
+              <MobileNavItem num="03" label="Docs"    shortcut="[D]" href="/docs"     onClick={() => setMenuOpen(false)} index={2} />
               <MobileNavItem num="04" label="Pricing" shortcut="[P]" href="/pricing/" onClick={() => setMenuOpen(false)} index={3} />
               <MobileNavItem num="05" label="Youtube" shortcut="[Y]" href="/search/"  onClick={() => setMenuOpen(false)} index={4} />
               <MobileNavItem num="06" label="Github"  shortcut="[G]" href="/search/"  onClick={() => setMenuOpen(false)} index={5} />
