@@ -4,10 +4,10 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 
 const LeaderboardTag = ({ label, color }: { label: string; color: string }) => (
-  <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-2 rounded-full shadow-sm border border-[#C9C9C9] backdrop-blur-sm"
+  <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-sm border border-[#C9C9C9] backdrop-blur-sm min-w-0"
     style={{ background: '#F5F5F2' }}>
-    <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-    <span className="text-[11px] sm:text-[13px] lg:text-[16px] font-sans font-normal text-black tracking-tight whitespace-nowrap">{label}</span>
+    <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+    <span className="text-[10px] sm:text-[11px] lg:text-[12px] font-sans font-normal text-black tracking-tight truncate max-w-[100px] lg:max-w-[120px]">{label}</span>
   </div>
 );
 
@@ -87,7 +87,7 @@ export const Leaderboard = () => {
       </div>
 
       {/* ── DESKTOP LAYOUT (>= lg): chart + tags side by side ── */}
-      <div className="hidden lg:flex flex-1 mt-3 mx-3 min-h-[450px]">
+      <div className="hidden lg:flex flex-1 mt-2 mx-3 min-h-0 overflow-hidden">
         {/* Y-axis labels */}
         <div className="relative w-[48px] flex-shrink-0 text-[16px] text-[#979794] font-sans font-medium tracking-tight">
           <div style={{ position: 'absolute', top: '10.5%' }}>350k</div>
@@ -112,7 +112,7 @@ export const Leaderboard = () => {
           </svg>
         </div>
         {/* Tags — positioned vertically alongside chart on desktop */}
-        <div className="relative w-[200px] flex-shrink-0 ml-2">
+        <div className="relative w-[155px] flex-shrink-0 ml-1 overflow-hidden">
           <div style={{ position: 'absolute', top: '10.5%', transform: 'translateY(-50%)' }}>
             <LeaderboardTag label="@lakshit/web2-ui" color="#FFB300" />
           </div>
@@ -126,9 +126,9 @@ export const Leaderboard = () => {
       </div>
 
       {/* Search Bar — navigates to /search/ */}
-      <div className="mx-3 sm:mx-5 mb-3 sm:mb-5 mt-3 sm:mt-4 relative cursor-pointer" onClick={() => router.push('/search/')}>
-        <div className="absolute left-[10px] sm:left-[16px] top-1/2 -translate-y-1/2 opacity-60 pointer-events-none">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="sm:w-[18px] sm:h-[18px] lg:w-[24px] lg:h-[24px]">
+      <div className="mx-3 sm:mx-4 mb-3 sm:mb-4 mt-2 sm:mt-3 relative cursor-pointer" onClick={() => router.push('/search/')}>
+        <div className="absolute left-[10px] sm:left-[14px] top-1/2 -translate-y-1/2 opacity-50 pointer-events-none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="sm:w-[15px] sm:h-[15px] lg:w-[16px] lg:h-[16px]">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
           </svg>
         </div>
@@ -137,13 +137,10 @@ export const Leaderboard = () => {
           placeholder="Search skills ..."
           readOnly
           onClick={() => router.push('/search/')}
-          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === '/') router.push('/search/'); }}
-          className="w-full h-[34px] sm:h-[44px] lg:h-[56px] border border-[#E2E0E6] rounded-[4px] pl-[30px] sm:pl-[40px] lg:pl-[52px] pr-8 sm:pr-10 lg:pr-12 text-[11px] sm:text-[14px] lg:text-[20px] font-mono text-black placeholder:text-black/60 outline-none focus:border-[#1A5FED]/30 transition-all font-light tracking-tight cursor-pointer"
+          onKeyDown={(e) => { if (e.key === 'Enter') router.push('/search/'); }}
+          className="w-full h-[44px] sm:h-[48px] lg:h-[50px] border border-[#E2E0E6] rounded-[4px] pl-[32px] sm:pl-[36px] lg:pl-[38px] pr-4 text-[12px] sm:text-[13px] lg:text-[14px] font-mono text-black placeholder:text-black/50 outline-none focus:border-[#1A5FED]/30 transition-all font-light tracking-tight cursor-pointer"
           style={{ background: '#F5F5F2' }}
         />
-        <div className="absolute right-[10px] sm:right-[14px] lg:right-[16px] top-1/2 -translate-y-1/2 pointer-events-none">
-          <span className="text-[12px] sm:text-[16px] lg:text-[22px] text-black/60 font-mono font-light tracking-tight">/</span>
-        </div>
       </div>
     </div>
   );
