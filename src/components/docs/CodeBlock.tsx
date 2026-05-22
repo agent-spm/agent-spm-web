@@ -49,12 +49,16 @@ export function CodeBlock({ code, language = "bash", filename }: CodeBlockProps)
           <button
             type="button"
             onClick={handleCopy}
-            className="flex items-center gap-1 px-2 py-1 text-[9px] font-medium font-mono text-white/50 hover:text-white rounded-[3px] bg-white/5 border border-white/5 hover:border-white/10 transition-all active:scale-95 cursor-pointer"
+            className={`flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold font-mono rounded-[3px] border transition-all active:scale-95 cursor-pointer ${
+              copied
+                ? "bg-[#1B5FED]/15 border-[#1B5FED] text-[#1B5FED]"
+                : "bg-white/5 border-white/5 text-white/50 hover:text-white hover:border-white/10"
+            }`}
           >
             {copied ? (
               <>
-                <Check className="h-3 w-3 text-emerald-450" />
-                <span className="text-emerald-450 font-bold">COPIED!</span>
+                <Check className="h-3 w-3" />
+                <span>COPIED!</span>
               </>
             ) : (
               <>

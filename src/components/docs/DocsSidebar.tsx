@@ -79,8 +79,8 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
             </h4>
           </div>
 
-          {/* Directory Hierarchy Tree: Dotted vertical border connects the child links */}
-          <div className="border-l-2 border-black/5 ml-[9px] pl-3.5 space-y-1.5 relative">
+          {/* Directory Hierarchy Tree: Connective vertical border */}
+          <div className="border-l border-black/10 ml-[10px] pl-4 space-y-2.5 relative">
             {section.links.map((link, linkIdx) => {
               const isActive = pathname === link.href || pathname === `${link.href}/`;
               const Icon = link.icon;
@@ -90,17 +90,17 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
                   key={linkIdx}
                   href={link.href}
                   onClick={onLinkClick}
-                  className={`group relative flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-[4px] transition-all duration-150 cursor-pointer ${
+                  className={`group relative flex items-center justify-between px-3 py-2.5 text-[13px] font-mono tracking-tight rounded-[6px] border transition-all duration-150 cursor-pointer ${
                     isActive
-                      ? "text-[#1B5FED] bg-[#1B5FED]/8 border border-[#1B5FED]/15 shadow-sm"
-                      : "text-black/60 hover:text-black hover:bg-black/5 border border-transparent"
+                      ? "bg-white border-2 border-black text-[#1B5FED] shadow-[3.5px_3.5px_0px_rgba(27,95,237,1)] -translate-x-0.5 -translate-y-0.5 font-bold"
+                      : "bg-[#F9FAFB]/50 border border-black/5 text-black/55 hover:text-black hover:bg-white hover:border-black/20 hover:shadow-[2px_2px_0px_rgba(0,0,0,0.06)] hover:-translate-x-0.5 hover:-translate-y-0.5"
                   }`}
                 >
                   {/* Left Side: Icon & Title */}
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Icon
-                      className={`h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-105 ${
-                        isActive ? "text-[#1B5FED]" : "text-black/35 group-hover:text-black"
+                      className={`h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+                        isActive ? "text-[#1B5FED] stroke-[2.5px]" : "text-black/35 group-hover:text-black"
                       }`}
                     />
                     <span className="truncate font-sans font-medium tracking-tight">
@@ -114,21 +114,24 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
                     </span>
                   </div>
 
-                  {/* Right Side: Keycap Shortcut hint or Chevron Active indicator */}
-                  <div className="flex items-center gap-1.5">
+                  {/* Right Side: Keycap Shortcut hint */}
+                  <div className="flex items-center gap-1.5 shrink-0">
                     {isActive ? (
-                      <span className="flex items-center justify-center h-4 px-1 rounded-[3px] bg-[#1B5FED] text-white text-[8px] font-bold uppercase tracking-widest leading-none">
-                        ACTIVE
+                      <span className="font-mono text-[9px] bg-[#1B5FED] text-white px-1.5 py-0.5 rounded border border-[#1B5FED] font-bold uppercase tracking-wider shadow-[1.5px_1.5px_0px_rgba(0,0,0,0.15)] select-none">
+                        {link.shortcutCode}
                       </span>
                     ) : (
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 font-mono text-[9px] bg-black/5 text-black/40 px-1 rounded border border-black/5 uppercase">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 font-mono text-[9px] bg-white border border-black/10 text-black/45 px-1.5 py-0.5 rounded shadow-[1px_1px_0px_rgba(0,0,0,0.05)] uppercase select-none">
                         {link.shortcutCode}
                       </span>
                     )}
                   </div>
 
                   {/* Connective branch connector node (retro cosmetic detail) */}
-                  <div className={`absolute left-0 top-[18px] w-1.5 h-[2px] bg-black/5 ${isActive ? "bg-[#1B5FED]/40" : ""}`} style={{ left: "-14px" }} />
+                  <div 
+                    className={`absolute top-[20px] h-[1px] bg-black/10 ${isActive ? "bg-[#1B5FED]/40" : ""}`} 
+                    style={{ left: "-16px", width: "16px" }} 
+                  />
                 </Link>
               );
             })}

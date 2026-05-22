@@ -8,13 +8,6 @@ import { Terminal, Shield, Cpu, Zap, Layers } from "lucide-react";
 export default function DocsOverviewPage() {
   return (
     <div className="space-y-10">
-      {/* ── BREADCRUMBS ── */}
-      <div className="flex items-center gap-2 text-xs font-semibold text-surface-400 dark:text-surface-500 uppercase tracking-widest select-none">
-        <span>Docs</span>
-        <span>/</span>
-        <span className="text-brand-blue">Introduction</span>
-      </div>
-
       {/* ── HEADER ── */}
       <div className="space-y-4">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-surface-900 dark:text-surface-50">
