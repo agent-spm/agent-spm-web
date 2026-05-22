@@ -11,12 +11,12 @@ interface SearchResultsProps {
 export function SearchResults({ packages, total, query }: SearchResultsProps) {
   if (packages.length === 0) {
     return (
-      <div className="rounded-xl border border-surface-200 bg-surface-0 p-12 text-center dark:border-surface-800 dark:bg-surface-950">
-        <Package className="mx-auto h-12 w-12 text-surface-300 dark:text-surface-700" />
-        <h3 className="mt-4 text-lg font-semibold text-surface-900 dark:text-surface-50">
+      <div className="rounded-xl border border-zinc-200 bg-white p-12 text-center">
+        <Package className="mx-auto h-12 w-12 text-zinc-300" />
+        <h3 className="mt-4 text-lg font-semibold text-black">
           No packages found
         </h3>
-        <p className="mt-2 text-surface-500">
+        <p className="mt-2 text-zinc-500">
           {query
             ? `No results for "${query}". Try a different search term.`
             : "Start by searching for a package above."}
@@ -27,7 +27,7 @@ export function SearchResults({ packages, total, query }: SearchResultsProps) {
 
   return (
     <div>
-      <p className="mb-4 text-sm text-surface-500">
+      <p className="mb-4 text-sm text-zinc-500">
         {total.toLocaleString()} package{total !== 1 ? "s" : ""} found
         {query ? ` for "${query}"` : ""}
       </p>

@@ -51,7 +51,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
 
       {/* Retro-Terminal Command Deck: Solid light base for premium clean look */}
       <div className="mt-4 flex items-center gap-2 bg-zinc-50 border border-zinc-200 rounded-xl p-1.5 pl-3 relative overflow-hidden">
-        <code className="flex-1 truncate font-mono text-xs text-zinc-700 font-medium select-all">
+        <code className="flex-1 truncate font-mono text-xs text-zinc-950 font-semibold select-all">
           <span className="text-[#1B5FED] select-none font-bold">$</span> {installCmd}
         </code>
         

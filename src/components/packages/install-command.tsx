@@ -30,7 +30,7 @@ export function InstallCommand({
         className
       )}
     >
-      <code className="font-mono text-[13px] text-zinc-700 font-medium">
+      <code className="font-mono text-[13px] text-zinc-950 font-semibold">
         <span className="text-[#1B5FED] select-none font-bold">$ </span>
         {command}
       </code>
