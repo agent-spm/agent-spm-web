@@ -69,12 +69,12 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
       {DOCS_SECTIONS.map((section, secIdx) => (
         <div key={secIdx} className="space-y-3">
           
-          {/* Section Header: Styled like code comments for premium developer look */}
-          <div className="flex items-center gap-2 px-1">
-            <span className="text-[10px] font-bold text-black/30 tracking-wider">
-              //{section.prefix}
+          {/* Section Header: Premium modern index style */}
+          <div className="flex items-center gap-2 px-1 mb-1.5">
+            <span className="text-[11px] font-bold text-[#1B5FED] tracking-wider font-mono select-none">
+              {section.prefix}
             </span>
-            <h4 className="text-[11px] font-bold text-black/40 tracking-wider uppercase">
+            <h4 className="text-xs font-bold text-black/65 tracking-wider uppercase select-none">
               {section.title}
             </h4>
           </div>
@@ -93,14 +93,14 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
                   className={`group relative flex items-center justify-between px-3 py-2.5 text-[13px] font-mono tracking-tight rounded-[6px] border transition-all duration-150 cursor-pointer ${
                     isActive
                       ? "bg-white border-2 border-black text-[#1B5FED] shadow-[3.5px_3.5px_0px_rgba(27,95,237,1)] -translate-x-0.5 -translate-y-0.5 font-bold"
-                      : "bg-[#F9FAFB]/50 border border-black/5 text-black/55 hover:text-black hover:bg-white hover:border-black/20 hover:shadow-[2px_2px_0px_rgba(0,0,0,0.06)] hover:-translate-x-0.5 hover:-translate-y-0.5"
+                      : "bg-white border border-black/25 text-black/80 shadow-[1.5px_1.5px_0px_rgba(0,0,0,0.12)] hover:text-black hover:border-black hover:shadow-[3px_3px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5"
                   }`}
                 >
                   {/* Left Side: Icon & Title */}
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Icon
                       className={`h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110 ${
-                        isActive ? "text-[#1B5FED] stroke-[2.5px]" : "text-black/35 group-hover:text-black"
+                        isActive ? "text-[#1B5FED] stroke-[2.5px]" : "text-black/50 group-hover:text-black"
                       }`}
                     />
                     <span className="truncate font-sans font-medium tracking-tight">
