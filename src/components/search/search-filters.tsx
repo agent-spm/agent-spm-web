@@ -33,11 +33,10 @@ export function SearchFilters() {
             <button
               key={option.value}
               onClick={() => handleSort(option.value)}
-              className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer border ${
-                isActive
+              className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer border ${isActive
                   ? "bg-white text-[#1B5FED] shadow-[0_2px_8px_rgba(0,0,0,0.06)] border-zinc-200/50"
                   : "border-transparent text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/30"
-              }`}
+                }`}
             >
               {option.label}
             </button>
