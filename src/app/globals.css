@@ -201,3 +201,8 @@
     padding: 4px 6px !important;
   }
 }
+
+/* Custom search clear button cursor */
+input[type="search"]::-webkit-search-cancel-button {
+  cursor: pointer;
+}

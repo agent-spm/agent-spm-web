@@ -50,6 +50,6 @@ export function generateOrganizationJsonLd() {
     logo: `${APP_URL}/logo.png`,
     description:
       "The open registry for AI agent skill packages. Discover, publish, and manage reusable agent capabilities.",
-    sameAs: ["https://github.com/spm-dev"],
+    sameAs: ["https://github.com/agent-spm-registry"],
   };
 }

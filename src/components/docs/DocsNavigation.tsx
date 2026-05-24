@@ -23,22 +23,24 @@ export function DocsNavigation() {
   const nextLink = currentIndex < flatLinks.length - 1 ? flatLinks[currentIndex + 1] : null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-16 pt-8 border-t border-surface-200 dark:border-surface-800">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-16 pt-8 border-t-2 border-black/10 select-none">
+      
       {/* Previous Card */}
       {prevLink ? (
         <Link
           href={prevLink.href}
-          className="group flex items-center justify-between p-6 rounded-2xl border border-surface-200 dark:border-surface-800 hover:border-brand-blue/30 dark:hover:border-brand-blue/30 hover:bg-surface-50/50 dark:hover:bg-surface-900/30 transition-all duration-300 shadow-sm hover:shadow-md"
+          className="group flex items-center justify-between p-5 rounded-[6px] border border-black/10 hover:border-[#1B5FED]/30 bg-black/[0.01] hover:bg-black/[0.03] transition-all duration-200 shadow-sm"
         >
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface-100 dark:bg-surface-900 group-hover:bg-brand-blue/10 transition-colors">
-              <ChevronLeft className="h-5 w-5 text-surface-500 group-hover:text-brand-blue transition-colors" />
+          <div className="flex items-center gap-3.5">
+            {/* Keycap Style Button */}
+            <div className="bracket-btn h-9 w-9 p-0 flex items-center justify-center rounded-[4px] bg-[#E8E9ED] group-hover:bg-[#1B5FED] group-hover:text-white transition-all">
+              <ChevronLeft className="h-4 w-4" />
             </div>
             <div>
-              <span className="block text-[10px] font-bold text-surface-400 dark:text-surface-500 uppercase tracking-widest font-mono">
-                Previous
+              <span className="block font-mono text-[10px] font-bold text-black/35 uppercase tracking-widest leading-none">
+                PREVIOUS
               </span>
-              <span className="block mt-0.5 text-base font-semibold text-surface-900 dark:text-surface-100">
+              <span className="block mt-1 font-sans text-sm font-semibold text-black tracking-tight group-hover:text-[#1B5FED] transition-colors">
                 {prevLink.label}
               </span>
             </div>
@@ -52,19 +54,20 @@ export function DocsNavigation() {
       {nextLink ? (
         <Link
           href={nextLink.href}
-          className="group flex items-center justify-between p-6 rounded-2xl border border-surface-200 dark:border-surface-800 hover:border-brand-blue/30 dark:hover:border-brand-blue/30 hover:bg-surface-50/50 dark:hover:bg-surface-900/30 transition-all duration-300 shadow-sm hover:shadow-md text-right"
+          className="group flex items-center justify-between p-5 rounded-[6px] border border-black/10 hover:border-[#1B5FED]/30 bg-black/[0.01] hover:bg-black/[0.03] transition-all duration-200 shadow-sm"
         >
           <div className="flex items-center justify-between w-full">
             <div className="text-left">
-              <span className="block text-[10px] font-bold text-surface-400 dark:text-surface-500 uppercase tracking-widest font-mono">
-                Next Page
+              <span className="block font-mono text-[10px] font-bold text-black/35 uppercase tracking-widest leading-none">
+                NEXT DOCUMENT
               </span>
-              <span className="block mt-0.5 text-base font-semibold text-surface-900 dark:text-surface-100">
+              <span className="block mt-1 font-sans text-sm font-semibold text-black tracking-tight group-hover:text-[#1B5FED] transition-colors">
                 {nextLink.label}
               </span>
             </div>
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface-100 dark:bg-surface-900 group-hover:bg-brand-blue/10 transition-colors">
-              <ChevronRight className="h-5 w-5 text-surface-500 group-hover:text-brand-blue transition-colors" />
+            {/* Keycap Style Button */}
+            <div className="bracket-btn h-9 w-9 p-0 flex items-center justify-center rounded-[4px] bg-[#E8E9ED] group-hover:bg-[#1B5FED] group-hover:text-white transition-all">
+              <ChevronRight className="h-4 w-4" />
             </div>
           </div>
         </Link>
