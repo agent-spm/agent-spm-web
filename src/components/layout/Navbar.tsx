@@ -131,8 +131,8 @@ export const Navbar = () => {
 
         {/* ── MOBILE ONLY: X + Discord right next to logo ── */}
         <div className="flex items-center gap-2 lg:hidden">
-          <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={18} />} href="https://x.com" />
-          <NavButton ariaLabel="Join us on Discord"       icon={<DiscordIcon size={20} />} href="https://discord.gg/wpXywFGQjw" />
+          <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={18} />} href="https://x.com/agentspm" />
+          <NavButton ariaLabel="Join us on Discord"       icon={<DiscordIcon size={20} />} href="https://discord.gg/Qgg73H9Jm" />
         </div>
 
         {/* ── DESKTOP ONLY: nav links ── */}
@@ -142,10 +142,10 @@ export const Navbar = () => {
           <NavButton prefixChar="D" label="DOCS"    href="/docs" />
           <NavButton prefixChar="P" label="PRICING" href="/pricing/" />
           <NavButton prefixChar="Y" label="YOUTUBE" href="/search/" />
-          <NavButton prefixChar="G" label="GITHUB"  href="https://github.com/agent-spm-registry" />
+          <NavButton prefixChar="G" label="GITHUB"  href="https://github.com/agent-spm" />
           <NavButton prefixChar="C" label="CONNECT" href="/connect/" />
-          <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={20} />} href="https://x.com" />
-          <NavButton ariaLabel="Join us on Discord"       icon={<DiscordIcon size={22} />} href="https://discord.gg/wpXywFGQjw" />
+          <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={20} />} href="https://x.com/agentspm" />
+          <NavButton ariaLabel="Join us on Discord"       icon={<DiscordIcon size={22} />} href="https://discord.gg/Qgg73H9Jm" />
         </div>
 
         {/* ── MOBILE ONLY: Menu Grid Toggle Button ── */}
@@ -195,7 +195,7 @@ export const Navbar = () => {
               <MobileNavItem num="03" label="Docs"    shortcut="[D]" href="/docs"     onClick={() => setMenuOpen(false)} index={2} />
               <MobileNavItem num="04" label="Pricing" shortcut="[P]" href="/pricing/" onClick={() => setMenuOpen(false)} index={3} />
               <MobileNavItem num="05" label="Youtube" shortcut="[Y]" href="/search/"  onClick={() => setMenuOpen(false)} index={4} />
-              <MobileNavItem num="06" label="Github"  shortcut="[G]" href="https://github.com/agent-spm-registry"  onClick={() => setMenuOpen(false)} index={5} />
+              <MobileNavItem num="06" label="Github"  shortcut="[G]" href="https://github.com/agent-spm"  onClick={() => setMenuOpen(false)} index={5} />
               <MobileNavItem num="07" label="Connect" shortcut="[C]" href="/connect/" onClick={() => setMenuOpen(false)} index={6} />
             </div>
 
@@ -205,7 +205,7 @@ export const Navbar = () => {
                 <span className="font-sans text-xs text-black/40 font-medium">FOLLOW US</span>
                 <div className="flex items-center gap-3">
                   <a 
-                    href="https://x.com" 
+                    href="https://x.com/agentspm" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="bracket-btn w-9 h-9 flex items-center justify-center active:scale-95 transition-all"
@@ -214,7 +214,7 @@ export const Navbar = () => {
                     <XIcon size={16} />
                   </a>
                   <a 
-                    href="https://discord.gg/wpXywFGQjw" 
+                    href="https://discord.gg/Qgg73H9Jm" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="bracket-btn w-9 h-9 flex items-center justify-center active:scale-95 transition-all"

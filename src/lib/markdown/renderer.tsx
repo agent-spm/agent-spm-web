@@ -8,55 +8,59 @@ import rehypeSlug from "rehype-slug";
 import { readmeSanitizeSchema } from "./sanitize-config";
 import { cn } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, isValidElement, ReactNode } from "react";
 
-/* ─── Copy Button for Code Blocks ─── */
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, [text]);
-
-  return (
-    <button
-      onClick={handleCopy}
-      className="absolute right-3 top-3 rounded-md bg-surface-800/80 p-1.5 text-surface-200 opacity-0 backdrop-blur-sm transition-all hover:bg-surface-800 hover:text-white group-hover:opacity-100"
-      aria-label="Copy code"
-    >
-      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-    </button>
-  );
+/* ─── Utils ─── */
+function extractText(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node);
+  }
+  if (Array.isArray(node)) {
+    return node.map(extractText).join("");
+  }
+  if (isValidElement(node)) {
+    return extractText((node.props as any).children);
+  }
+  return "";
 }
+
+import { CopyButton } from "@/components/ui/copy-button";
 
 /* ─── Custom Components ─── */
 
 const markdownComponents = {
+
   pre: ({
     children,
+    node,
     ...props
-  }: React.HTMLAttributes<HTMLPreElement>) => {
-    // Extract the code content for the copy button
-    const codeElement = children as React.ReactElement<{
-      children?: string;
-    }>;
-    const codeText =
-      typeof codeElement?.props?.children === "string"
-        ? codeElement.props.children
-        : "";
+  }: any) => {
+    // Try extracting from HAST node first (most reliable after syntax highlighting)
+    const extractHastText = (n: any): string => {
+      if (!n) return "";
+      if (n.type === "text") return n.value;
+      if (n.children) return n.children.map(extractHastText).join("");
+      return "";
+    };
+    
+    let codeText = node ? extractHastText(node) : extractText(children);
+    if (codeText.endsWith("\n")) {
+      codeText = codeText.slice(0, -1);
+    }
 
     return (
-      <div className="group relative">
+      <div className="relative my-4">
         <pre
-          className="overflow-x-auto rounded-xl border border-surface-200 bg-surface-950 p-4 text-sm leading-relaxed dark:border-surface-800"
+          className="overflow-x-auto rounded-xl border border-surface-200 bg-surface-950 p-4 pr-24 text-sm leading-relaxed dark:border-surface-800"
           {...props}
         >
           {children}
         </pre>
-        {codeText && <CopyButton text={codeText} />}
+        {codeText && (
+          <div className="absolute right-2 top-2">
+            <CopyButton text={codeText} />
+          </div>
+        )}
       </div>
     );
   },
