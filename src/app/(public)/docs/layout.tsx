@@ -15,9 +15,23 @@ export default function DocsLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    // Force instant scroll to very top to make navbar visible
-    window.scrollTo({ top: 0, behavior: "auto" });
-    document.documentElement.scrollTo({ top: 0, behavior: "auto" });
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (!hash) {
+        // Force instant scroll to very top to make navbar visible ONLY if there is no hash
+        window.scrollTo({ top: 0, behavior: "auto" });
+        document.documentElement.scrollTo({ top: 0, behavior: "auto" });
+      } else {
+        // If there is a hash anchor, allow Next.js/DOM to render first, then scroll it cleanly into view
+        const elementId = hash.substring(1);
+        setTimeout(() => {
+          const element = document.getElementById(elementId);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 120);
+      }
+    }
   }, [pathname]);
 
   // Dynamically resolve section path breadcrumb

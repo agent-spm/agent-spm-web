@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -77,10 +77,29 @@ interface DocsSidebarProps {
 export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
   const pathname = usePathname();
   const [currentHash, setCurrentHash] = useState("");
+  const clickedPathname = useRef("");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setCurrentHash(window.location.hash);
+      const cleanPath = pathname.replace(/\/$/, "");
+      
+      // If this pathname change matches the link we just clicked in the sidebar,
+      // we bypass resetting the hash. We already set currentHash to the correct value in handleLinkClick.
+      if (clickedPathname.current === cleanPath) {
+        clickedPathname.current = "";
+        return;
+      }
+
+      let timer: NodeJS.Timeout;
+      
+      // If hash is immediately populated, set it. Otherwise wait a brief moment for router mount sync.
+      if (window.location.hash) {
+        setCurrentHash(window.location.hash);
+      } else {
+        timer = setTimeout(() => {
+          setCurrentHash(window.location.hash);
+        }, 120);
+      }
 
       const handleHashChange = () => {
         setCurrentHash(window.location.hash);
@@ -88,6 +107,7 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
 
       window.addEventListener("hashchange", handleHashChange);
       return () => {
+        if (timer) clearTimeout(timer);
         window.removeEventListener("hashchange", handleHashChange);
       };
     }
@@ -95,11 +115,37 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
 
   // Handle manual click events to instantly trigger slide transition
   const handleLinkClick = (href: string) => {
+    const cleanHref = href.split("#")[0].replace(/\/$/, "");
+    clickedPathname.current = cleanHref;
+
     if (href.includes("#")) {
       const parts = href.split("#");
-      setCurrentHash("#" + parts[1]);
+      const hash = "#" + parts[1];
+      setCurrentHash(hash);
+
+      // If we are already on the same page, ensure we scroll smoothly to the element
+      if (pathname.replace(/\/$/, "") === cleanHref) {
+        setTimeout(() => {
+          const element = document.getElementById(parts[1]);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 80);
+      }
     } else {
       setCurrentHash("");
+      
+      // If we are already on the target page and clicking a parent link without a hash,
+      // force a smooth scroll to the very top so the header/navbar is fully visible.
+      // We wrap this in a setTimeout to execute after the Next.js router navigation event cycle.
+      if (pathname.replace(/\/$/, "") === cleanHref) {
+        setTimeout(() => {
+          if (typeof window !== "undefined") {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        }, 80);
+      }
     }
     if (onLinkClick) onLinkClick();
   };
