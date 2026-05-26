@@ -4,23 +4,20 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DOCS_SECTIONS } from "./DocsSidebar";
+import { FLAT_DOCS_LINKS, FlatDocsLink } from "./DocsSidebar";
 
 export function DocsNavigation() {
   const pathname = usePathname();
 
-  // Flatten sections link list to look up next/prev easily
-  const flatLinks = DOCS_SECTIONS.flatMap((section) => section.links);
-  
   // Find current index
-  const currentIndex = flatLinks.findIndex(
-    (link) => pathname === link.href || pathname === `${link.href}/`
+  const currentIndex = FLAT_DOCS_LINKS.findIndex(
+    (link: FlatDocsLink) => pathname === link.href || pathname === `${link.href}/`
   );
 
   if (currentIndex === -1) return null;
 
-  const prevLink = currentIndex > 0 ? flatLinks[currentIndex - 1] : null;
-  const nextLink = currentIndex < flatLinks.length - 1 ? flatLinks[currentIndex + 1] : null;
+  const prevLink = currentIndex > 0 ? FLAT_DOCS_LINKS[currentIndex - 1] : null;
+  const nextLink = currentIndex < FLAT_DOCS_LINKS.length - 1 ? FLAT_DOCS_LINKS[currentIndex + 1] : null;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-16 pt-8 border-t-2 border-black/10 select-none">

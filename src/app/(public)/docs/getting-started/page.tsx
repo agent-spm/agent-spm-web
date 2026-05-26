@@ -34,7 +34,7 @@ export default function GettingStartedPage() {
       </section>
 
       {/* ── SECTION 2: INSTALLATION ── */}
-      <section className="space-y-4">
+      <section id="cli" className="space-y-4 scroll-mt-24">
         <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">
           2. Install the SPM CLI
         </h2>

@@ -22,9 +22,9 @@ export default function DocsLayout({
 
   // Dynamically resolve section path breadcrumb
   const getCurrentDocTitle = () => {
-    if (pathname.includes("/getting-started")) return "INSTALLATION & CLI";
+    if (pathname.includes("/getting-started")) return "CORE CONCEPTS";
     if (pathname.includes("/spm-yaml-reference")) return "SPM.YAML REFERENCE";
-    if (pathname.includes("/publishing")) return "PACKAGE PUBLISHING";
+    if (pathname.includes("/publishing")) return "WORKFLOWS";
     if (pathname.includes("/skill-api")) return "SKILL RUNTIME API";
     return "INTRODUCTION";
   };
@@ -102,11 +102,8 @@ export default function DocsLayout({
         <div className="flex flex-col lg:flex-row gap-12 items-start">
 
           {/* Desktop Sticky Sidebar (Hidden on Mobile) */}
-          <aside className="hidden lg:block w-80 shrink-0 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-black/10 hover:scrollbar-thumb-black/25">
-            {/* Retro card container wrap for extra premium look */}
-            <div className="p-5 bg-black/[0.02] border border-black/5 rounded-[6px] shadow-sm">
-              <DocsSidebar />
-            </div>
+          <aside className="hidden lg:block w-[400px] shrink-0 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-black/10 hover:scrollbar-thumb-black/25">
+            <DocsSidebar />
           </aside>
 
           {/* Docs Content Scroll Panel */}

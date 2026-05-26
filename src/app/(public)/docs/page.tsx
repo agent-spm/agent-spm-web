@@ -9,7 +9,7 @@ export default function DocsOverviewPage() {
   return (
     <div className="space-y-10">
       {/* ── HEADER ── */}
-      <div className="space-y-4">
+      <div id="overview" className="space-y-4 scroll-mt-24">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-surface-900 dark:text-surface-50">
           What is SPM?
         </h1>
