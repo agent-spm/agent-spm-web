@@ -2,252 +2,118 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
-const BUBBLES_DATA = [
-  { label: "Tokens Saved", value: "82.17 M", r: 82 },
-  { label: "Active Agents", value: "3.1k", r: 70 },
-  { label: "Downloads", value: "1.2 M", r: 74 },
-  { label: "Total Packages", value: "12.8k", r: 68 },
-  { label: "Contributors", value: "101", r: 64 },
-  { label: "API Calls", value: "4.7 B", r: 66 },
-  { label: "Agents", value: "392", r: 72 },
-  { label: "Success Rate", value: "99.8%", r: 56 },
-  { label: "Uptime", value: "99.99%", r: 52 },
-  { label: "Skills", value: "2.4k", r: 50 },
-  { label: "GitHub Stars", value: "9.2k", r: 48 },
-  { label: "Integrations", value: "150+", r: 46 },
-  { label: "Enterprise", value: "38", r: 42 },
-  { label: "Languages", value: "24", r: 38 },
-  { label: "Verified", value: "86", r: 36 },
+const STATIC_BUBBLES = [
+  { id: 'agents', label: 'Agents', value: '392', cx: 409, cy: 420, r: 160 },
+  { id: 'contributors', label: 'Contributors', value: '101', cx: 601, cy: 79, r: 130 },
+  { id: 'tokens', label: 'Tokens Saved', value: '82.17 M', cx: 913, cy: 225, r: 160 },
+  { id: 'e1', label: 'API Calls', value: '4.7 B', cx: 130, cy: 209, r: 130 },
+  { id: 'e2', label: 'Success Rate', value: '99.8%', cx: 146, cy: 444, r: 60 },
+  { id: 'e3', label: 'Languages', value: '24', cx: 214, cy: 362, r: 40 },
+  { id: 'e4', label: 'GitHub Stars', value: '9.2k', cx: 358, cy: 132, r: 90 },
+  { id: 'e5', label: 'Uptime', value: '99.99%', cx: 479, cy: 218, r: 50 },
+  { id: 'e6', label: 'Integrations', value: '150+', cx: 590, cy: 274, r: 65 },
+  { id: 'e7', label: 'Skills', value: '2.4k', cx: 701, cy: 237, r: 45 },
+  { id: 'e8', label: 'Downloads', value: '1.2 M', cx: 636, cy: 561, r: 85 },
+  { id: 'e9', label: 'Total Packages', value: '12.8k', cx: 708, cy: 386, r: 95 },
+  { id: 'e10', label: '', value: '', cx: 832, cy: 402, r: 25 },
+  { id: 'e11', label: 'Enterprise', value: '38', cx: 902, cy: 431, r: 45 },
+  { id: 'e12', label: 'Active Agents', value: '3.1k', cx: 1013, cy: 477, r: 70 },
+  { id: 'e13', label: 'Verified', value: '86', cx: 298, cy: 251, r: 35 },
+  { id: 'e14', label: '', value: '', cx: 588, cy: 367, r: 20 },
+  { id: 'e15', label: '', value: '', cx: 734, cy: 165, r: 25 },
+  { id: 'e16', label: 'Models', value: '42', cx: 514, cy: 591, r: 30 },
+  { id: 'e17', label: 'Sandbox Runs', value: '8.4 M', cx: 216, cy: 571, r: 75 },
+  { id: 'e18', label: 'Categories', value: '14', cx: 78, cy: 548, r: 55 },
+  { id: 'e19', label: 'Weekly Installs', value: '45k', cx: 822, cy: 530, r: 80 },
+  { id: 'e20', label: 'Avg Latency', value: '12ms', cx: 953, cy: 604, r: 60 }
 ];
 
-// Fisher-Yates shuffle — randomize bubble positions on every page load
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+function StaticBubbles({ width, height }: { width: number; height: number }) {
+  // Use window.innerWidth to determine mobile layout, falling back to container width for SSR
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 1024 : width < 1024;
+  const bubbles = STATIC_BUBBLES; // Use the full cluster for both
+
+  // --- Math ---
+  const REF_W = 980; 
+  const BOTTOM_Y = 664;
+  const TOP_Y = -51;
+  const TRUE_H = BOTTOM_Y - TOP_Y; // 715
+
+  // --- Mobile Math ---
+  const MOBILE_CLUSTER_W = 990; // True width of desktop bubbles (1013 max X - 23 min X)
+  const MOBILE_MIN_X = 23; // Leftmost bubble boundary (e18)
+  const MOBILE_REF_W = MOBILE_CLUSTER_W + 20; // Add 20px of total padding
+
+  // Scale dynamically
+  let scale = Math.min(width / REF_W, height / (TRUE_H * 1.02));
+  
+  if (isMobile) {
+    // Production grade pattern: Don't shrink to fit. Enforce a minimum scale so bubbles stay large, 
+    // and let the outer bubbles elegantly bleed off the screen edges.
+    scale = Math.max(0.55, scale);
   }
-  return a;
-}
-
-// Randomize radii slightly too — ±8% jitter so bubbles feel organic
-function jitterData(data: typeof BUBBLES_DATA) {
-  return shuffle(data).map(b => ({
-    ...b,
-    r: Math.round(b.r * (0.92 + Math.random() * 0.16)),
-  }));
-}
-
-interface Bubble {
-  x: number; y: number;
-  vx: number; vy: number;
-  r: number;
-  label: string; value: string;
-}
-
-const GRAVITY = 0.38;
-const FRICTION = 0.987;
-const BOUNCE = 0.5;
-const COLLISION_DAMPING = 0.6;
-
-function PhysicsBubbles({ width, height }: { width: number; height: number }) {
-  const bubblesRef = useRef<Bubble[]>([]);
-  const animRef = useRef<number>(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ idx: number; offX: number; offY: number } | null>(null);
-  const mouseRef = useRef({ x: 0, y: 0, px: 0, py: 0 });
-  const [tick, setTick] = useState(0);
-  const initRef = useRef(false);
-
-  const prevWidthRef = useRef(width);
-  const prevHeightRef = useRef(height);
-
-  // Auto-scale bubbles to fill ~50% of the invisible box, clamping to premium safe bounds (0.40 to 1.1)
-  const totalArea = BUBBLES_DATA.reduce((s, b) => s + Math.PI * b.r * b.r, 0);
-  const rawScale = Math.sqrt((width * height * 0.48) / totalArea);
-  const scale = Math.max(0.40, Math.min(1.1, rawScale));
-
-  useEffect(() => {
-    if (width === 0 || height === 0) return;
-
-    if (!initRef.current || bubblesRef.current.length === 0) {
-      initRef.current = true;
-      const cols = 5;
-      const shuffled = jitterData(BUBBLES_DATA);
-      bubblesRef.current = shuffled.map((b, i) => {
-        const col = i % cols;
-        const spacing = width / (cols + 0.5);
-        return {
-          x: spacing * (col + 0.5) + (Math.random() - 0.5) * 20,
-          y: -(b.r * scale) - Math.random() * 150 - i * 45,
-          vx: (Math.random() - 0.5) * 1.2,
-          vy: Math.random() * 1.5,
-          r: Math.round(b.r * scale),
-          label: b.label,
-          value: b.value,
-        };
-      });
-    } else {
-      // Dynamic responsive scaling for resize / rotation / viewport adjustments
-      const prevW = prevWidthRef.current || width;
-      const prevH = prevHeightRef.current || height;
-
-      bubblesRef.current = bubblesRef.current.map(b => {
-        const originalBase = BUBBLES_DATA.find(x => x.label === b.label)?.r || 50;
-        return {
-          ...b,
-          x: (b.x / prevW) * width,
-          y: (b.y / prevH) * height,
-          r: Math.round(originalBase * scale),
-        };
-      });
-    }
-
-    prevWidthRef.current = width;
-    prevHeightRef.current = height;
-  }, [width, height, scale]);
-
-  useEffect(() => {
-    let frame = 0;
-    // Inner padding — bubbles stay this many px inside the container edges
-    // so they're never clipped visually
-    const PAD = 6;
-    const step = () => {
-      const bs = bubblesRef.current;
-      const drag = dragRef.current;
-
-      for (let i = 0; i < bs.length; i++) {
-        const b = bs[i];
-        if (drag?.idx === i) {
-          b.x = mouseRef.current.x - drag.offX;
-          b.y = mouseRef.current.y - drag.offY;
-          // Clamp dragged bubble inside padded bounds
-          b.x = Math.max(b.r + PAD, Math.min(width - b.r - PAD, b.x));
-          b.y = Math.max(b.r + PAD, Math.min(height - b.r - PAD, b.y));
-          b.vx = (mouseRef.current.x - mouseRef.current.px) * 0.35;
-          b.vy = (mouseRef.current.y - mouseRef.current.py) * 0.35;
-          continue;
-        }
-
-        b.vy += GRAVITY;
-        b.vx *= FRICTION;
-        b.vy *= FRICTION;
-        b.x += b.vx;
-        b.y += b.vy;
-
-        // Invisible padded walls — bubbles stay fully visible
-        if (b.x - b.r < PAD) { b.x = b.r + PAD; b.vx = Math.abs(b.vx) * BOUNCE; }
-        if (b.x + b.r > width - PAD) { b.x = width - b.r - PAD; b.vx = -Math.abs(b.vx) * BOUNCE; }
-        if (b.y - b.r < PAD) { b.y = b.r + PAD; b.vy = Math.abs(b.vy) * BOUNCE; }
-        if (b.y + b.r > height - PAD) {
-          b.y = height - b.r - PAD;
-          b.vy = -Math.abs(b.vy) * BOUNCE;
-          if (Math.abs(b.vy) < 0.5) b.vy = 0;
-          if (Math.abs(b.vx) < 0.2) b.vx = 0;
-        }
-
-        // Bubble collisions
-        for (let j = i + 1; j < bs.length; j++) {
-          const o = bs[j];
-          const dx = o.x - b.x, dy = o.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const min = b.r + o.r;
-          if (dist < min && dist > 0.1) {
-            const nx = dx / dist, ny = dy / dist;
-            const overlap = (min - dist) / 2;
-            b.x -= nx * overlap; b.y -= ny * overlap;
-            o.x += nx * overlap; o.y += ny * overlap;
-
-            const dvx = b.vx - o.vx, dvy = b.vy - o.vy;
-            const dot = dvx * nx + dvy * ny;
-            if (dot > 0) {
-              const m1 = b.r * b.r, m2 = o.r * o.r, tm = m1 + m2;
-              b.vx -= (2 * m2 / tm) * dot * nx * COLLISION_DAMPING;
-              b.vy -= (2 * m2 / tm) * dot * ny * COLLISION_DAMPING;
-              o.vx += (2 * m1 / tm) * dot * nx * COLLISION_DAMPING;
-              o.vy += (2 * m1 / tm) * dot * ny * COLLISION_DAMPING;
-            }
-          }
-        }
-      }
-
-      if (++frame % 2 === 0) setTick(t => t + 1);
-      animRef.current = requestAnimationFrame(step);
-    };
-    animRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animRef.current);
-  }, [width, height]);
-
-  const onDown = useCallback((e: React.PointerEvent, i: number) => {
-    e.preventDefault();
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    const b = bubblesRef.current[i];
-    dragRef.current = { idx: i, offX: mx - b.x, offY: my - b.y };
-    mouseRef.current = { x: mx, y: my, px: mx, py: my };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, []);
-
-  const onMove = useCallback((e: React.PointerEvent) => {
-    if (!dragRef.current) return;
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    mouseRef.current.px = mouseRef.current.x;
-    mouseRef.current.py = mouseRef.current.y;
-    mouseRef.current.x = e.clientX - rect.left;
-    mouseRef.current.y = e.clientY - rect.top;
-  }, []);
-
-  const onUp = useCallback(() => { dragRef.current = null; }, []);
-
-  void tick;
+  
+  // X offset: mobile mathematically centers the true bounds (allowing negative offset to bleed equally), desktop bleeds left.
+  const xOffset = isMobile
+    ? ((width - (MOBILE_CLUSTER_W * scale)) / 2) - (MOBILE_MIN_X * scale)
+    : (Math.max(0, width - (REF_W * scale)) / 2) - (100 * scale);
+  
+  // Y offset: mobile is vertically centered in the remaining space, desktop is anchored to bottom.
+  const yOffset = isMobile
+    ? ((height - (TRUE_H * scale)) / 2)
+    : height - (BOTTOM_Y * scale);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full h-full"
-      onPointerMove={onMove}
-      onPointerUp={onUp}
-      onPointerLeave={onUp}
-    >
-      {bubblesRef.current.map((b, i) => {
-        const isDragging = dragRef.current?.idx === i;
-        const valueSize = Math.max(13, b.r * 0.36);
-        const labelSize = Math.max(8, b.r * 0.17);
+    <div className="relative w-full h-full">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes bubblePop {
+          0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+          60% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+          100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+      `}} />
+      {bubbles.map((b, i) => {
+        const scaledR = b.r * scale;
+        const scaledX = (b.cx * scale) + xOffset;
+        const scaledY = (b.cy * scale) + (isMobile ? yOffset : (yOffset > 0 ? yOffset : 0));
+
+        const valueSize = Math.max(13, scaledR * 0.36);
+        const labelSize = Math.max(8, scaledR * 0.17);
+        const showText = true;
+
         return (
           <div
-            key={`${b.label}-${i}`}
-            onPointerDown={(e) => onDown(e, i)}
-            className="absolute flex flex-col items-center justify-center rounded-full select-none touch-none"
+            key={b.id}
+            className="absolute flex flex-col items-center justify-center rounded-full select-none pointer-events-none"
             style={{
-              width: b.r * 2,
-              height: b.r * 2,
-              left: b.x - b.r,
-              top: b.y - b.r,
+              width: scaledR * 2,
+              height: scaledR * 2,
+              left: scaledX,
+              top: scaledY,
               background: '#EDEDEB',
               border: '1px solid rgba(0,0,0,0.05)',
-              cursor: isDragging ? 'grabbing' : 'grab',
-              boxShadow: isDragging
-                ? '0 20px 60px rgba(0,0,0,0.12), 0 0 0 2px rgba(27,95,237,0.12)'
-                : 'none',
-              zIndex: isDragging ? 50 : 1,
-              transform: isDragging ? 'scale(1.05)' : 'scale(1)',
-              transition: isDragging ? 'none' : 'transform 0.25s ease, box-shadow 0.25s ease',
+              zIndex: 1,
+              opacity: 0,
+              // translate(-50%, -50%) handles centering exactly on cx, cy
+              animation: `bubblePop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.04}s forwards`,
             }}
           >
-            <span
-              className="text-black/30 font-medium font-sans whitespace-nowrap pointer-events-none leading-none"
-              style={{ fontSize: labelSize, marginBottom: 3 }}
-            >
-              {b.label}
-            </span>
-            <span
-              className="font-semibold text-black/85 leading-none pointer-events-none tracking-tight"
-              style={{ fontSize: valueSize }}
-            >
-              {b.value}
-            </span>
+            {showText && b.label && (
+              <>
+                <span
+                  className="text-black/30 font-medium font-sans whitespace-nowrap leading-none"
+                  style={{ fontSize: labelSize, marginBottom: 3 }}
+                >
+                  {b.label}
+                </span>
+                <span
+                  className="font-semibold text-black/85 leading-none tracking-tight"
+                  style={{ fontSize: valueSize }}
+                >
+                  {b.value}
+                </span>
+              </>
+            )}
           </div>
         );
       })}
@@ -288,13 +154,13 @@ export const Hero = () => {
         </p>
       </div>
 
-      {/* Physics bubbles — flex-1 fills all remaining left-column height */}
+      {/* Bubbles — flex-1 fills all remaining left-column height */}
       <div
         ref={boxRef}
-        className="relative z-0 mt-4 sm:mt-5 w-full flex-1 min-h-0"
+        className="relative z-0 mt-4 sm:mt-5 w-full flex-1 min-h-0 overflow-hidden"
         style={{ minHeight: 180 }}
       >
-        {dims.w > 0 && <PhysicsBubbles width={dims.w} height={dims.h} />}
+        {dims.w > 0 && <StaticBubbles width={dims.w} height={dims.h} />}
       </div>
     </section>
   );

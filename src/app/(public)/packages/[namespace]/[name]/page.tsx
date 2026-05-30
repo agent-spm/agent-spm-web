@@ -267,9 +267,9 @@ export default async function PackageDetailPage({
                     <GitBranch className="h-4 w-4" /> Source
                   </dt>
                   <dd>
-                    <Link href="/404/" className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline dark:text-brand-400">
+                    <a href="https://github.com/agent-spm" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline dark:text-brand-400">
                       GitHub Repository <ExternalLink className="inline-block h-3 w-3 ml-1" />
-                    </Link>
+                    </a>
                   </dd>
                 </div>
               )}
