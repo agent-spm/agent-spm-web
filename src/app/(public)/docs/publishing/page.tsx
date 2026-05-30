@@ -20,7 +20,7 @@ export default function PackagePublishingPage() {
       <hr className="border-surface-200 dark:border-surface-800" />
 
       {/* ── SECTION 1: WORKFLOW OVERVIEW ── */}
-      <section className="space-y-4">
+      <section id="publishing" className="space-y-4 scroll-mt-24">
         <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">
           Publishing Workflow
         </h2>

@@ -15,16 +15,30 @@ export default function DocsLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    // Force instant scroll to very top to make navbar visible
-    window.scrollTo({ top: 0, behavior: "auto" });
-    document.documentElement.scrollTo({ top: 0, behavior: "auto" });
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (!hash) {
+        // Force instant scroll to very top to make navbar visible ONLY if there is no hash
+        window.scrollTo({ top: 0, behavior: "auto" });
+        document.documentElement.scrollTo({ top: 0, behavior: "auto" });
+      } else {
+        // If there is a hash anchor, allow Next.js/DOM to render first, then scroll it cleanly into view
+        const elementId = hash.substring(1);
+        setTimeout(() => {
+          const element = document.getElementById(elementId);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 120);
+      }
+    }
   }, [pathname]);
 
   // Dynamically resolve section path breadcrumb
   const getCurrentDocTitle = () => {
-    if (pathname.includes("/getting-started")) return "INSTALLATION & CLI";
+    if (pathname.includes("/getting-started")) return "CORE CONCEPTS";
     if (pathname.includes("/spm-yaml-reference")) return "SPM.YAML REFERENCE";
-    if (pathname.includes("/publishing")) return "PACKAGE PUBLISHING";
+    if (pathname.includes("/publishing")) return "WORKFLOWS";
     if (pathname.includes("/skill-api")) return "SKILL RUNTIME API";
     return "INTRODUCTION";
   };
@@ -102,11 +116,8 @@ export default function DocsLayout({
         <div className="flex flex-col lg:flex-row gap-12 items-start">
 
           {/* Desktop Sticky Sidebar (Hidden on Mobile) */}
-          <aside className="hidden lg:block w-80 shrink-0 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-black/10 hover:scrollbar-thumb-black/25">
-            {/* Retro card container wrap for extra premium look */}
-            <div className="p-5 bg-black/[0.02] border border-black/5 rounded-[6px] shadow-sm">
-              <DocsSidebar />
-            </div>
+          <aside className="hidden lg:block w-[400px] shrink-0 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-black/10 hover:scrollbar-thumb-black/25">
+            <DocsSidebar />
           </aside>
 
           {/* Docs Content Scroll Panel */}
