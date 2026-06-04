@@ -27,7 +27,7 @@ const FAQS: FAQItem[] = [
   },
   {
     question: "What payment methods do you accept?",
-    answer: "Visa, Mastercard, Amex via Stripe. Enterprise customers can pay via invoice.",
+    answer: "Visa, Mastercard, RuPay, UPI, Netbanking, Amex via Razorpay. Enterprise customers can pay via invoice.",
   },
 ];
 
