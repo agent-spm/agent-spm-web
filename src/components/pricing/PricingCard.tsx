@@ -11,7 +11,8 @@ export interface PricingCardProps {
   tagline: string;
   features: string[];
   ctaText: string;
-  ctaHref: string;
+  ctaHref?: string;
+  onClick?: () => void;
   popular?: boolean;
 }
 
@@ -23,8 +24,15 @@ export const PricingCard = ({
   features,
   ctaText,
   ctaHref,
+  onClick,
   popular = false,
 }: PricingCardProps) => {
+  const buttonClasses = `group flex items-center justify-center gap-2 w-full rounded-xl py-3 px-4 text-center text-sm font-semibold transition-all duration-250 active:scale-[0.98] cursor-pointer ${
+    popular
+      ? "bg-brand-blue text-white hover:bg-brand-blue/90 shadow-lg shadow-brand-blue/15 hover:shadow-brand-blue/30"
+      : "border border-surface-200 hover:border-brand-blue/30 bg-surface-0 hover:bg-surface-50 text-surface-700 hover:text-brand-blue dark:border-surface-800 dark:bg-surface-900 dark:text-surface-300 dark:hover:text-white"
+  }`;
+
   return (
     <div
       className={`relative flex flex-col justify-between rounded-3xl p-8 bg-surface-0 transition-all duration-300 ${
@@ -78,17 +86,17 @@ export const PricingCard = ({
       </div>
 
       {/* Action Button */}
-      <Link
-        href={ctaHref}
-        className={`group flex items-center justify-center gap-2 w-full rounded-xl py-3 px-4 text-center text-sm font-semibold transition-all duration-250 active:scale-[0.98] cursor-pointer ${
-          popular
-            ? "bg-brand-blue text-white hover:bg-brand-blue/90 shadow-lg shadow-brand-blue/15 hover:shadow-brand-blue/30"
-            : "border border-surface-200 hover:border-brand-blue/30 bg-surface-0 hover:bg-surface-50 text-surface-700 hover:text-brand-blue dark:border-surface-800 dark:bg-surface-900 dark:text-surface-300 dark:hover:text-white"
-        }`}
-      >
-        <span>{ctaText}</span>
-        <ArrowRight className="h-4 w-4 transform group-hover:translate-x-0.5 transition-transform duration-200 shrink-0" />
-      </Link>
+      {onClick ? (
+        <button onClick={onClick} className={buttonClasses}>
+          <span>{ctaText}</span>
+          <ArrowRight className="h-4 w-4 transform group-hover:translate-x-0.5 transition-transform duration-200 shrink-0" />
+        </button>
+      ) : (
+        <Link href={ctaHref || "#"} className={buttonClasses}>
+          <span>{ctaText}</span>
+          <ArrowRight className="h-4 w-4 transform group-hover:translate-x-0.5 transition-transform duration-200 shrink-0" />
+        </Link>
+      )}
     </div>
   );
 };

@@ -5,11 +5,13 @@ import { PricingToggle } from "./PricingToggle";
 import { PricingCard } from "./PricingCard";
 import { FeatureTable } from "./FeatureTable";
 import { PricingFAQ } from "./PricingFAQ";
+import { RazorpayCheckoutModal } from "./RazorpayCheckoutModal";
 import { Terminal, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export const PricingPageContent = () => {
   const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isYearly = billingInterval === "yearly";
 
@@ -65,7 +67,7 @@ export const PricingPageContent = () => {
             "5,000 API requests / hour",
           ]}
           ctaText="Upgrade to Pro"
-          ctaHref="/connect/"
+          onClick={() => setIsModalOpen(true)}
           popular={true}
         />
 
@@ -134,6 +136,13 @@ export const PricingPageContent = () => {
           </div>
         </div>
       </div>
+
+      {/* Razorpay Pro Activation Modal overlay popup */}
+      <RazorpayCheckoutModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        billingInterval={billingInterval}
+      />
     </div>
   );
 };

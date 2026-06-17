@@ -1,11 +1,27 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
   --color-brand-blue: #1B5FED;
   --color-brand-black: #000000;
   --color-brand-white: #FFFFFF;
   --color-bg-gray: #F5F5F5;
   --color-btn-gray: #E8E9ED;
+
+  /* Custom Surface Palette mapping neutral zinc scale (hardcoded hexes to prevent Tailwind v4 tree-shaking) */
+  --color-surface-0: #FFFFFF;
+  --color-surface-50: #FAFAFA;
+  --color-surface-100: #F4F4F5;
+  --color-surface-200: #E4E4E7;
+  --color-surface-300: #D4D4D8;
+  --color-surface-400: #A1A1AA;
+  --color-surface-500: #71717A;
+  --color-surface-600: #52525B;
+  --color-surface-700: #3F3F46;
+  --color-surface-800: #27272A;
+  --color-surface-900: #18181B;
+  --color-surface-950: #09090B;
 
   --font-mono: 'Fragment Mono', monospace;
   --font-sans: 'Inter', sans-serif;
@@ -22,6 +38,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .dark body {
+    background-color: var(--color-surface-950);
+    color: var(--color-surface-50);
   }
 
   h1, h2, h3, h4, h5, h6 {
