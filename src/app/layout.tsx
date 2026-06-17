@@ -48,8 +48,8 @@ export default function RootLayout({
         {/* Preconnect to Google Fonts for mono font */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Load Fragment Mono for bracket buttons */}
-        <link href="https://fonts.googleapis.com/css2?family=Fragment+Mono&display=swap" rel="stylesheet" />
+        {/* Load Fragment Mono and Caveat Google Fonts */}
+        <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Fragment+Mono&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased font-sans" suppressHydrationWarning>
         {children}
