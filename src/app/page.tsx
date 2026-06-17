@@ -19,20 +19,20 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ── DESKTOP layout: two-column, no-scroll ── */}
-      <div className="hidden lg:flex h-screen overflow-hidden w-full max-w-[1500px] mx-auto">
+      {/* ── DESKTOP layout: full-width Navbar + two-column content ── */}
+      <div className="hidden lg:flex flex-col h-screen overflow-hidden w-full max-w-[1500px] mx-auto px-8">
+        <Navbar />
+        <div className="flex flex-1 min-h-0 w-full pt-2 pb-6">
+          {/* Left half: Hero + Bubbles */}
+          <div className="flex flex-col w-[62%] xl:w-[62%] h-full flex-shrink-0 overflow-hidden">
+            <Hero />
+          </div>
 
-        {/* Left half: Navbar + Hero + Bubbles */}
-        <div className="flex flex-col w-[62%] xl:w-[62%] h-full px-8 flex-shrink-0 overflow-hidden">
-          <Navbar />
-          <Hero />
+          {/* Right half: Leaderboard */}
+          <div className="flex flex-col flex-1 h-full pl-8 min-w-0">
+            <Leaderboard />
+          </div>
         </div>
-
-        {/* Right half: Leaderboard full height */}
-        <div className="flex flex-col flex-1 h-full py-4 pr-8 min-w-0">
-          <Leaderboard />
-        </div>
-
       </div>
     </main>
   );

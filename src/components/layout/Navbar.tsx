@@ -43,6 +43,7 @@ const NavButton = ({
   href?: string;
   ariaLabel?: string;
 }) => {
+  const hasSpaces = label && label.includes(' ');
   const content = (
     <button className={`bracket-btn ${active ? 'active' : ''}`} aria-label={ariaLabel || label}>
       {icon ? (
@@ -50,7 +51,12 @@ const NavButton = ({
       ) : (
         <>
           <span className="opacity-50">[{prefixChar}]</span>
-          <span className="ml-1.5">{label}</span>
+          <span 
+            className="ml-1.5" 
+            style={hasSpaces ? { wordSpacing: '-0.28em', letterSpacing: '-0.06em' } : undefined}
+          >
+            {label}
+          </span>
         </>
       )}
     </button>
@@ -155,6 +161,10 @@ export const Navbar = () => {
           <NavButton prefixChar="D" label="DOCS"    href="/docs" />
           <NavButton prefixChar="P" label="PRICING" href="/pricing/" />
           <NavButton prefixChar="T" label="TALK TO US" href="/connect/" />
+        </div>
+
+        {/* ── DESKTOP ONLY: icon links (pushed to the right) ── */}
+        <div className="hidden lg:flex items-center gap-[5px] xl:gap-[10px] flex-nowrap ml-auto">
           <NavButton ariaLabel="Watch us on YouTube"      icon={<YoutubeIcon size={20} />} href="/search/" />
           <NavButton ariaLabel="Follow us on GitHub"      icon={<GithubIcon size={20} />} href="https://github.com/agent-spm" />
           <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={20} />} href="https://x.com/agentspm" />
