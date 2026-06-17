@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
+import SPMLoader from "@/components/shared/SPMLoader";
 
 interface RazorpayCheckoutModalProps {
   isOpen: boolean;
@@ -165,6 +166,16 @@ export function RazorpayCheckoutModal({ isOpen, onClose, billingInterval }: Razo
       {/* Modal Card: Styled to match the Leaderboard/Console card layout perfectly */}
       <div className="relative w-full max-w-[420px] overflow-hidden rounded-[4px] border-2 border-[#E3E2DF] bg-[#EFEDE9] p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] transition-all duration-300 z-10 text-black animate-[scaleInFade_0.4s_cubic-bezier(0.34,1.56,0.64,1)_both]">
         
+        {/* Loading Overlay */}
+        {loading && (
+          <div className="absolute inset-0 bg-[#EFEDE9]/95 z-20 flex flex-col items-center justify-center p-6 space-y-4">
+            <SPMLoader size={110} color="#1B5FED" />
+            <span className="font-mono text-xs text-black/60 uppercase tracking-widest animate-pulse">
+              Preparing Checkout...
+            </span>
+          </div>
+        )}
+
         {/* Close Button: Styled as monospace [X] */}
         <button
           onClick={handleClose}
