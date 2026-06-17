@@ -16,6 +16,18 @@ const DiscordIcon = ({ size = 22 }: { size?: number }) => (
   </svg>
 );
 
+const GithubIcon = ({ size = 20 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+  </svg>
+);
+
+const YoutubeIcon = ({ size = 20 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.5 12 3.5 12 3.5s-7.518 0-9.388.553a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.553 9.388.553 9.388.553s7.518 0 9.388-.553a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+  </svg>
+);
+
 const NavButton = ({ 
   prefixChar, 
   label, 
@@ -129,21 +141,22 @@ export const Navbar = () => {
           <Image src="/images/logo.png" alt="Agent SPM Logo" width={32} height={32} className="object-contain" />
         </Link>
 
-        {/* ── MOBILE ONLY: X + Discord right next to logo ── */}
+        {/* ── MOBILE ONLY: Youtube + Github + X + Discord right next to logo ── */}
         <div className="flex items-center gap-2 lg:hidden">
+          <NavButton ariaLabel="Watch us on YouTube"      icon={<YoutubeIcon size={18} />} href="/search/" />
+          <NavButton ariaLabel="Follow us on GitHub"      icon={<GithubIcon size={18} />} href="https://github.com/agent-spm" />
           <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={18} />} href="https://x.com/agentspm" />
           <NavButton ariaLabel="Join us on Discord"       icon={<DiscordIcon size={20} />} href="https://discord.gg/Qgg73H9Jm" />
         </div>
 
         {/* ── DESKTOP ONLY: nav links ── */}
         <div className="hidden lg:flex items-center gap-[5px] xl:gap-[10px] flex-nowrap">
-          <NavButton prefixChar="H" label="HOME"    href="/" />
           {/* <NavButton prefixChar="B" label="BLOG"    href="/search/" /> */}
           <NavButton prefixChar="D" label="DOCS"    href="/docs" />
           <NavButton prefixChar="P" label="PRICING" href="/pricing/" />
-          <NavButton prefixChar="Y" label="YOUTUBE" href="/search/" />
-          <NavButton prefixChar="G" label="GITHUB"  href="https://github.com/agent-spm" />
-          <NavButton prefixChar="C" label="CONNECT" href="/connect/" />
+          <NavButton prefixChar="T" label="TALK TO US" href="/connect/" />
+          <NavButton ariaLabel="Watch us on YouTube"      icon={<YoutubeIcon size={20} />} href="/search/" />
+          <NavButton ariaLabel="Follow us on GitHub"      icon={<GithubIcon size={20} />} href="https://github.com/agent-spm" />
           <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={20} />} href="https://x.com/agentspm" />
           <NavButton ariaLabel="Join us on Discord"       icon={<DiscordIcon size={22} />} href="https://discord.gg/Qgg73H9Jm" />
         </div>
@@ -190,13 +203,9 @@ export const Navbar = () => {
 
             {/* Staggered Elastic Items */}
             <div className="flex flex-col my-auto pt-4 pb-6">
-              <MobileNavItem num="01" label="Home"    shortcut="[H]" href="/"         onClick={() => setMenuOpen(false)} index={0} />
-              {/* <MobileNavItem num="02" label="Blog"    shortcut="[B]" href="/search/"  onClick={() => setMenuOpen(false)} index={1} /> */}
-              <MobileNavItem num="03" label="Docs"    shortcut="[D]" href="/docs"     onClick={() => setMenuOpen(false)} index={2} />
-              <MobileNavItem num="04" label="Pricing" shortcut="[P]" href="/pricing/" onClick={() => setMenuOpen(false)} index={3} />
-              <MobileNavItem num="05" label="Youtube" shortcut="[Y]" href="/search/"  onClick={() => setMenuOpen(false)} index={4} />
-              <MobileNavItem num="06" label="Github"  shortcut="[G]" href="https://github.com/agent-spm"  onClick={() => setMenuOpen(false)} index={5} />
-              <MobileNavItem num="07" label="Connect" shortcut="[C]" href="/connect/" onClick={() => setMenuOpen(false)} index={6} />
+              <MobileNavItem num="01" label="Docs"       shortcut="[D]" href="/docs"     onClick={() => setMenuOpen(false)} index={0} />
+              <MobileNavItem num="02" label="Pricing"    shortcut="[P]" href="/pricing/" onClick={() => setMenuOpen(false)} index={1} />
+              <MobileNavItem num="03" label="Talk to us" shortcut="[T]" href="/connect/" onClick={() => setMenuOpen(false)} index={2} />
             </div>
 
             {/* Footer with branding */}
@@ -204,6 +213,22 @@ export const Navbar = () => {
               <div className="flex items-center justify-between">
                 <span className="font-sans text-xs text-black/40 font-medium">FOLLOW US</span>
                 <div className="flex items-center gap-3">
+                  <a 
+                    href="/search/" 
+                    className="bracket-btn w-9 h-9 flex items-center justify-center active:scale-95 transition-all"
+                    aria-label="Watch us on YouTube"
+                  >
+                    <YoutubeIcon size={16} />
+                  </a>
+                  <a 
+                    href="https://github.com/agent-spm" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bracket-btn w-9 h-9 flex items-center justify-center active:scale-95 transition-all"
+                    aria-label="Follow us on GitHub"
+                  >
+                    <GithubIcon size={16} />
+                  </a>
                   <a 
                     href="https://x.com/agentspm" 
                     target="_blank" 
