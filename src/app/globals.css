@@ -26,7 +26,7 @@
   --font-mono: 'Fragment Mono', monospace;
   --font-sans: 'Inter', sans-serif;
   --font-caveat: 'Caveat', cursive;
-  
+
   --letter-spacing-tight: -0.05em;
 }
 
@@ -47,7 +47,12 @@
     color: var(--color-surface-50);
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-weight: 500;
     letter-spacing: var(--letter-spacing-tight);
   }
@@ -115,7 +120,7 @@
     background: var(--color-brand-blue);
     color: var(--color-brand-white);
   }
-  
+
   .bracket-btn span {
     color: inherit;
   }
@@ -126,6 +131,7 @@
       opacity: 0;
       transform: scale(0.85);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
@@ -136,34 +142,70 @@
     animation: bubble-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
 
-  .stat-bubble:nth-child(1) { animation-delay: 0.05s; }
-  .stat-bubble:nth-child(2) { animation-delay: 0.1s; }
-  .stat-bubble:nth-child(3) { animation-delay: 0.15s; }
-  .stat-bubble:nth-child(4) { animation-delay: 0.2s; }
-  .stat-bubble:nth-child(5) { animation-delay: 0.25s; }
+  .stat-bubble:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+
+  .stat-bubble:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+
+  .stat-bubble:nth-child(3) {
+    animation-delay: 0.15s;
+  }
+
+  .stat-bubble:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+
+  .stat-bubble:nth-child(5) {
+    animation-delay: 0.25s;
+  }
 
   /* Chart dot pulse animation */
   @keyframes dot-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.7;
+    }
   }
 
   /* Fade In Backdrop */
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 
   /* Slide In Drawer from Right */
   @keyframes slideInRight {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
+    from {
+      transform: translateX(100%);
+    }
+
+    to {
+      transform: translateX(0);
+    }
   }
 
   /* Full Screen Slide Down from Top */
   @keyframes slideInDown {
-    from { transform: translateY(-100%); }
-    to { transform: translateY(0); }
+    from {
+      transform: translateY(-100%);
+    }
+
+    to {
+      transform: translateY(0);
+    }
   }
 
   /* Menu Items Cascade Fade In & Up */
@@ -172,6 +214,7 @@
       opacity: 0;
       transform: translateY(16px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -184,9 +227,11 @@
       opacity: 0;
       transform: scale(0.93) translateY(-8px);
     }
+
     70% {
       transform: scale(1.01) translateY(1px);
     }
+
     100% {
       opacity: 1;
       transform: scale(1) translateY(0);
@@ -199,9 +244,11 @@
       opacity: 0;
       transform: translateX(36px);
     }
+
     75% {
       transform: translateX(-4px);
     }
+
     100% {
       opacity: 1;
       transform: translateX(0);
