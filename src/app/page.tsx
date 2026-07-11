@@ -4,24 +4,36 @@ import { Navbar } from "@/components/layout/Navbar";
 export default function Home() {
   return (
     <main className="min-h-screen bg-white text-black font-sans relative overflow-x-hidden">
-      {/* ── Gradient Backdrop Section ── */}
-      <section className="relative w-full min-h-screen bg-gradient-to-b from-[#002DDF] via-[#5EA6FE] to-white pt-2 sm:pt-4 pb-24 overflow-hidden">
-
-        <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-12">
+      {/* ── Gradient Hero Section — exactly 100vh, flex col ── */}
+      <section
+        className="relative w-full overflow-hidden"
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          background: 'linear-gradient(180deg, #002DDF 0%, #3B8EFF 35%, #7EC6FF 65%, #DAEEFF 85%, #ffffff 100%)',
+        }}
+      >
+        {/* Navbar — pinned to top */}
+        <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-12 flex-shrink-0">
           <Navbar />
         </div>
 
-        {/* ── Hero Content ── */}
-        <div className="flex flex-col items-center justify-center text-center px-4 sm:px-6 mt-8 sm:mt-12 lg:mt-16">
+        {/* ── Hero Content — grows to fill remaining height, centers vertically ── */}
+        <div
+          className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6"
+          style={{ paddingBottom: '6vh' }}
+        >
 
           {/* Eyebrow: white logo + product name */}
-          <div className="flex items-center gap-2 mb-6 sm:mb-8">
+          <div className="flex items-center justify-center gap-[6px] mb-1.5">
             <Image
               src="/images/white.png"
               alt="Agent SPM"
-              width={14}
-              height={14}
-              className="object-contain w-5 h-5 sm:w-6 sm:h-6"
+              width={18}
+              height={18}
+              className="object-contain flex-shrink-0"
+              // style={{ width: 'clamp(14px, 1.2vw, 18px)', height: 'clamp(14px, 1.2vw, 18px)' }}
             />
             <span
               style={{
@@ -30,6 +42,7 @@ export default function Home() {
                 fontSize: '24px',
                 letterSpacing: '0.01em',
                 color: '#ffffff',
+                whiteSpace: 'nowrap',
               }}
             >
               Agent Skills Package Manager
@@ -37,38 +50,43 @@ export default function Home() {
           </div>
 
           {/* ── Main Headline ── */}
+          {/* Spec: Instrument Serif, 400, italic, 128px → clamp-scaled for viewport */}
           <h1
             style={{
               fontFamily: "'Instrument Serif', serif",
               fontWeight: 400,
               fontStyle: 'italic',
-              // 128px spec, scaled responsively — clamp from 52px on mobile up to 96px on large screens
-              fontSize: 'clamp(52px, 8.5vw, 96px)',
+              fontSize: 'clamp(48px, 7.5vw, 108px)',
               lineHeight: '96%',
               letterSpacing: '-0.03em',
               textAlign: 'center',
               color: '#ffffff',
-              maxWidth: '900px',
+              maxWidth: 'clamp(480px, 70vw, 960px)',
+              margin: '0 auto',
             }}
           >
             Intelligence should be Simple.
           </h1>
 
-          {/* ── Body Copy ── */}
+          {/* ── Body Copy — Inter Bold, white, centered ── */}
           <p
             style={{
               fontFamily: "'Inter', sans-serif",
               fontWeight: 700,
-              fontSize: 'clamp(13px, 1.4vw, 16px)',
-              lineHeight: '1.6',
+              fontSize: '18px',
+              lineHeight: '1.35',
+              letterSpacing: '-0.03em',
               textAlign: 'center',
               color: '#ffffff',
-              maxWidth: '540px',
-              marginTop: 'clamp(24px, 3vw, 36px)',
+              maxWidth: '820px',
+              marginTop: 'clamp(20px, 2.5vw, 36px)',
+              opacity: 0.95,
             }}
           >
-            Stop rebuilding. Start compounding. Skills arm your agents with battle-tested
+            Stop rebuilding. Start compounding. Skills arm your agents with battle–tested
+            <br className="hidden md:inline" />
             procedural knowledge, installed in seconds, shared across teams, refined
+            <br className="hidden md:inline" />
             over time. We&apos;re building the arsenal. You bring the mission.
           </p>
 
@@ -76,26 +94,26 @@ export default function Home() {
           <a
             href="#"
             style={{
-              marginTop: 'clamp(28px, 3.5vw, 40px)',
+              marginTop: 'clamp(24px, 2.8vw, 40px)',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              paddingLeft: 'clamp(20px, 2.5vw, 28px)',
-              paddingRight: 'clamp(20px, 2.5vw, 28px)',
-              paddingTop: '10px',
-              paddingBottom: '10px',
+              paddingLeft: 'clamp(22px, 2vw, 32px)',
+              paddingRight: 'clamp(22px, 2vw, 32px)',
+              paddingTop: 'clamp(9px, 0.8vw, 12px)',
+              paddingBottom: 'clamp(9px, 0.8vw, 12px)',
               borderRadius: '9999px',
               background: '#ffffff',
               color: '#1B5FED',
               fontFamily: "'Inter', sans-serif",
               fontWeight: 600,
-              fontSize: 'clamp(13px, 1.2vw, 15px)',
+              fontSize: 'clamp(12px, 1vw, 15px)',
               letterSpacing: '-0.01em',
-              border: '2px solid rgba(255,255,255,0.6)',
+              border: '2px solid rgba(255,255,255,0.5)',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               textDecoration: 'none',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.10)',
+              boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
             }}
           >
             Download the CLI
