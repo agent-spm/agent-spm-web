@@ -4,27 +4,26 @@ import { Navbar } from "@/components/layout/Navbar";
 export default function Home() {
   return (
     <main className="min-h-screen bg-white text-black font-sans relative overflow-x-hidden">
-      {/* ── Gradient Hero Section — exactly 100vh, flex col ── */}
+      {/* ── Gradient Hero Section — extends to fit Page 1 & Page 2 content ── */}
       <section
-        className="relative w-full overflow-hidden"
+        className="relative w-full"
         style={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
           background: 'linear-gradient(180deg, #0012A3 0%, #004DFF 24%, #3895FF 52%, #8CD5FF 76%, #DAEEFF 92%, #ffffff 100%)',
           boxShadow: 'inset 0 0 120px rgba(255, 255, 255, 0.85), inset 0 0 40px rgba(255, 255, 255, 0.5)',
         }}
       >
-        {/* Navbar — pinned to top */}
-        <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-12 flex-shrink-0">
-          <Navbar />
-        </div>
+        {/* ── Page 1: Hero Viewport (100vh) ── */}
+        <div className="relative w-full min-h-screen flex flex-col justify-between">
+          {/* Navbar — pinned to top */}
+          <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-12 flex-shrink-0 relative z-20">
+            <Navbar />
+          </div>
 
-        {/* ── Hero Content — grows to fill remaining height, centers vertically ── */}
-        <div
-          className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6"
-          style={{ paddingBottom: '6vh' }}
-        >
+          {/* ── Hero Content — centered in the viewport ── */}
+          <div
+            className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 relative z-10"
+            style={{ paddingBottom: '80px' }}
+          >
 
           {/* Eyebrow: white logo + product name */}
           <div className="flex items-center justify-center gap-[6px] mb-1.5">
@@ -114,7 +113,72 @@ export default function Home() {
           </a>
         </div>
 
-      </section>
-    </main>
-  );
+        {/* Pixel Art SVG — centered on the bottom edge of Page 1 (50% above fold, 50% below) */}
+        <div
+          className="absolute left-0 w-full z-0 pointer-events-none select-none"
+          style={{
+            bottom: 0,
+            transform: 'translateY(70%)',
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1920 504"
+            fill="none"
+            className="w-full h-auto block"
+          >
+            <path
+              fill="#fff"
+              d="M137.122 274.244H91.415v45.708H0v-45.708h45.708v-45.707h91.414v45.707ZM274.244 319.952h-45.707v-45.708h45.707v45.708ZM182.83 182.83h45.707v91.414H182.83v-45.707h-45.708V182.83H91.415v-45.708h91.415v45.708ZM319.952 274.244h-45.708v-45.707h45.708v45.707ZM274.244 182.83h-45.707v-45.708h45.707v45.708ZM319.952 137.122h-45.708V91.719h-45.707V46.012h45.707V0h45.708v137.122ZM457.515 228.831h45.708v-45.707h91.414v45.707H548.93v45.708h-91.415v-45.708ZM320.393 183.124H366.1v45.707h-45.707v-45.707Z"
+            />
+            <path
+              fill="#fff"
+              d="M411.808 320.246H366.1v-91.415h45.708v45.708h45.707v45.707h45.708v45.707h-91.415v-45.707ZM274.685 228.831h45.708v45.708h-45.708v-45.708ZM320.393 320.246H366.1v45.707h-45.707v-45.707ZM274.685 365.953h-45.708v45.403H366.1v45.707h-45.707v46.013h-45.708V365.953ZM503.37 137.27h-45.708V91.562h-91.415v45.708h45.708v45.707h91.415V137.27ZM640.492 91.562h-45.708v45.708h45.708V91.562Z"
+            />
+            <path
+              fill="#fff"
+              d="M549.077 228.684h45.707V137.27h-45.707v45.707H503.37v45.707h-45.708v45.708h91.415v-45.708ZM686.199 137.27h-45.707v45.707h45.707V137.27ZM640.492 228.684h-45.708v45.708h45.708v-45.708ZM686.199 274.392h-45.707v45.402h-45.708v45.708h45.708v46.012h45.707V274.392ZM686.493 46.736h-45.707V1.03h-91.415v45.707h45.707v45.708h91.415V46.736ZM823.615 1.029h-45.707v45.707h45.707V1.03Z"
+            />
+            <path
+              fill="#fff"
+              d="M732.2 138.151h45.708V46.736H732.2v45.708h-45.707v45.707h-45.707v45.707H732.2v-45.707ZM869.323 46.736h-45.708v45.708h45.708V46.736ZM823.615 138.151h-45.707v45.707h45.707v-45.707ZM869.323 183.858h-45.708v45.403h-45.707v45.708h45.707v46.012h45.708V183.858ZM1097.27 229.713v-45.708h45.71V92.591h-45.71v45.707h-45.71v91.415h45.71ZM1142.98 366.835v-45.707h-45.71v45.707h45.71Z"
+            />
+            <path
+              fill="#fff"
+              d="M1005.86 275.42v45.708h91.41V275.42h-45.71v-45.707h-45.7v-45.708h-45.71v91.415h45.71ZM1097.27 412.543v-45.708h-45.71v45.708h45.71Z"
+            />
+            <path
+              fill="#fff"
+              d="M1005.86 366.835v-45.707h-45.71v45.707h45.71ZM960.15 412.543v-45.708h-45.403v-45.707H869.04v45.707h-46.012v45.708H960.15ZM1097.42 275.273h45.71v45.708h91.41v-45.708h-45.71v-45.707h-91.41v45.707ZM960.297 320.981H1006v-45.708h-45.703v45.708ZM1051.71 183.858H1006v91.415h45.71v-45.707h45.71v-45.708h45.71v-45.707h-91.42v45.707ZM914.589 275.273h45.708v-45.707h-45.708v45.707ZM960.297 183.858H1006v-45.707h-45.703v45.707ZM914.589 138.151h45.708V92.748H1006V47.041h-45.703V1.029h-45.708V138.15ZM1188.54 46.736h-45.71V1.03h-91.41v45.707h45.71v45.708h91.41V46.736ZM1325.66 1.029h-45.71v45.707h45.71V1.03Z"
+            />
+            <path
+              fill="#fff"
+              d="M1234.25 138.151h45.7V46.736h-45.7v45.708h-45.71v45.707h-45.71v45.707h91.42v-45.707ZM1371.37 46.736h-45.71v45.708h45.71V46.736ZM1325.66 138.151h-45.71v45.707h45.71v-45.707ZM1371.37 183.858h-45.71v45.403h-45.71v45.708h45.71v46.012h45.71V183.858Z"
+            />
+            <path
+              fill="#fff"
+              d="M1462.2 228.831h-45.71v-45.707h-91.42v45.707h45.71v45.708h91.42v-45.708ZM1599.32 183.124h-45.71v45.707h45.71v-45.707Z"
+            />
+            <path
+              fill="#fff"
+              d="M1507.9 320.246h45.71v-91.415h-45.71v45.708h-45.7v45.707h-45.71v45.707h91.41v-45.707ZM1645.03 228.831h-45.71v45.708h45.71v-45.708Z"
+            />
+            <path
+              fill="#fff"
+              d="M1599.32 320.246h-45.71v45.707h45.71v-45.707ZM1645.03 365.953h-45.71v45.403h-45.71v45.707h45.71v46.013h45.71V365.953ZM1782.59 274.244h45.71v45.708h91.41v-45.708H1874v-45.707h-91.41v45.707ZM1645.47 319.952h45.7v-45.708h-45.7v45.708Z"
+            />
+            <path
+              fill="#fff"
+              d="M1736.88 182.83h-45.71v91.414h45.71v-45.707h45.71V182.83h45.71v-45.708h-91.42v45.708ZM1599.76 274.244h45.71v-45.707h-45.71v45.707ZM1645.47 182.83h45.7v-45.708h-45.7v45.708ZM1599.76 137.122h45.71V91.719h45.7V46.012h-45.7V0h-45.71v137.122ZM1371.37 46.736v45.708h45.71V46.736h-45.71ZM1508.49 138.151V92.444h-91.41v45.707h45.7v45.707h45.71v45.708h45.71v-91.415h-45.71ZM1417.08 1.029v45.707h45.7V1.03h-45.7ZM1508.49 46.736v45.708h45.71V46.736h-45.71Z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {/* ── Page 2: Scroll Spacer (allows user to scroll to reveal the rest of the SVG) ── */}
+      <div className="h-[80vh] w-full relative z-10 pointer-events-none" />
+
+    </section>
+  </main>
+);
 }
