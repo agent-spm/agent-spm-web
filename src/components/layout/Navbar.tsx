@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const XIcon = ({ size = 20 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -43,21 +44,43 @@ const NavButton = ({
   href?: string;
   ariaLabel?: string;
 }) => {
-  const hasSpaces = label && label.includes(' ');
+
+  const baseClass = "group flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm cursor-pointer select-none";
+
+  // Typography: Fragment Mono, 400, 20px, -5% letter-spacing, uppercase, line-height 100%
+  const typographyStyle: React.CSSProperties = {
+    fontFamily: "'Fragment Mono', monospace",
+    fontWeight: 400,
+    fontSize: '20px',
+    lineHeight: '100%',
+    letterSpacing: '-0.05em',
+    textTransform: 'uppercase',
+  };
+
+  let customClass = "";
+  if (icon) {
+    // Icon button style - exactly 36x36px to match nav button height
+    customClass = `${baseClass} w-9 h-9 bg-white text-black rounded-[4px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-brand-blue hover:shadow-md hover:-translate-y-[1px]`;
+  } else {
+    // Text navigation button - height 36px (h-9) to fit 20px font
+    if (active) {
+      // Active pill: blue bg, white border, rounded-full
+      customClass = `${baseClass} h-9 px-[16px] bg-brand-blue text-white rounded-full border-2 border-white shadow-md hover:bg-brand-blue/90`;
+    } else {
+      // Inactive: white bg, square corners, same height
+      customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[4px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-brand-blue hover:shadow-md hover:-translate-y-[1px]`;
+    }
+  }
+
   const content = (
-    <button className={`bracket-btn ${active ? 'active' : ''}`} aria-label={ariaLabel || label}>
+    <button className={customClass} aria-label={ariaLabel || label}>
       {icon ? (
         <span className="flex items-center justify-center">{icon}</span>
       ) : (
-        <>
-          <span className="opacity-50">[{prefixChar}]</span>
-          <span
-            className="ml-1.5"
-            style={hasSpaces ? { wordSpacing: '-0.28em', letterSpacing: '-0.06em' } : undefined}
-          >
-            {label}
-          </span>
-        </>
+        <span style={typographyStyle} className="flex items-center whitespace-nowrap">
+          <span>[{prefixChar}]</span>
+          <span style={{ marginLeft: '0.3em' }}>{label}</span>
+        </span>
       )}
     </button>
   );
@@ -137,36 +160,46 @@ const MobileNavItem = ({ num, label, shortcut, href, onClick, index }: MobileNav
 
 export const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isLinkActive = (href: string) => {
+    if (!pathname) return false;
+    const normalizedPath = pathname.replace(/\/$/, '');
+    const normalizedHref = href.replace(/\/$/, '');
+    return normalizedPath === normalizedHref || normalizedPath.startsWith(normalizedHref + '/');
+  };
 
   return (
     <>
-      <nav className="flex items-center gap-2 sm:gap-[10px] py-4 sm:py-5 w-full" aria-label="Main navigation">
+      <nav className="flex items-center gap-2 sm:gap-[5px] py-4 sm:py-5 w-full" aria-label="Main navigation">
 
-        {/* Logo */}
-        <Link href="/" className="flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-80 active:scale-95 transition-all">
-          <Image src="/images/logo.png" alt="Agent SPM Logo" width={32} height={32} className="object-contain" />
+        {/* Logo container - exactly 32x32px (h-8 w-8) matching the height of nav buttons */}
+        <Link
+          href="/"
+          className="flex items-center justify-center w-9 h-9 bg-white rounded-[4px] border border-white flex-shrink-0 cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm"
+        >
+          <Image src="/images/blueLogo.png" alt="Agent SPM Logo" width={32} height={32} className="object-contain" />
         </Link>
 
-        {/* ── MOBILE ONLY: Youtube + Github + X + Discord right next to logo ── */}
-        <div className="flex items-center gap-2 lg:hidden">
-          <NavButton ariaLabel="Watch us on YouTube" icon={<YoutubeIcon size={18} />} href="/search/" />
+        {/* ── MOBILE ONLY: Github + Youtube + X + Discord right next to logo ── */}
+        <div className="flex items-center gap-[6px] lg:hidden">
           <NavButton ariaLabel="Follow us on GitHub" icon={<GithubIcon size={18} />} href="https://github.com/agent-spm" />
+          <NavButton ariaLabel="Watch us on YouTube" icon={<YoutubeIcon size={18} />} href="/search/" />
           <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={18} />} href="https://x.com/agentspm" />
           <NavButton ariaLabel="Join us on Discord" icon={<DiscordIcon size={20} />} href="https://discord.gg/Qgg73H9Jm" />
         </div>
 
-        {/* ── DESKTOP ONLY: nav links ── */}
-        <div className="hidden lg:flex items-center gap-[5px] xl:gap-[10px] flex-nowrap">
-          {/* <NavButton prefixChar="B" label="BLOG"    href="/search/" /> */}
-          <NavButton prefixChar="D" label="DOCS" href="/docs" />
-          <NavButton prefixChar="P" label="PRICING" href="/pricing/" />
-          <NavButton prefixChar="T" label="TALK TO US" href="/connect/" />
+        {/* ── DESKTOP ONLY: nav links (height 32px, adjusts spaces width according to text) ── */}
+        <div className="hidden lg:flex items-center gap-[5px] flex-nowrap">
+          <NavButton prefixChar="B" label="BLOG" href="/search/" active={false} />
+          <NavButton prefixChar="D" label="DOCS" href="/docs" active={true} />
+          <NavButton prefixChar="C" label="CONNECT" href="/connect/" active={false} />
         </div>
 
         {/* ── DESKTOP ONLY: icon links (pushed to the right) ── */}
-        <div className="hidden lg:flex items-center gap-[5px] xl:gap-[10px] flex-nowrap ml-auto">
-          <NavButton ariaLabel="Watch us on YouTube" icon={<YoutubeIcon size={20} />} href="/search/" />
+        <div className="hidden lg:flex items-center gap-[5px] flex-nowrap ml-auto">
           <NavButton ariaLabel="Follow us on GitHub" icon={<GithubIcon size={20} />} href="https://github.com/agent-spm" />
+          <NavButton ariaLabel="Watch us on YouTube" icon={<YoutubeIcon size={20} />} href="/search/" />
           <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={20} />} href="https://x.com/agentspm" />
           <NavButton ariaLabel="Join us on Discord" icon={<DiscordIcon size={22} />} href="https://discord.gg/Qgg73H9Jm" />
         </div>
@@ -174,7 +207,7 @@ export const Navbar = () => {
         {/* ── MOBILE ONLY: Menu Grid Toggle Button ── */}
         <div className="ml-auto lg:hidden">
           <button
-            className="bracket-btn flex items-center justify-center"
+            className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm hover:bg-brand-blue hover:text-white hover:border-brand-blue"
             aria-label="Open menu"
             onClick={() => setMenuOpen(true)}
           >
@@ -198,12 +231,12 @@ export const Navbar = () => {
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-black/5">
               <div className="flex items-center gap-2">
-                <Image src="/images/logo.png" alt="Agent SPM Logo" width={28} height={28} className="object-contain" />
+                <Image src="/images/blueLogo.png" alt="Agent SPM Logo" width={28} height={28} className="object-contain" />
                 <span className="font-mono text-xs font-bold tracking-widest text-black/40 uppercase">NAVIGATION</span>
               </div>
 
               <button
-                className="bracket-btn p-2 flex items-center justify-center active:scale-95 transition-transform"
+                className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center active:scale-95 transition-all hover:bg-brand-blue hover:text-white hover:border-brand-blue"
                 onClick={() => setMenuOpen(false)}
                 aria-label="Close menu"
               >
@@ -213,9 +246,9 @@ export const Navbar = () => {
 
             {/* Staggered Elastic Items */}
             <div className="flex flex-col my-auto pt-4 pb-6">
-              <MobileNavItem num="01" label="Docs" shortcut="[D]" href="/docs" onClick={() => setMenuOpen(false)} index={0} />
-              <MobileNavItem num="02" label="Pricing" shortcut="[P]" href="/pricing/" onClick={() => setMenuOpen(false)} index={1} />
-              <MobileNavItem num="03" label="Talk to us" shortcut="[T]" href="/connect/" onClick={() => setMenuOpen(false)} index={2} />
+              <MobileNavItem num="01" label="Blog" shortcut="[B]" href="/search/" onClick={() => setMenuOpen(false)} index={0} />
+              <MobileNavItem num="02" label="Docs" shortcut="[D]" href="/docs" onClick={() => setMenuOpen(false)} index={1} />
+              <MobileNavItem num="03" label="Connect" shortcut="[C]" href="/connect/" onClick={() => setMenuOpen(false)} index={2} />
             </div>
 
             {/* Footer with branding */}
@@ -225,7 +258,7 @@ export const Navbar = () => {
                 <div className="flex items-center gap-3">
                   <a
                     href="/search/"
-                    className="bracket-btn w-9 h-9 flex items-center justify-center active:scale-95 transition-all"
+                    className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white hover:border-brand-blue active:scale-95 shadow-sm"
                     aria-label="Watch us on YouTube"
                   >
                     <YoutubeIcon size={16} />
@@ -234,7 +267,7 @@ export const Navbar = () => {
                     href="https://github.com/agent-spm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bracket-btn w-9 h-9 flex items-center justify-center active:scale-95 transition-all"
+                    className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white hover:border-brand-blue active:scale-95 shadow-sm"
                     aria-label="Follow us on GitHub"
                   >
                     <GithubIcon size={16} />
@@ -243,7 +276,7 @@ export const Navbar = () => {
                     href="https://x.com/agentspm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bracket-btn w-9 h-9 flex items-center justify-center active:scale-95 transition-all"
+                    className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white hover:border-brand-blue active:scale-95 shadow-sm"
                     aria-label="Follow us on X"
                   >
                     <XIcon size={16} />
@@ -252,7 +285,7 @@ export const Navbar = () => {
                     href="https://discord.gg/Qgg73H9Jm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bracket-btn w-9 h-9 flex items-center justify-center active:scale-95 transition-all"
+                    className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white hover:border-brand-blue active:scale-95 shadow-sm"
                     aria-label="Join Discord"
                   >
                     <DiscordIcon size={18} />
