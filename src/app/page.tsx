@@ -93,30 +93,10 @@ export default function Home() {
           {/* ── CTA Button ── */}
           <a
             href="#"
-            style={{
-              marginTop: 'clamp(24px, 2.8vw, 40px)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingLeft: 'clamp(22px, 2vw, 32px)',
-              paddingRight: 'clamp(22px, 2vw, 32px)',
-              paddingTop: 'clamp(9px, 0.8vw, 12px)',
-              paddingBottom: 'clamp(9px, 0.8vw, 12px)',
-              borderRadius: '9999px',
-              background: '#ffffff',
-              color: '#1B5FED',
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 600,
-              fontSize: 'clamp(12px, 1vw, 15px)',
-              letterSpacing: '-0.01em',
-              border: '2px solid rgba(255,255,255,0.5)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              textDecoration: 'none',
-              boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
-            }}
+            className="download-cli-btn"
           >
-            Download the CLI
+            <span style={{ marginRight: '0.4em' }}>[↓]</span>
+            <span>Download The Cli</span>
           </a>
         </div>
 
