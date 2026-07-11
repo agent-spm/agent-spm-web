@@ -11,7 +11,8 @@ export default function Home() {
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
-          background: 'linear-gradient(180deg, #002DDF 0%, #3B8EFF 35%, #7EC6FF 65%, #DAEEFF 85%, #ffffff 100%)',
+          background: 'linear-gradient(180deg, #0012A3 0%, #004DFF 24%, #3895FF 52%, #8CD5FF 76%, #DAEEFF 92%, #ffffff 100%)',
+          boxShadow: 'inset 0 0 120px rgba(255, 255, 255, 0.85), inset 0 0 40px rgba(255, 255, 255, 0.5)',
         }}
       >
         {/* Navbar — pinned to top */}
