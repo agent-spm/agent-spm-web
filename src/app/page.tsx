@@ -8,7 +8,7 @@ export default function Home() {
       <section
         className="relative w-full"
         style={{
-          background: 'linear-gradient(180deg, #0012A3 0%, #004DFF 24%, #3895FF 52%, #8CD5FF 76%, #DAEEFF 92%, #ffffff 100%)',
+          background: 'linear-gradient(180deg, #0012A3 0%, #004DFF 22%, #3895FF 60%, #8CD5FF 80%, #DAEEFF 92%, #ffffff 100%)',
           boxShadow: 'inset 0 0 120px rgba(255, 255, 255, 0.85), inset 0 0 40px rgba(255, 255, 255, 0.5)',
         }}
       >
