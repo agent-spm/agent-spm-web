@@ -38,11 +38,11 @@ export default function OpenSourceStats() {
         </h2>
 
         {/* Stats row */}
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-8 sm:gap-x-10 md:gap-x-14">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-8 sm:gap-x-2 md:gap-x-2">
           {STATS.map((stat) => (
             <div
               key={stat.label}
-              className="flex items-center gap-x-3"
+              className="flex items-center"
             >
               {/* Left laurel */}
               <LaurelLeft
@@ -56,13 +56,13 @@ export default function OpenSourceStats() {
               <div className="flex flex-col items-center">
                 <span
                   style={{
-                    fontFamily: "'Inter",
+                    fontFamily: "Inter",
                     fontWeight: 500,
                     fontStyle: "normal",
                     fontSize: "30px",
-                    lineHeight: "normal",
+                    lineHeight: "1",
                     color: "#000000",
-                    letterSpacing: "-5%",
+                   
                   }}
                 >
                   {stat.value}
@@ -73,6 +73,7 @@ export default function OpenSourceStats() {
                     fontWeight: 500,
                     fontSize: "clamp(11px, 1vw, 13px)",
                     color: "#888888",
+                    lineHeight: "1",
                     letterSpacing: "-3%",
                     marginTop: "2px",
                   }}
@@ -97,11 +98,11 @@ export default function OpenSourceStats() {
           style={{
             fontFamily: "'Inter', sans-serif",
             fontWeight: 500,
-            fontSize: "clamp(13px, 1.1vw, 15px)",
+            fontSize: "16px",
             lineHeight: 1.6,
             color: "#000000",
             textAlign: "center",
-            maxWidth: "420px",
+            maxWidth: "520px",
           }}
         >
           Skills Package Manager is built by a global, growing, and thriving
