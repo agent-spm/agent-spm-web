@@ -125,44 +125,6 @@
     color: inherit;
   }
 
-  /* Sleek developer-centric Download CLI CTA Button */
-  .download-cli-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    margin-top: clamp(28px, 3.2vw, 44px);
-    height: 46px;
-    padding-left: 22px;
-    padding-right: 22px;
-    background-color: #ffffff;
-    color: #000000;
-    border-radius: 2px;
-    border: 2px solid #ffffff;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-    font-family: 'Inter';
-    font-weight: 400;
-    font-size: clamp(14px, 1.4vw, 18px);
-    letter-spacing: -0.05em;
-    text-transform: none;
-    text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .download-cli-btn:hover {
-    background-color: #1B5FED;
-    border-color: #1B5FED;
-    color: #ffffff;
-    box-shadow: 0 6px 24px rgba(27, 95, 237, 0.35);
-    transform: translateY(-2px);
-  }
-
-  .download-cli-btn:active {
-    transform: translateY(0) scale(0.98);
-  }
 
   /* Stat bubble entrance animation */
   @keyframes bubble-in {
