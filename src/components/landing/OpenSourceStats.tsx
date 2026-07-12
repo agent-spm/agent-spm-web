@@ -42,12 +42,12 @@ export default function OpenSourceStats() {
           {STATS.map((stat) => (
             <div
               key={stat.label}
-              className="flex items-center gap-x-2"
+              className="flex items-center gap-x-3"
             >
               {/* Left laurel */}
               <LaurelLeft
-                width={40}
-                height={57}
+                width={52}
+                height={74}
                 aria-hidden="true"
                 className="flex-shrink-0"
               />
@@ -56,12 +56,13 @@ export default function OpenSourceStats() {
               <div className="flex flex-col items-center">
                 <span
                   style={{
-                    fontFamily: "'Instrument Serif', serif",
-                    fontWeight: 400,
-                    fontSize: "clamp(28px, 3.5vw, 48px)",
-                    lineHeight: 1.05,
+                    fontFamily: "'Inter",
+                    fontWeight: 500,
+                    fontStyle: "normal",
+                    fontSize: "30px",
+                    lineHeight: "normal",
                     color: "#000000",
-                    letterSpacing: "-0.02em",
+                    letterSpacing: "-5%",
                   }}
                 >
                   {stat.value}
@@ -69,10 +70,10 @@ export default function OpenSourceStats() {
                 <span
                   style={{
                     fontFamily: "'Inter', sans-serif",
-                    fontWeight: 400,
+                    fontWeight: 500,
                     fontSize: "clamp(11px, 1vw, 13px)",
                     color: "#888888",
-                    letterSpacing: "0.02em",
+                    letterSpacing: "-3%",
                     marginTop: "2px",
                   }}
                 >
@@ -82,8 +83,8 @@ export default function OpenSourceStats() {
 
               {/* Right laurel */}
               <LaurelRight
-                width={40}
-                height={57}
+                width={52}
+                height={74}
                 aria-hidden="true"
                 className="flex-shrink-0"
               />
@@ -95,10 +96,10 @@ export default function OpenSourceStats() {
         <p
           style={{
             fontFamily: "'Inter', sans-serif",
-            fontWeight: 400,
+            fontWeight: 500,
             fontSize: "clamp(13px, 1.1vw, 15px)",
             lineHeight: 1.6,
-            color: "#555555",
+            color: "#000000",
             textAlign: "center",
             maxWidth: "420px",
           }}

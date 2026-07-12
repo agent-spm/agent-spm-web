@@ -34,7 +34,7 @@ export default function Home() {
         </div>
 
         {/* Page 2 — Pixel art scroll-reveal zone */}
-        <div className="relative h-[65vh] w-full pointer-events-none">
+        <div className="relative h-[59vh] w-full pointer-events-none">
           <div
             className="absolute left-0 w-full z-30 pointer-events-none select-none"
             style={{ top: 0, transform: "translateY(-10%)" }}
