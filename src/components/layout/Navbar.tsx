@@ -68,7 +68,7 @@ const NavButton = ({
       customClass = `${baseClass} h-9 px-[12px] bg-brand-blue text-white rounded-full border-2 border-white shadow-md hover:bg-brand-blue/90`;
     } else {
       // Inactive: white bg, square corners, same height
-      customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[4px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-brand-blue hover:shadow-md hover:-translate-y-[1px]`;
+      customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[2px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-brand-blue hover:shadow-md hover:-translate-y-[1px]`;
     }
   }
 

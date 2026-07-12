@@ -13,16 +13,16 @@ export default function Home() {
           boxShadow: 'inset 0 0 120px rgba(255, 255, 255, 0.85), inset 0 0 40px rgba(255, 255, 255, 0.5)',
         }}
       >
-        {/* Page 1: Hero Viewport (100vh) */}
+         {/* Page 1: Hero Viewport (100vh) */}
         <div className="relative w-full min-h-screen flex flex-col justify-between">
           {/* Navbar — pinned to top */}
-          <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-12 flex-shrink-0 relative z-20">
+          <div className="w-full max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-12 flex-shrink-0 relative z-20">
             <Navbar />
           </div>
 
           {/* Hero Content - centered in the viewport */}
           <div
-            className="flex-1 flex flex-col items-center justify-center text-center px-4 sm:px-6 relative z-10"
+            className="flex-1 flex flex-col items-center justify-center text-center px-6 sm:px-12 md:px-20 relative z-10"
             style={{ paddingBottom: '80px' }}
           >
 
@@ -31,16 +31,15 @@ export default function Home() {
               <Image
                 src="/images/white.png"
                 alt="Agent SPM"
-                width={18}
-                height={18}
+                width={16}
+                height={16}
                 className="object-contain flex-shrink-0"
-              // style={{ width: 'clamp(14px, 1.2vw, 18px)', height: 'clamp(14px, 1.2vw, 18px)' }}
               />
               <span
                 style={{
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: 700,
-                  fontSize: '24px',
+                  fontSize: '20px',
                   letterSpacing: '0.01em',
                   color: '#ffffff',
                   whiteSpace: 'nowrap',
@@ -51,7 +50,6 @@ export default function Home() {
             </div>
 
             {/* Main Headline */}
-            {/* Spec: Instrument Serif, 400, italic, 128px → clamp-scaled for viewport */}
             <h1
               style={{
                 fontFamily: "'Instrument Serif', serif",
@@ -73,7 +71,7 @@ export default function Home() {
             <p
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontWeight: 700,
+                fontWeight: 500,
                 fontSize: '18px',
                 lineHeight: '1.35',
                 letterSpacing: '-0.03em',
@@ -94,27 +92,27 @@ export default function Home() {
             {/* CTA Button */}
             <a
               href="#"
-              className="inline-flex items-center justify-center bg-white text-black font-semibold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 gap-2 cursor-pointer select-none text-base sm:text-lg px-8 sm:px-12 h-14 sm:h-16 mt-8 sm:mt-10 group"
+              className="inline-flex items-center justify-center bg-white text-black font-semibold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 gap-2 cursor-pointer select-none text-base sm:text-lg px-8 sm:px-10 h-13 sm:h-13 mt-8 sm:mt-10 group"
             >
               <span>Explore skills &amp; MCPs</span>
               <span className="transform transition-transform duration-200 group-hover:translate-x-1">→</span>
             </a>
           </div>
+        </div>
 
-          {/* Pixel Art - scroll-driven bottom-to-top reveal */}
+        {/* Page 2: Scroll Spacer (allows user to scroll to reveal the rest of the SVG) */}
+        <div className="h-[100vh] w-full relative z-10 pointer-events-none">
+          {/* Pixel Art — scroll-driven bottom-to-top reveal */}
           <div
             className="absolute left-0 w-full z-30 pointer-events-none select-none"
             style={{
-              bottom: 0,
-              transform: 'translateY(70%)',
+              top: 0,
+              transform: 'translateY(-50%)',
             }}
           >
             <PixelBox color="#ffffff" />
           </div>
         </div>
-
-        {/* Page 2: Scroll Spacer (allows user to scroll to reveal the rest of the SVG) */}
-        <div className="h-[100vh] w-full relative z-10 pointer-events-none" />
 
       </section>
 
