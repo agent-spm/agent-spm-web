@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import LenisProvider from "@/components/providers/LenisProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,7 +53,9 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Fragment+Mono&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased font-sans" suppressHydrationWarning>
-        {children}
+        <LenisProvider>
+          {children}
+        </LenisProvider>
       </body>
     </html>
   );
