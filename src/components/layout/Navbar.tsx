@@ -67,8 +67,13 @@ const NavButton = ({
       // Active pill: blue bg, white border, rounded-full
       customClass = `${baseClass} h-9 px-[12px] bg-brand-blue text-white rounded-full border-2 border-white shadow-md hover:bg-brand-blue/90`;
     } else {
-      // Inactive: white bg, square corners, same height
-      customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[2px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-brand-blue hover:shadow-md hover:-translate-y-[1px]`;
+      if (label === "DOCS") {
+        // Docs button: inactive by default, morphs into rounded-[18px] blue bg with white border on hover (exact capsule height transition)
+        customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[2px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-white hover:rounded-[18px] hover:shadow-md hover:-translate-y-[1px]`;
+      } else {
+        // Other text buttons (Blog, Connect): inactive by default, remains square (rounded-[2px]) on hover
+        customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[2px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-brand-blue hover:shadow-md hover:-translate-y-[1px]`;
+      }
     }
   }
 
@@ -192,7 +197,7 @@ export const Navbar = () => {
         {/* ── DESKTOP ONLY: nav links (height 32px, adjusts spaces width according to text) ── */}
         <div className="hidden lg:flex items-center gap-[5px] flex-nowrap">
           <NavButton prefixChar="B" label="BLOG" href="/search/" active={false} />
-          <NavButton prefixChar="D" label="DOCS" href="/docs" active={true} />
+          <NavButton prefixChar="D" label="DOCS" href="/docs" active={false} />
           <NavButton prefixChar="C" label="CONNECT" href="/connect/" active={false} />
         </div>
 
