@@ -3,6 +3,7 @@ import { PixelBox } from "@/components/landing/PixelBox";
 import Hero from "@/components/landing/Hero";
 import OpenSourceStats from "@/components/landing/OpenSourceStats";
 import WorkspaceFeatures from "@/components/landing/WorkspaceFeatures";
+import ExcellenceGrid from "@/components/landing/ExcellenceGrid";
 
 /**
  * Landing page — composed entirely of self-contained section components.
@@ -52,8 +53,10 @@ export default function Home() {
       {/* ─── Workspace Features Section ─── */}
       <WorkspaceFeatures />
 
+      {/* ─── Excellence Grid Section ─── */}
+      <ExcellenceGrid />
+
       {/* ─── Future sections go here ─── */}
-      {/* <ExcellenceGrid /> */}
       {/* <Pricing /> */}
 
     </main>

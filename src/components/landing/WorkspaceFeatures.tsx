@@ -53,7 +53,7 @@ export default function WorkspaceFeatures() {
               lineHeight: "1.2",
               color: "#777777",
               maxWidth: "500px",
-              letterSpacing:'-3%'
+              letterSpacing: '-3%'
             }}
           >
             Use the command line interface and VS code extension to manage you
@@ -78,7 +78,7 @@ export default function WorkspaceFeatures() {
                     lineHeight: "1.2",
                     letterSpacing: "-0.02em",
                     color: "#000000",
-        
+
                   }}
                 >
                   {feature.title}
@@ -101,7 +101,7 @@ export default function WorkspaceFeatures() {
 
               {/* Mock Video Box */}
               <div className="w-full aspect-[16/9] bg-[#D9D9D9] rounded-[4px] flex items-center justify-center relative overflow-hidden group cursor-pointer border border-neutral-200/40">
-                
+
                 {/* Subtle shine / premium styling inside card */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-black/[0.02] to-white/[0.08] pointer-events-none" />
               </div>
