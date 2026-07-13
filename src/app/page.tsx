@@ -38,8 +38,8 @@ export default function Home() {
         {/* Page 2 — Pixel art scroll-reveal zone */}
         <div className="relative h-[59vh] w-full pointer-events-none">
           <div
-            className="absolute left-0 w-full z-30 pointer-events-none select-none"
-            style={{ top: 0, transform: "translateY(-10%)" }}
+            className="absolute left-0 w-full z-30 pointer-events-none select-none transform-gpu -translate-y-[10%]"
+            style={{ top: 0 }}
           >
             <PixelBox color="#ffffff" />
           </div>

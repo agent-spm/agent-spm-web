@@ -7,6 +7,7 @@ import React, { useRef, useEffect } from 'react';
  * Grid: 42 columns × 11 rows. Cell size ≈ 45.708px in the 1920×504 viewBox.
  */
 const CELLS: Array<{ r: number; c: number }> = [
+  // Original cells
   {r:3,c:5},{r:4,c:2},{r:4,c:3},{r:4,c:4},{r:4,c:7},{r:4,c:11},{r:4,c:12},
   {r:5,c:1},{r:5,c:2},{r:5,c:4},{r:5,c:6},{r:5,c:10},{r:5,c:11},
   {r:6,c:0},{r:6,c:1},{r:6,c:5},
@@ -167,8 +168,8 @@ export const PixelBox: React.FC<PixelBoxProps> = ({ color = '#ffffff' }) => {
   }, [color]);
 
   return (
-    <div ref={containerRef} className="w-full relative pointer-events-none select-none">
-      <canvas ref={canvasRef} className="block w-full" />
+    <div ref={containerRef} className="w-full relative pointer-events-none select-none transform-gpu">
+      <canvas ref={canvasRef} className="block w-full transform-gpu" />
     </div>
   );
 };
