@@ -145,10 +145,12 @@ const ITEMS: ExcellenceItem[] = [
 
 export default function ExcellenceGrid() {
   return (
-    <section className="relative w-full bg-white text-black py-24 z-20 overflow-hidden">
+    <section
+      className="relative w-full text-black py-24 z-20 overflow-hidden"
+    >
       {/* ─── Light Blue Pixel Art Background ─── */}
       <div className="absolute top-0 left-0 w-full z-10 pointer-events-none select-none opacity-85">
-        <PixelBox color="#E3F2FD" />
+        <PixelBox color="#0DA9FF33" />
       </div>
 
       <div className="max-w-[1200px] mx-auto px-6 flex flex-col items-center relative z-20">
