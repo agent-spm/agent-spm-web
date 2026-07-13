@@ -24,7 +24,7 @@ export default function Hero() {
             priority
           />
           <span
-            className="text-[15px] md:text-[16px] lg:text-[23px]"
+            className="text-[14px] md:text-[16px] lg:text-[20px]"
             style={{
               fontFamily: "'Inter', sans-serif",
               fontWeight: 600,
@@ -39,7 +39,7 @@ export default function Hero() {
 
         {/* Main Headline */}
         <h1
-          className="text-[48px] md:text-[78px] lg:text-[108px] max-w-[480px] md:max-w-[680px] lg:max-w-[960px] w-full"
+          className="text-[46px] sm:text-[48px] md:text-[78px] lg:text-[108px] max-w-[320px] sm:max-w-[480px] md:max-w-[680px] lg:max-w-[960px] w-full"
           style={{
             fontFamily: "'Instrument Serif', serif",
             fontWeight: 400,
@@ -54,33 +54,32 @@ export default function Hero() {
           Intelligence should be Simple.
         </h1>
 
-      <p
-        className="text-[15px] md:text-[16px] lg:text-[18px]"
-        style={{
-          fontFamily: "'Inter', sans-serif",
-          fontWeight: 500,
-          lineHeight: "1.4",
-          letterSpacing: "-0.02em",
-          textAlign: "center",
-          color: "#ffffff",
-          maxWidth: "820px",
-          margin: "0 auto",
-          opacity: 0.95,
-          marginTop: "14px",
-        }}
-      >
-        Stop rebuilding. Start compounding. Skills arm your agents with battle-tested{" "}
-        <br className="hidden lg:inline" />
-        procedural knowledge, installed in seconds, shared across teams, refined{" "}
-        <br className="hidden lg:inline" />
-        over time. We&apos;re building the arsenal. You bring the mission.
-      </p>
-    </div>
+        <p
+          className="text-[11px] sm:text-[15px] md:text-[16px] lg:text-[18px] max-w-[300px] sm:max-w-[540px] md:max-w-[720px] lg:max-w-[820px] w-full"
+          style={{
+            fontFamily: "'Inter', sans-serif",
+            fontWeight: 500,
+            lineHeight: "1.4",
+            letterSpacing: "-0.02em",
+            textAlign: "center",
+            color: "#ffffff",
+            margin: "0 auto",
+            opacity: 0.95,
+            marginTop: "14px",
+          }}
+        >
+          Stop rebuilding. Start compounding. Skills arm your agents with battle-tested{" "}
+          <br className="hidden lg:inline" />
+          procedural knowledge, installed in seconds, shared across teams, refined{" "}
+          <br className="hidden lg:inline" />
+          over time. We&apos;re building the arsenal. You bring the mission.
+        </p>
+      </div>
 
-    {/* CTA Button */}
+      {/* CTA Button */}
       <a
         href="#"
-        className="inline-flex items-center justify-center bg-white text-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 gap-2 cursor-pointer select-none group w-[225px] md:w-[242px] lg:w-[272px] h-[42px] md:h-[46px] lg:h-[51px] text-[15px] md:text-[16px] lg:text-[18px]"
+        className="inline-flex items-center justify-center bg-white text-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 gap-2 cursor-pointer select-none group w-[180px] sm:w-[225px] md:w-[242px] lg:w-[272px] h-[36px] sm:h-[42px] md:h-[46px] lg:h-[51px] text-[14px] sm:text-[15px] md:text-[16px] lg:text-[18px]"
         style={{
           borderRadius: "41px",
           fontFamily: "'Inter', sans-serif",
