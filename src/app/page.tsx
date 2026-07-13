@@ -2,6 +2,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { PixelBox } from "@/components/landing/PixelBox";
 import Hero from "@/components/landing/Hero";
 import OpenSourceStats from "@/components/landing/OpenSourceStats";
+import WorkspaceFeatures from "@/components/landing/WorkspaceFeatures";
 
 /**
  * Landing page — composed entirely of self-contained section components.
@@ -48,8 +49,10 @@ export default function Home() {
 
       </section>
 
+      {/* ─── Workspace Features Section ─── */}
+      <WorkspaceFeatures />
+
       {/* ─── Future sections go here ─── */}
-      {/* <WorkspaceFeatures /> */}
       {/* <ExcellenceGrid /> */}
       {/* <Pricing /> */}
 
