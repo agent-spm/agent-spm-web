@@ -50,9 +50,10 @@ export default function WorkspaceFeatures() {
               fontFamily: "Inter",
               fontWeight: 400,
               fontSize: "16px",
-              lineHeight: "1.5",
-              color: "#666666",
-              maxWidth: "520px",
+              lineHeight: "1.2",
+              color: "#777777",
+              maxWidth: "500px",
+              letterSpacing:'-3%'
             }}
           >
             Use the command line interface and VS code extension to manage you
@@ -65,7 +66,7 @@ export default function WorkspaceFeatures() {
           {FEATURES.map((feature, idx) => (
             <div
               key={idx}
-              className="w-full bg-[#F5F5F7] rounded-[24px] p-8 md:p-12 flex flex-col items-center text-center gap-y-6 md:gap-y-8 border border-neutral-100/50 shadow-sm"
+              className="w-full bg-[#F5F5F7] rounded-[4px] p-8 md:p-12 flex flex-col items-center text-center gap-y-6 md:gap-y-8 border border-neutral-100/50 shadow-sm"
             >
               {/* Card Text */}
               <div className="max-w-[740px] flex flex-col gap-y-3">
@@ -84,11 +85,14 @@ export default function WorkspaceFeatures() {
                 </h3>
                 <p
                   style={{
-                    fontFamily: "var(--font-sans), sans-serif",
+                    fontFamily: "Inter",
                     fontWeight: 400,
-                    fontSize: "clamp(13px, 1.1vw, 15px)",
-                    lineHeight: "1.5",
-                    color: "#666666",
+                    fontSize: "16px",
+                    lineHeight: "1.2",
+                    color: "#777777",
+                    maxWidth: "500px",
+                    letterSpacing: "-0.03em",
+                    margin: "0 auto",
                   }}
                 >
                   {feature.description}
@@ -96,11 +100,8 @@ export default function WorkspaceFeatures() {
               </div>
 
               {/* Mock Video Box */}
-              <div className="w-full aspect-[16/9] bg-[#E5E5EA] rounded-xl flex items-center justify-center relative overflow-hidden group cursor-pointer border border-neutral-200/40">
-                {/* Play Button Mock Icon */}
-                <div className="w-16 h-16 rounded-full bg-white/90 shadow-md flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-white z-10">
-                  <span className="text-black text-xl translate-x-[2px]">▶</span>
-                </div>
+              <div className="w-full aspect-[16/9] bg-[#D9D9D9] rounded-[4px] flex items-center justify-center relative overflow-hidden group cursor-pointer border border-neutral-200/40">
+                
                 {/* Subtle shine / premium styling inside card */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-black/[0.02] to-white/[0.08] pointer-events-none" />
               </div>
