@@ -38,7 +38,7 @@ export default function OpenSourceStats() {
         </h2>
 
         {/* Stats row */}
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-8 sm:gap-x-2 md:gap-x-2">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-8 sm:gap-x-2 md:gap-x-1">
           {STATS.map((stat) => (
             <div
               key={stat.label}
@@ -53,7 +53,7 @@ export default function OpenSourceStats() {
               />
 
               {/* Stat text */}
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center -translate-y-[7px]">
                 <span
                   style={{
                     fontFamily: "Inter",
@@ -62,7 +62,7 @@ export default function OpenSourceStats() {
                     fontSize: "30px",
                     lineHeight: "1",
                     color: "#000000",
-                   
+
                   }}
                 >
                   {stat.value}
@@ -71,11 +71,11 @@ export default function OpenSourceStats() {
                   style={{
                     fontFamily: "'Inter', sans-serif",
                     fontWeight: 500,
-                    fontSize: "clamp(11px, 1vw, 13px)",
+                    fontSize: "18px",
                     color: "#888888",
                     lineHeight: "1",
                     letterSpacing: "-3%",
-                    marginTop: "2px",
+                    marginTop: "6px",
                   }}
                 >
                   {stat.label}
@@ -98,11 +98,12 @@ export default function OpenSourceStats() {
           style={{
             fontFamily: "'Inter', sans-serif",
             fontWeight: 500,
-            fontSize: "16px",
-            lineHeight: 1.6,
+            fontSize: "18px",
+            lineHeight: '1',
             color: "#000000",
             textAlign: "center",
             maxWidth: "520px",
+            marginTop: "-16px",
           }}
         >
           Skills Package Manager is built by a global, growing, and thriving
