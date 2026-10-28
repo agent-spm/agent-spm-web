@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import LenisProvider from "@/components/providers/LenisProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -48,11 +49,13 @@ export default function RootLayout({
         {/* Preconnect to Google Fonts for mono font */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Load Fragment Mono for bracket buttons */}
-        <link href="https://fonts.googleapis.com/css2?family=Fragment+Mono&display=swap" rel="stylesheet" />
+        {/* Load Fragment Mono, Caveat, and Instrument Serif Google Fonts */}
+        <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Fragment+Mono&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased font-sans" suppressHydrationWarning>
-        {children}
+        <LenisProvider>
+          {children}
+        </LenisProvider>
       </body>
     </html>
   );

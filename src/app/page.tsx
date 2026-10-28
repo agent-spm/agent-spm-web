@@ -1,39 +1,64 @@
 import { Navbar } from "@/components/layout/Navbar";
-import { Hero } from "@/components/dashboard/Hero";
-import { Leaderboard } from "@/components/dashboard/Leaderboard";
-import { MobileSearchBar } from "@/components/dashboard/MobileSearchBar";
+import { PixelBox } from "@/components/landing/PixelBox";
+import Hero from "@/components/landing/Hero";
+import OpenSourceStats from "@/components/landing/OpenSourceStats";
+import WorkspaceFeatures from "@/components/landing/WorkspaceFeatures";
+import ExcellenceGrid from "@/components/landing/ExcellenceGrid";
 
+/**
+ * Landing page — composed entirely of self-contained section components.
+ * This file is intentionally minimal: it owns only the top-level gradient
+ * wrapper and the scroll structure. All content lives in /components/landing/.
+ */
 export default function Home() {
   return (
-    <main className="bg-[#F4F4F2]">
+    <main className="min-h-screen bg-white text-black font-sans relative overflow-x-hidden">
 
-      {/* ── MOBILE layout: single column, full-height, search bar pinned at bottom ── */}
-      <div className="flex flex-col h-screen lg:hidden">
-        <div className="flex flex-col flex-1 min-h-0 px-4 sm:px-6 overflow-hidden">
-          <Navbar />
+      {/* ─── Single continuous gradient: Hero → PixelArt → OpenSource stats ─── */}
+      <section
+        className="relative w-full"
+        style={{
+          background:
+            "linear-gradient(180deg, #190096 0%, #0080FF 18%, #78D2FF 53%, #cce9ff 72%, #ffffff 100%)",
+          boxShadow:
+            "inset 0 0 120px rgba(255,255,255,0.85), inset 0 0 40px rgba(255,255,255,0.5)",
+        }}
+      >
+        {/* Page 1 — Hero (full viewport height) */}
+        <div className="relative w-full min-h-screen flex flex-col justify-between">
+          {/* Navbar */}
+          <div className="w-full max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-12 flex-shrink-0 relative z-20">
+            <Navbar />
+          </div>
+
+          {/* Hero content: eyebrow, headline, body, CTA */}
           <Hero />
         </div>
-        {/* Search bar pinned at bottom on mobile — matches Figma */}
-        <div className="flex-shrink-0 px-4 sm:px-6 pb-4 pt-2">
-          <MobileSearchBar />
-        </div>
-      </div>
 
-      {/* ── DESKTOP layout: two-column, no-scroll ── */}
-      <div className="hidden lg:flex h-screen overflow-hidden w-full max-w-[1500px] mx-auto">
-
-        {/* Left half: Navbar + Hero + Bubbles */}
-        <div className="flex flex-col w-[62%] xl:w-[62%] h-full px-8 flex-shrink-0 overflow-hidden">
-          <Navbar />
-          <Hero />
+        {/* Page 2 — Pixel art scroll-reveal zone */}
+        <div className="relative h-[59vh] w-full pointer-events-none">
+          <div
+            className="absolute left-0 w-full z-30 pointer-events-none select-none transform-gpu -translate-y-[10%]"
+            style={{ top: 0 }}
+          >
+            <PixelBox color="#ffffff" />
+          </div>
         </div>
 
-        {/* Right half: Leaderboard full height */}
-        <div className="flex flex-col flex-1 h-full py-4 pr-8 min-w-0">
-          <Leaderboard />
-        </div>
+        {/* Open Source stats — transparent, inherits parent gradient */}
+        <OpenSourceStats />
 
-      </div>
+      </section>
+
+      {/* ─── Workspace Features Section ─── */}
+      <WorkspaceFeatures />
+
+      {/* ─── Excellence Grid Section ─── */}
+      <ExcellenceGrid />
+
+      {/* ─── Future sections go here ─── */}
+      {/* <Pricing /> */}
+
     </main>
   );
 }

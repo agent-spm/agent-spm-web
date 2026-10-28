@@ -30,7 +30,7 @@ export const Leaderboard = () => {
   const gridXs = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400];
 
   return (
-    <div className="flex flex-col w-full h-full overflow-hidden rounded-[4px] border-2 border-[#E3E2DF]"
+    <div className="flex flex-col w-full h-fit overflow-hidden rounded-[4px] border-2 border-[#E3E2DF]"
       style={{ background: '#EFEDE9' }}>
 
       {/* Header */}
@@ -87,7 +87,7 @@ export const Leaderboard = () => {
       </div>
 
       {/* ── DESKTOP LAYOUT (>= lg): chart + tags side by side ── */}
-      <div className="hidden lg:flex flex-1 mt-2 mx-3 min-h-0 overflow-hidden">
+      <div className="hidden lg:flex h-[320px] mt-2 mx-3 overflow-hidden">
         {/* Y-axis labels */}
         <div className="relative w-[48px] flex-shrink-0 text-[16px] text-[#979794] font-sans font-medium tracking-tight">
           <div style={{ position: 'absolute', top: '10.5%' }}>350k</div>
