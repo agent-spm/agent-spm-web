@@ -4,11 +4,16 @@ import Hero from "@/components/landing/Hero";
 import OpenSourceStats from "@/components/landing/OpenSourceStats";
 import WorkspaceFeatures from "@/components/landing/WorkspaceFeatures";
 import ExcellenceGrid from "@/components/landing/ExcellenceGrid";
+import { PricingSection } from "@/components/landing/PricingSection";
+import { FAQSection } from "@/components/landing/FAQSection";
+import { BlogSection } from "@/components/landing/BlogSection";
+import { CTABlockSection } from "@/components/landing/CTABlockSection";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 
 /**
  * Landing page — composed entirely of self-contained section components.
- * This file is intentionally minimal: it owns only the top-level gradient
- * wrapper and the scroll structure. All content lives in /components/landing/.
+ * This file owns the top-level gradient wrapper and the scroll structure.
+ * All content lives in /components/landing/.
  */
 export default function Home() {
   return (
@@ -50,14 +55,26 @@ export default function Home() {
 
       </section>
 
-      {/* ─── Workspace Features Section ─── */}
+      {/* ─── Workspace Features Section (3 Demo Cards) ─── */}
       <WorkspaceFeatures />
 
-      {/* ─── Excellence Grid Section ─── */}
+      {/* ─── Excellence Grid Section (6 Audience Cards) ─── */}
       <ExcellenceGrid />
 
-      {/* ─── Future sections go here ─── */}
-      {/* <Pricing /> */}
+      {/* ─── Pricing Section ("One price. for Enterprise.") ─── */}
+      <PricingSection />
+
+      {/* ─── Frequently Asked Questions (FAQ) ─── */}
+      <FAQSection />
+
+      {/* ─── The Latest from Agent SPM (Blog) ─── */}
+      <BlogSection />
+
+      {/* ─── CTA Block Section ("A Useful Agent Skills Manager") ─── */}
+      <CTABlockSection />
+
+      {/* ─── Landing Footer with Auto-Scroll Pixel Bottom Bar ─── */}
+      <LandingFooter />
 
     </main>
   );
