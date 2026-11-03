@@ -37,47 +37,47 @@ export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
   return (
     <div className="flex flex-col w-full h-full max-w-[320px]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 px-2">
-        <h2 className="text-[20px] font-medium text-brand-black">
+      <div className="flex items-center justify-between mb-6 px-1">
+        <h2 className="text-base font-semibold text-black font-sans">
           {formattedDate}
         </h2>
-        <div className="flex items-center p-1 bg-[#F1F1F1] rounded-[10px] gap-0.5">
+        <div className="flex items-center p-0.5 bg-[#F5F5F7] rounded-[4px] border border-black/5 gap-0.5 font-mono">
           <button 
             onClick={() => setTimeFormat('12h')}
-            className={`px-3 py-1.5 text-[12px] font-bold transition-all rounded-[8px] ${
+            className={`px-2.5 py-1 text-[11px] font-semibold transition-all rounded-[2px] cursor-pointer ${
               timeFormat === '12h' 
-                ? 'bg-white text-brand-black shadow-sm' 
-                : 'bg-transparent text-brand-black/30'
+                ? 'bg-white text-black shadow-sm' 
+                : 'bg-transparent text-black/40 hover:text-black'
             }`}
           >
-            12h
+            12H
           </button>
           <button 
             onClick={() => setTimeFormat('24h')}
-            className={`px-3 py-1.5 text-[12px] font-bold transition-all rounded-[8px] ${
+            className={`px-2.5 py-1 text-[11px] font-semibold transition-all rounded-[2px] cursor-pointer ${
               timeFormat === '24h' 
-                ? 'bg-white text-brand-black shadow-sm' 
-                : 'bg-transparent text-brand-black/30'
+                ? 'bg-white text-black shadow-sm' 
+                : 'bg-transparent text-black/40 hover:text-black'
             }`}
           >
-            24h
+            24H
           </button>
         </div>
       </div>
 
       {/* Slots List */}
-      <div className="flex-1 overflow-y-auto pr-2 space-y-2.5 mb-2 custom-scrollbar max-h-[480px]">
+      <div className="flex-1 overflow-y-auto pr-2 space-y-2 mb-2 max-h-[460px]">
         {timeSlots.map((time) => {
           const isSelected = selectedTime === time;
           return (
-            <div key={time} className="flex gap-2 group transition-all duration-300">
+            <div key={time} className="flex gap-2 group transition-all duration-200">
               <button
                 onClick={() => onTimeSelect(time)}
                 className={`
-                  flex-1 h-[46px] border rounded-[8px] text-[15px] font-medium transition-all duration-200
+                  flex-1 h-[42px] border rounded-[4px] text-sm font-medium font-mono transition-all duration-150 cursor-pointer
                   ${isSelected 
-                    ? 'border-brand-blue bg-white text-brand-blue shadow-sm' 
-                    : 'border-[#E8E9ED] bg-white text-brand-black hover:border-brand-blue/40'
+                    ? 'border-[#1A5FED] bg-[#1A5FED]/5 text-[#1A5FED] font-semibold shadow-sm' 
+                    : 'border-black/10 bg-white text-black/80 hover:border-[#1A5FED]/40 hover:text-[#1A5FED]'
                   }
                 `}
               >
@@ -86,9 +86,9 @@ export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
               {isSelected && (
                 <button
                   onClick={onConfirm}
-                  className="w-24 h-[46px] bg-brand-blue text-white rounded-[8px] font-bold text-[14px] shadow-[0_4px_12px_rgba(27,95,237,0.2)] animate-in slide-in-from-right-4 fade-in duration-300 scale-100 active:scale-95"
+                  className="w-20 h-[42px] bg-black text-white rounded-[4px] font-medium text-xs uppercase tracking-wider shadow-sm hover:bg-black/90 active:scale-95 transition-all cursor-pointer font-mono"
                 >
-                  Next
+                  NEXT →
                 </button>
               )}
             </div>
