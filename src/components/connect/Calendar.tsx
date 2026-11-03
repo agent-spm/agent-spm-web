@@ -7,7 +7,7 @@ interface CalendarProps {
 }
 
 export const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect }) => {
-  const [viewDate] = useState(new Date(2026, 3, 1)); // April 2026 as per screenshot
+  const [viewDate] = useState(new Date(2026, 3, 1)); // April 2026
 
   const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
@@ -37,33 +37,40 @@ export const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect }
   };
 
   const isPast = (day: number) => {
-    // For demo consistency with screenshot: Today is April 11, 2026
     const today = new Date(2026, 3, 11).getTime();
     const current = new Date(viewDate.getFullYear(), viewDate.getMonth(), day).getTime();
     return current <= today;
   };
 
   return (
-    <div className="flex flex-col w-full max-w-[500px]">
+    <div className="flex flex-col w-full max-w-[460px]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-12 px-2">
-        <h2 className="text-[24px] font-medium text-brand-black">
-          {monthName} <span className="text-brand-black/40">{year}</span>
+      <div className="flex items-center justify-between mb-8 px-1">
+        <h2 className="text-xl font-semibold text-black font-sans">
+          {monthName} <span className="text-black/40 font-normal">{year}</span>
         </h2>
-        <div className="flex items-center gap-10">
-          <button className="text-brand-black/20 hover:text-brand-black transition-colors">
-            <ChevronLeft size={24} />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="w-8 h-8 rounded-[4px] border border-black/10 flex items-center justify-center text-black/60 hover:text-black hover:bg-black/5 transition-colors cursor-pointer"
+            aria-label="Previous month"
+          >
+            <ChevronLeft size={16} />
           </button>
-          <button className="text-brand-black/20 hover:text-brand-black transition-colors">
-            <ChevronRight size={24} />
+          <button
+            type="button"
+            className="w-8 h-8 rounded-[4px] border border-black/10 flex items-center justify-center text-black/60 hover:text-black hover:bg-black/5 transition-colors cursor-pointer"
+            aria-label="Next month"
+          >
+            <ChevronRight size={16} />
           </button>
         </div>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-7 gap-x-1 sm:gap-x-4 gap-y-1 sm:gap-y-4">
+      <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
         {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((day) => (
-          <div key={day} className="text-center text-[12px] font-bold text-brand-black/30 py-4 tracking-[0.2em] uppercase">
+          <div key={day} className="text-center text-[10px] sm:text-[11px] font-bold text-black/40 py-2 tracking-wider uppercase font-mono">
             {day}
           </div>
         ))}
@@ -82,22 +89,24 @@ export const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect }
           return (
             <div key={day} className="relative flex items-center justify-center">
               <button
-                onClick={() => onDateSelect(new Date(viewDate.getFullYear(), viewDate.getMonth(), day))}
+                type="button"
+                onClick={() => isAvailable && onDateSelect(new Date(viewDate.getFullYear(), viewDate.getMonth(), day))}
+                disabled={!isAvailable}
                 className={`
-                  w-full aspect-square rounded-[8px] text-[18px] font-medium transition-all duration-200
-                  flex items-center justify-center
+                  w-full aspect-square rounded-[4px] text-sm sm:text-base font-medium font-sans transition-all duration-150
+                  flex items-center justify-center cursor-pointer
                   ${active 
-                    ? 'bg-brand-black text-white shadow-md' 
+                    ? 'bg-[#1A5FED] text-white shadow-sm font-semibold' 
                     : isAvailable 
-                      ? 'text-brand-black hover:bg-brand-blue/5 hover:text-brand-blue bg-[#EFEFEF]' 
-                      : 'text-brand-black/40 hover:bg-brand-black/5'
+                      ? 'text-black bg-[#F7F7F7] hover:bg-[#1A5FED]/10 hover:text-[#1A5FED]' 
+                      : 'text-black/25 cursor-not-allowed bg-transparent'
                   }
                 `}
               >
                 {day}
               </button>
               {today && !active && (
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-brand-black rounded-full" />
+                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#1A5FED] rounded-full" />
               )}
             </div>
           );
