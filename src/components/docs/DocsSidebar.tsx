@@ -232,10 +232,10 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
           strokeLinecap="round"
         />
 
-        {/* Foreground Filled Track (Lighter Greyish Active SVG Liquid Fill) */}
+        {/* Foreground Filled Track (Active Brand Blue SVG Liquid Fill) */}
         <path 
           d={pathString} 
-          stroke="#A1A1AA" /* zinc-400 (lighter greyish highlight) */
+          stroke="#1A5FED" 
           strokeWidth="3" 
           strokeLinecap="round"
           pathLength="100"
@@ -271,7 +271,7 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
 
       {/* ── DYNAMIC SLIDING ACTIVE DOT (Perfect 10px scale & centered along Bezier curves) ── */}
       <div 
-        className="absolute w-[10px] h-[10px] bg-black rounded-full z-20 transition-all duration-300 ease-in-out shadow-[0_0_8px_rgba(0,0,0,0.25)] ring-4 ring-black/10 pointer-events-none"
+        className="absolute w-[10px] h-[10px] bg-[#1A5FED] rounded-full z-20 transition-all duration-300 ease-in-out shadow-[0_0_8px_rgba(26,95,237,0.4)] ring-4 ring-[#1A5FED]/20 pointer-events-none"
         style={{
           left: 0,
           top: 0,
@@ -299,16 +299,16 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
                     className={cn(
                       "text-[17px] sm:text-[18px] tracking-tight transition-all duration-200 cursor-pointer block truncate w-full",
                       isActive 
-                        ? "font-bold text-black" 
-                        : "font-semibold text-zinc-400 hover:text-zinc-700"
+                        ? "font-bold text-[#1A5FED]" 
+                        : "font-semibold text-zinc-400 hover:text-black"
                     )}
                   >
                     {node.label}
                   </Link>
                   <span className={cn(
-                    "font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border mr-2 transition-all duration-200 select-none",
+                    "font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-[2px] border mr-2 transition-all duration-200 select-none",
                     isActive
-                      ? "bg-black border-black text-white font-bold"
+                      ? "bg-[#1A5FED] border-[#1A5FED] text-white font-bold"
                       : "opacity-0 group-hover:opacity-100 bg-white border-zinc-200 text-zinc-400"
                   )}>
                     {node.shortcutCode}
@@ -331,16 +331,16 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
                       className={cn(
                         "text-[17px] sm:text-[18px] tracking-tight transition-all duration-200 cursor-pointer block truncate w-full",
                         isParentActive 
-                          ? "font-bold text-black" 
-                          : "font-semibold text-zinc-400 hover:text-zinc-700"
+                          ? "font-bold text-[#1A5FED]" 
+                          : "font-semibold text-zinc-400 hover:text-black"
                       )}
                     >
                       {node.label}
                     </Link>
                     <span className={cn(
-                      "font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border mr-2 transition-all duration-200 select-none",
+                      "font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-[2px] border mr-2 transition-all duration-200 select-none",
                       isParentActive
-                        ? "bg-black border-black text-white font-bold"
+                        ? "bg-[#1A5FED] border-[#1A5FED] text-white font-bold"
                         : "opacity-0 group-hover:opacity-100 bg-white border-zinc-200 text-zinc-400"
                     )}>
                       {node.shortcutCode}
@@ -367,16 +367,16 @@ export function DocsSidebar({ onLinkClick }: DocsSidebarProps) {
                             className={cn(
                               "text-[15px] sm:text-[16px] tracking-tight transition-all duration-200 cursor-pointer block truncate w-full",
                               isChildActive 
-                                ? "font-bold text-black" 
-                                : "font-semibold text-zinc-400 hover:text-zinc-700"
+                                ? "font-bold text-[#1A5FED]" 
+                                : "font-semibold text-zinc-400 hover:text-black"
                             )}
                           >
                             {child.label}
                           </Link>
                           <span className={cn(
-                            "font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded border mr-2 transition-all duration-200 select-none",
+                            "font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-[2px] border mr-2 transition-all duration-200 select-none",
                             isChildActive
-                              ? "bg-black border-black text-white font-bold"
+                              ? "bg-[#1A5FED] border-[#1A5FED] text-white font-bold"
                               : "opacity-0 group-hover:opacity-100 bg-white border-zinc-200 text-zinc-400"
                           )}>
                             {child.shortcutCode}

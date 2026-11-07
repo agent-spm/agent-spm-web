@@ -1,149 +1,177 @@
 "use client";
 
 import React, { useState } from "react";
-import { PricingToggle } from "./PricingToggle";
-import { PricingCard } from "./PricingCard";
+import Link from "next/link";
 import { FeatureTable } from "./FeatureTable";
 import { PricingFAQ } from "./PricingFAQ";
-import { RazorpayCheckoutModal } from "./RazorpayCheckoutModal";
-import { Terminal, ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { PixelDissolve } from "@/components/landing/PixelDissolve";
 
 export const PricingPageContent = () => {
-  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("monthly");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const isYearly = billingInterval === "yearly";
+  const [tier, setTier] = useState<"developers" | "enterprise">("enterprise");
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      {/* 1. Header Section */}
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <h1 className="text-4xl font-bold tracking-tight text-surface-900 dark:text-surface-50 sm:text-5xl">
-          Simple, transparent pricing
-        </h1>
-        <p className="mt-4 text-base sm:text-lg text-surface-500 dark:text-surface-400 max-w-2xl mx-auto leading-relaxed">
-          Scale your AI agent capabilities with secure private registries, custom namespace reservation, and dedicated priority endpoints.
-        </p>
-      </div>
+    <div className="w-full min-h-screen bg-white text-black font-sans">
+      {/* ─── Hero Section with Cyan-Blue Gradient & Liquid Glass Card ─── */}
+      <section className="relative w-full overflow-hidden py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0080FF] via-[#78D2FF] to-white text-white">
+        {/* Top Pixel Dissolve */}
+        <div className="absolute inset-x-0 top-0 w-full pointer-events-none select-none opacity-40 z-0">
+          <PixelDissolve cellSize={24} height={160} seed={33} mode="faint-pattern" />
+        </div>
 
-      {/* 2. Billing Toggle */}
-      <PricingToggle billingInterval={billingInterval} setBillingInterval={setBillingInterval} />
-
-      {/* 3. Pricing Cards Grid */}
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-3 items-stretch">
-        {/* Starter Plan */}
-        <PricingCard
-          name="Starter"
-          price="$0"
-          period="/ forever"
-          tagline="For individual developers and open-source projects."
-          features={[
-            "Unlimited public package installs",
-            "Publish up to 5 public packages",
-            "Community support (GitHub / Discord)",
-            "Basic package analytics (total downloads)",
-            "CLI access (spm install, spm publish)",
-            "100 API requests / hour",
-          ]}
-          ctaText="Get Started — Free"
-          ctaHref="/search/"
-        />
-
-        {/* Pro Plan */}
-        <PricingCard
-          name="Pro"
-          price={isYearly ? "$15" : "$19"}
-          period={isYearly ? "/ month, billed annually" : "/ month"}
-          tagline="For professional developers and growing teams."
-          features={[
-            "Publish unlimited public packages",
-            "Publish up to 25 private packages",
-            "Advanced analytics (weekly trends, regional)",
-            "Priority search ranking for published packages",
-            "Webhook notifications on version updates",
-            "Private namespace reservation",
-            "Email support (48h response SLA)",
-            "5,000 API requests / hour",
-          ]}
-          ctaText="Upgrade to Pro"
-          onClick={() => setIsModalOpen(true)}
-          popular={true}
-        />
-
-        {/* Enterprise Plan */}
-        <PricingCard
-          name="Enterprise"
-          price="Custom"
-          period=""
-          tagline="For organizations building production AI agent infrastructure."
-          features={[
-            "Unlimited private packages",
-            "SSO / SAML authentication",
-            "Self-hosted registry option",
-            "Dedicated account manager",
-            "Custom SLA (99.9% uptime guarantee)",
-            "Audit logs & compliance reports (SOC 2)",
-            "Team management with roles & permissions",
-            "Unlimited API requests",
-            "On-call engineering support (4h SLA)",
-            "Custom contract & invoicing",
-          ]}
-          ctaText="Contact Sales"
-          ctaHref="/connect/"
-        />
-      </div>
-
-      {/* 4. Comparison Table */}
-      <FeatureTable />
-
-      {/* 5. FAQ Section */}
-      <PricingFAQ />
-
-      {/* 6. Bottom Conversion CTA Banner */}
-      <div className="relative overflow-hidden rounded-3xl border border-surface-200 dark:border-surface-800 bg-surface-0 dark:bg-surface-950 px-6 py-20 mt-28 text-center sm:px-12 shadow-lg shadow-brand-blue/5 hover:border-brand-blue/20 transition-all duration-300">
-        {/* Glowing Ambient Backdrop */}
-        <div className="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-brand-blue/10 blur-[100px] pointer-events-none animate-pulse" />
-        <div className="absolute -right-40 -bottom-40 h-80 w-80 rounded-full bg-brand-blue/15 blur-[100px] pointer-events-none animate-pulse" />
-
-        <div className="relative max-w-2xl mx-auto flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-blue/10 px-3.5 py-1 text-[10px] tracking-widest font-bold text-brand-blue border border-brand-blue/25 uppercase mb-6">
-            <Terminal className="h-3.5 w-3.5" />
-            <span>Developer First</span>
+        <div className="relative max-w-[1200px] mx-auto flex flex-col items-center z-10">
+          {/* Eyebrow */}
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 backdrop-blur-md px-4 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-white">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            LIFETIME ENTERPRISE ACCESS
           </div>
 
-          <h2 className="text-3xl font-bold tracking-tight text-surface-900 dark:text-surface-50 sm:text-4xl">
-            Ready to scale your agent skills?
-          </h2>
-          <p className="mt-4 text-sm sm:text-base text-surface-500 dark:text-surface-400 leading-relaxed max-w-lg">
-            Get started for free or schedule a deep-dive call with our infrastructure team to orchestrate your private registry.
-          </p>
+          {/* Headline */}
+          <div className="text-center max-w-2xl mb-12 sm:mb-16">
+            <h1
+              className="font-instrument-serif text-5xl sm:text-6xl lg:text-[72px] leading-[1.05] text-white font-normal italic tracking-tight mb-4 select-none"
+              style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
+            >
+              One price. for Enterprise.
+            </h1>
+            <p className="font-sans text-base sm:text-xl text-white/95 font-medium leading-relaxed max-w-lg mx-auto">
+              One-time payment. No subscription. Get the access that is easy to
+              handle.
+            </p>
+          </div>
 
-          <div className="mt-10 flex flex-wrap gap-4 justify-center">
-            <Link
-              href="/search/"
-              className="group flex items-center gap-2 rounded-xl bg-brand-blue text-white px-6 py-3 text-sm font-semibold shadow-lg shadow-brand-blue/20 transition-all hover:bg-brand-blue/90 hover:shadow-brand-blue/35 cursor-pointer"
-            >
-              <span>Explore Packages</span>
-              <ArrowRight className="h-4 w-4 transform group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <Link
-              href="/connect/"
-              className="flex items-center gap-2 rounded-xl border border-surface-200 hover:border-brand-blue/30 bg-surface-0 hover:bg-surface-50 dark:border-surface-800 dark:bg-surface-900 dark:text-surface-300 dark:hover:text-white py-3 px-6 text-sm font-semibold transition-all cursor-pointer"
-            >
-              Talk to an Expert
-            </Link>
+          {/* 4-Layer Liquid Glass Pricing Card */}
+          <div className="glass-card-shell relative w-full max-w-[420px] min-h-[580px] rounded-[8px] border border-black/10 shadow-2xl text-black flex flex-col justify-between transition-transform hover:scale-[1.01]">
+            {/* Layer 0: Liquid Distortion Filter */}
+            <div className="glass-card-filter pointer-events-none" aria-hidden="true" />
+
+            {/* Layer 1: Translucent Glass Overlay */}
+            <div className="glass-card-overlay bg-[#F7F7F7]/85 backdrop-blur-md pointer-events-none" aria-hidden="true" />
+
+            {/* Layer 2: Specular Rim Highlight */}
+            <div className="glass-card-specular pointer-events-none" aria-hidden="true" />
+
+            {/* Layer 3: Crisp Foreground Content */}
+            <div className="glass-card-content relative z-10 p-6 sm:p-8 flex flex-col justify-between h-full min-h-[580px]">
+              <div>
+                {/* Segmented Toggle */}
+                <div className="w-full h-[44px] bg-white rounded-[4px] p-1 flex items-center justify-between border border-black/5 shadow-inner mb-6">
+                  <button
+                    type="button"
+                    onClick={() => setTier("developers")}
+                    className={`flex-1 h-full rounded-[2px] font-sans text-sm font-medium transition-all cursor-pointer ${
+                      tier === "developers"
+                        ? "bg-black text-white shadow-sm"
+                        : "text-black/60 hover:text-black"
+                    }`}
+                  >
+                    For developers
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTier("enterprise")}
+                    className={`flex-1 h-full rounded-[2px] font-sans text-sm font-semibold transition-all cursor-pointer ${
+                      tier === "enterprise"
+                        ? "bg-black text-white shadow-sm"
+                        : "text-black/60 hover:text-black"
+                    }`}
+                  >
+                    For Enterprise
+                  </button>
+                </div>
+
+                {/* Price Header */}
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-3 mb-2">
+                    <span className="font-sans text-5xl sm:text-6xl font-bold tracking-tight text-black">
+                      {tier === "enterprise" ? "$15" : "$0"}
+                    </span>
+                    {tier === "enterprise" && (
+                      <span className="font-sans text-2xl text-black/40 line-through">
+                        $20
+                      </span>
+                    )}
+                    <span className="font-mono text-xs uppercase tracking-wider text-black/50">
+                      {tier === "enterprise" ? "One-time" : "Free forever"}
+                    </span>
+                  </div>
+                  <p className="font-sans text-sm text-black/60 leading-relaxed">
+                    {tier === "enterprise"
+                      ? "Full team access, private registry, audit logging & enterprise MCP support."
+                      : "Individual open source developers & hobbyists with local workspaces."}
+                  </p>
+                </div>
+
+                {/* Features List */}
+                <ul className="space-y-3.5 mb-8 font-sans text-sm text-black/85">
+                  <li className="flex items-center gap-2.5">
+                    <span className="text-[#1A5FED] font-bold text-base">✔</span>
+                    <span>Unlimited workspaces &amp; skills</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <span className="text-[#1A5FED] font-bold text-base">✔</span>
+                    <span>Cross-agent interoperability engine</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <span className="text-[#1A5FED] font-bold text-base">✔</span>
+                    <span>
+                      {tier === "enterprise"
+                        ? "Private registry with fine-grained RBAC"
+                        : "Public skills registry & discovery"}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <span className="text-[#1A5FED] font-bold text-base">✔</span>
+                    <span>
+                      {tier === "enterprise"
+                        ? "Dedicated 24/7 on-call engineering SLA"
+                        : "Community Discord & GitHub support"}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <span className="text-[#1A5FED] font-bold text-base">✔</span>
+                    <span>
+                      {tier === "enterprise"
+                        ? "SOC 2 Type II compliance & audit reports"
+                        : "Standard open-source telemetry"}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* CTA Button & Checkout Notes */}
+              <div>
+                <a
+                  href={
+                    tier === "enterprise"
+                      ? "https://buy.polar.sh/spm-enterprise"
+                      : "/search"
+                  }
+                  target={tier === "enterprise" ? "_blank" : undefined}
+                  rel={tier === "enterprise" ? "noopener noreferrer" : undefined}
+                  className="w-full block text-center py-3.5 px-4 rounded-[4px] bg-black text-white font-sans text-sm font-semibold hover:bg-black/90 active:scale-[0.99] transition-all shadow-md"
+                >
+                  {tier === "enterprise"
+                    ? "Claim Enterprise Access — $15"
+                    : "Start Building — Free"}
+                </a>
+                <p className="font-sans text-[11px] text-center text-black/45 mt-3">
+                  Powered by Polar.sh • Instant license key delivery
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Razorpay Pro Activation Modal overlay popup */}
-      <RazorpayCheckoutModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        billingInterval={billingInterval}
-      />
+      {/* ─── Detailed Feature Comparison Matrix ─── */}
+      <section className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <FeatureTable />
+      </section>
+
+      {/* ─── Pricing FAQ ─── */}
+      <section className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <PricingFAQ />
+      </section>
     </div>
   );
 };
-

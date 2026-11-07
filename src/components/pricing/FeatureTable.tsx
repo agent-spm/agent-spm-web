@@ -6,7 +6,6 @@ import { Check, Minus } from "lucide-react";
 interface FeatureRow {
   name: string;
   starter: string | boolean;
-  pro: string | boolean;
   enterprise: string | boolean;
 }
 
@@ -17,36 +16,31 @@ interface FeatureGroup {
 
 const FEATURE_MATRIX: FeatureGroup[] = [
   {
-    category: "Packages & Namespace",
+    category: "Registry & Workspaces",
     rows: [
-      { name: "Public package installs", starter: "Unlimited", pro: "Unlimited", enterprise: "Unlimited" },
-      { name: "Public packages published", starter: "5", pro: "Unlimited", enterprise: "Unlimited" },
-      { name: "Private packages", starter: false, pro: "25", enterprise: "Unlimited" },
-      { name: "Private namespaces", starter: false, pro: true, enterprise: true },
+      { name: "Public skill installs & search", starter: "Unlimited", enterprise: "Unlimited" },
+      { name: "Public skill publishing", starter: "Unlimited", enterprise: "Unlimited" },
+      { name: "Private registry namespaces", starter: false, enterprise: "Unlimited" },
+      { name: "Local offline CLI cache", starter: true, enterprise: true },
+      { name: "Cross-agent MCP bindings", starter: "Standard", enterprise: "Priority" },
     ],
   },
   {
-    category: "API & Integrations",
+    category: "Security & Governance",
     rows: [
-      { name: "API rate limit", starter: "100/hr", pro: "5,000/hr", enterprise: "Unlimited" },
-      { name: "Webhooks", starter: false, pro: true, enterprise: true },
+      { name: "Fine-grained team RBAC", starter: false, enterprise: true },
+      { name: "SOC 2 Type II audit logging", starter: false, enterprise: true },
+      { name: "Self-hosted air-gapped registry", starter: false, enterprise: true },
+      { name: "Vulnerability & dependency scanning", starter: "Basic", enterprise: "Automated / Real-time" },
     ],
   },
   {
-    category: "Administration & Security",
+    category: "Support & Engineering SLA",
     rows: [
-      { name: "Team members", starter: "1", pro: "5", enterprise: "Unlimited" },
-      { name: "SSO / SAML", starter: false, pro: false, enterprise: true },
-      { name: "Self-hosted registry", starter: false, pro: false, enterprise: true },
-      { name: "Audit logs", starter: false, pro: false, enterprise: true },
-    ],
-  },
-  {
-    category: "Support & SLA",
-    rows: [
-      { name: "Package analytics", starter: "Basic", pro: "Advanced", enterprise: "Advanced + Custom" },
-      { name: "Support", starter: "Community", pro: "Email (48h)", enterprise: "Dedicated (4h)" },
-      { name: "SLA", starter: false, pro: false, enterprise: "99.9%" },
+      { name: "Community Discord & GitHub Discussions", starter: true, enterprise: true },
+      { name: "Dedicated on-call engineering SLA", starter: false, enterprise: "4 Hours" },
+      { name: "Custom migration & setup assistance", starter: false, enterprise: true },
+      { name: "Uptime guarantee", starter: "Best-effort", enterprise: "99.99%" },
     ],
   },
 ];
@@ -55,22 +49,22 @@ export const FeatureTable = () => {
   const renderVal = (val: string | boolean) => {
     if (typeof val === "boolean") {
       return val ? (
-        <div className="inline-flex items-center justify-center rounded-full bg-brand-blue/10 p-1 shrink-0">
-          <Check className="h-4 w-4 text-brand-blue stroke-[3px]" />
+        <div className="inline-flex items-center justify-center rounded-full bg-[#1A5FED]/10 p-1 shrink-0">
+          <Check className="h-4 w-4 text-[#1A5FED] stroke-[3px]" />
         </div>
       ) : (
-        <Minus className="h-4 w-4 text-surface-300 dark:text-surface-600 mx-auto" />
+        <Minus className="h-4 w-4 text-black/25 mx-auto" />
       );
     }
 
-    const isSpecialValue = ["Unlimited", "Advanced", "Dedicated (4h)", "99.9%"].includes(val);
+    const isSpecialValue = ["Unlimited", "Automated / Real-time", "4 Hours", "99.99%"].includes(val);
 
     return (
       <span
-        className={`inline-flex items-center justify-center text-xs font-semibold px-2.5 py-1 rounded-md border leading-none ${
+        className={`inline-flex items-center justify-center text-xs font-semibold px-2.5 py-1 rounded-[3px] border leading-none font-mono ${
           isSpecialValue
-            ? "bg-brand-blue/10 text-brand-blue border-brand-blue/20"
-            : "bg-surface-50 text-surface-700 border-surface-200 dark:bg-surface-900 dark:text-surface-300 dark:border-surface-800"
+            ? "bg-[#1A5FED]/10 text-[#1A5FED] border-[#1A5FED]/20"
+            : "bg-black/5 text-black/80 border-black/10"
         }`}
       >
         {val}
@@ -79,35 +73,34 @@ export const FeatureTable = () => {
   };
 
   return (
-    <div className="w-full mt-24">
+    <div className="w-full">
       {/* Header text */}
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-surface-900 dark:text-surface-50 tracking-tight">
-          Compare Features
+        <h2
+          className="font-instrument-serif text-3xl sm:text-5xl italic text-black font-normal tracking-tight"
+          style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
+        >
+          Compare Capabilities
         </h2>
-        <p className="mt-3 text-sm sm:text-base text-surface-500 dark:text-surface-400">
-          Find the perfect limits and guarantees for your agent fleet.
+        <p className="mt-2 text-sm sm:text-base text-black/60 font-sans">
+          Everything you need for individual hacking and production fleet scaling.
         </p>
       </div>
 
       {/* Sleek, Premium Table Container Card */}
-      <div className="bg-surface-0 border border-surface-200 dark:border-surface-800 rounded-2xl shadow-sm overflow-hidden">
-        {/* Horizontal Scroll Wrapper */}
-        <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-400">
-          <table className="w-full min-w-[800px] text-left border-collapse">
+      <div className="bg-white border border-black/10 rounded-[8px] shadow-sm overflow-hidden">
+        <div className="w-full overflow-x-auto">
+          <table className="w-full min-w-[700px] text-left border-collapse">
             <thead>
-              <tr className="border-b border-surface-200 dark:border-surface-800">
-                <th className="py-6 px-6 text-sm font-semibold text-surface-900 dark:text-surface-100 w-2/5 uppercase tracking-wider font-mono">
-                  Features
+              <tr className="border-b border-black/10 bg-[#F7F7F7]">
+                <th className="py-4 px-6 text-xs font-semibold text-black/70 w-1/2 uppercase tracking-wider font-mono">
+                  [CAPABILITY]
                 </th>
-                <th className="py-6 px-4 text-center text-sm font-semibold text-surface-900 dark:text-surface-100 w-1/5 uppercase tracking-wider font-mono">
-                  Starter
+                <th className="py-4 px-4 text-center text-xs font-semibold text-black/70 w-1/4 uppercase tracking-wider font-mono">
+                  FOR DEVELOPERS ($0)
                 </th>
-                <th className="py-6 px-4 text-center text-sm font-bold text-brand-blue w-1/5 bg-brand-blue/[0.02] uppercase tracking-wider font-mono">
-                  Pro
-                </th>
-                <th className="py-6 px-6 text-center text-sm font-semibold text-surface-900 dark:text-surface-100 w-1/5 uppercase tracking-wider font-mono">
-                  Enterprise
+                <th className="py-4 px-4 text-center text-xs font-bold text-[#1A5FED] w-1/4 bg-[#1A5FED]/[0.03] uppercase tracking-wider font-mono">
+                  FOR ENTERPRISE ($15)
                 </th>
               </tr>
             </thead>
@@ -115,10 +108,10 @@ export const FeatureTable = () => {
               {FEATURE_MATRIX.map((group, groupIdx) => (
                 <React.Fragment key={groupIdx}>
                   {/* Category Row header */}
-                  <tr className="bg-surface-50 dark:bg-surface-900/50 border-y border-surface-200 dark:border-surface-800">
+                  <tr className="bg-black/[0.02] border-y border-black/5">
                     <td
-                      colSpan={4}
-                      className="py-4 px-6 text-xs font-bold text-surface-550 dark:text-surface-400 uppercase tracking-widest font-mono border-r-0"
+                      colSpan={3}
+                      className="py-3 px-6 text-[11px] font-bold text-black/50 uppercase tracking-widest font-mono"
                     >
                       {group.category}
                     </td>
@@ -126,22 +119,23 @@ export const FeatureTable = () => {
 
                   {/* Items rows */}
                   {group.rows.map((row, rowIdx) => {
-                    const isLastRow = groupIdx === FEATURE_MATRIX.length - 1 && rowIdx === group.rows.length - 1;
+                    const isLastRow =
+                      groupIdx === FEATURE_MATRIX.length - 1 &&
+                      rowIdx === group.rows.length - 1;
                     return (
                       <tr
                         key={rowIdx}
-                        className={`${isLastRow ? "" : "border-b border-surface-100 dark:border-surface-800"} hover:bg-surface-50/40 dark:hover:bg-surface-900/20 transition-colors`}
+                        className={`${
+                          isLastRow ? "" : "border-b border-black/5"
+                        } hover:bg-[#F7F7F7] transition-colors`}
                       >
-                        <td className="py-4 px-6 text-sm font-semibold text-surface-900 dark:text-surface-100">
+                        <td className="py-3.5 px-6 text-sm font-medium text-black/90 font-sans">
                           {row.name}
                         </td>
-                        <td className="py-4 px-4 text-center align-middle">
+                        <td className="py-3.5 px-4 text-center align-middle">
                           {renderVal(row.starter)}
                         </td>
-                        <td className="py-4 px-4 text-center align-middle bg-brand-blue/[0.01]">
-                          {renderVal(row.pro)}
-                        </td>
-                        <td className="py-4 px-6 text-center align-middle">
+                        <td className="py-3.5 px-4 text-center align-middle bg-[#1A5FED]/[0.01]">
                           {renderVal(row.enterprise)}
                         </td>
                       </tr>
@@ -156,4 +150,3 @@ export const FeatureTable = () => {
     </div>
   );
 };
-

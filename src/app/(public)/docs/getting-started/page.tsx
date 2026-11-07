@@ -6,28 +6,31 @@ import { DocsNavigation } from "@/components/docs/DocsNavigation";
 
 export default function GettingStartedPage() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 text-black font-sans">
       {/* ── HEADER ── */}
       <div className="space-y-4">
-        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-surface-900 dark:text-surface-50">
+        <h1
+          className="font-instrument-serif text-4xl sm:text-5xl italic font-normal tracking-tight text-black"
+          style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
+        >
           Getting Started
         </h1>
-        <p className="text-lg sm:text-xl text-surface-500 dark:text-surface-400 leading-relaxed font-normal">
+        <p className="text-lg sm:text-xl text-black/70 leading-relaxed font-normal">
           Install the SPM CLI, authenticate with your registry account, and build your very first autonomous agent skill.
         </p>
       </div>
 
-      <hr className="border-surface-200 dark:border-surface-800" />
+      <hr className="border-black/10" />
 
       {/* ── SECTION 1: PREREQUISITES ── */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">
+        <h2 className="text-2xl font-bold text-black tracking-tight">
           1. Prerequisites
         </h2>
-        <p className="text-sm sm:text-base text-surface-600 dark:text-surface-400 leading-relaxed">
+        <p className="text-sm sm:text-base text-black/75 leading-relaxed">
           Before installing the Skill Package Manager CLI, ensure you have the following environments set up on your machine:
         </p>
-        <ul className="list-disc pl-5 text-sm sm:text-base text-surface-600 dark:text-surface-400 space-y-2">
+        <ul className="list-disc pl-5 text-sm sm:text-base text-black/75 space-y-2">
           <li><strong>Node.js</strong>: Version 18.0 or higher.</li>
           <li><strong>Package Manager</strong>: <code>npm</code>, <code>yarn</code>, or <code>pnpm</code>.</li>
         </ul>
@@ -35,13 +38,13 @@ export default function GettingStartedPage() {
 
       {/* ── SECTION 2: INSTALLATION ── */}
       <section id="cli" className="space-y-4 scroll-mt-24">
-        <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">
+        <h2 className="text-2xl font-bold text-black tracking-tight">
           2. Install the SPM CLI
         </h2>
-        <p className="text-sm sm:text-base text-surface-600 dark:text-surface-400 leading-relaxed">
+        <p className="text-sm sm:text-base text-black/75 leading-relaxed">
           The SPM CLI orchestrates your local skills registry development workflows, including downloads, auth, publishing, validation, and localized testing.
         </p>
-        <p className="text-sm sm:text-base text-surface-600 dark:text-surface-400 leading-relaxed">
+        <p className="text-sm sm:text-base text-black/75 leading-relaxed">
           Install it globally using your preferred package manager:
         </p>
         
@@ -57,13 +60,13 @@ spm --version`}
 
       {/* ── SECTION 3: AUTHENTICATION ── */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">
+        <h2 className="text-2xl font-bold text-black tracking-tight">
           3. Authenticate with the Registry
         </h2>
-        <p className="text-sm sm:text-base text-surface-600 dark:text-surface-400 leading-relaxed">
+        <p className="text-sm sm:text-base text-black/75 leading-relaxed">
           To pull private packages or publish your own skills to the public SPM registry, you must link the CLI with your workspace registry tokens.
         </p>
-        <p className="text-sm sm:text-base text-surface-600 dark:text-surface-400 leading-relaxed">
+        <p className="text-sm sm:text-base text-black/75 leading-relaxed">
           Run the following login wizard and follow the prompts to complete verification in your browser:
         </p>
 
@@ -73,17 +76,17 @@ spm login`}
           language="bash"
         />
 
-        <div className="p-4 rounded-xl border border-blue-200/50 bg-blue-50/50 dark:border-blue-900/30 dark:bg-blue-950/20 text-xs sm:text-sm text-surface-600 dark:text-surface-400 leading-relaxed">
-          <span className="font-bold text-brand-blue">Protip:</span> If you are operating inside a headless CI/CD server, you can set the environment token directly using: <code>export SPM_TOKEN="your_token_here"</code>.
+        <div className="p-4 rounded-[6px] border border-[#1A5FED]/20 bg-[#1A5FED]/5 text-xs sm:text-sm text-black/75 leading-relaxed">
+          <span className="font-bold text-[#1A5FED]">Protip:</span> If you are operating inside a headless CI/CD server, you can set the environment token directly using: <code className="font-mono bg-white px-1.5 py-0.5 rounded-[2px] border border-black/10">export SPM_TOKEN="your_token_here"</code>.
         </div>
       </section>
 
       {/* ── SECTION 4: SCAFFOLD A SKILL ── */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">
+        <h2 className="text-2xl font-bold text-black tracking-tight">
           4. Scaffold Your First Skill
         </h2>
-        <p className="text-sm sm:text-base text-surface-600 dark:text-surface-400 leading-relaxed">
+        <p className="text-sm sm:text-base text-black/75 leading-relaxed">
           Scaffold a completely compliant, boilerplate agent skill within a new subfolder using the <code>spm init</code> generator command:
         </p>
 
@@ -93,28 +96,28 @@ spm init weather-checker`}
           language="bash"
         />
 
-        <p className="text-sm sm:text-base text-surface-600 dark:text-surface-400 leading-relaxed">
+        <p className="text-sm sm:text-base text-black/75 leading-relaxed">
           The CLI builds a beautifully structured schema bundle:
         </p>
 
         {/* Directory Layout visual box */}
-        <div className="p-5 rounded-2xl border border-surface-200 dark:border-surface-800 bg-[#0E0F14] font-mono text-xs sm:text-sm text-[#D2D6E2] select-none">
-          <div className="text-surface-500 uppercase tracking-widest font-bold text-[10px] mb-3">Generated Structure</div>
+        <div className="p-5 rounded-[6px] border border-black/10 bg-[#0E0F14] font-mono text-xs sm:text-sm text-[#D2D6E2] select-none">
+          <div className="text-white/40 uppercase tracking-widest font-bold text-[10px] mb-3">[GENERATED STRUCTURE]</div>
           <div>weather-checker/</div>
-          <div className="pl-4">├── <span className="text-[#98C379]">spm.yaml</span>        <span className="text-surface-500"># Metadata & API configuration</span></div>
-          <div className="pl-4">├── <span className="text-[#61AFEF]">index.ts</span>        <span className="text-surface-500"># Main skill execution code</span></div>
-          <div className="pl-4">├── <span className="text-surface-450">package.json</span>    <span className="text-surface-500"># Node dependency requirements</span></div>
-          <div className="pl-4">└── <span className="text-surface-450">README.md</span>       <span className="text-surface-500"># Skill documentation and specs</span></div>
+          <div className="pl-4">├── <span className="text-[#98C379]">spm.yaml</span>        <span className="text-white/40"># Metadata & API configuration</span></div>
+          <div className="pl-4">├── <span className="text-[#61AFEF]">index.ts</span>        <span className="text-white/40"># Main skill execution code</span></div>
+          <div className="pl-4">├── <span className="text-white/60">package.json</span>    <span className="text-white/40"># Node dependency requirements</span></div>
+          <div className="pl-4">└── <span className="text-white/60">README.md</span>       <span className="text-white/40"># Skill documentation and specs</span></div>
         </div>
       </section>
 
       {/* ── SECTION 5: LOCAL VALIDATION & TESTING ── */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold text-surface-900 dark:text-surface-100">
-          5. Local Validation & Testing
+        <h2 className="text-2xl font-bold text-black tracking-tight">
+          5. Local Validation &amp; Testing
         </h2>
-        <p className="text-sm sm:text-base text-surface-600 dark:text-surface-400 leading-relaxed">
-          You don't need a live LLM runtime pipeline to verify that your tool functions are formatted correctly. You can test your skill execution schemas locally via CLI mocking:
+        <p className="text-sm sm:text-base text-black/75 leading-relaxed">
+          You don&apos;t need a live LLM runtime pipeline to verify that your tool functions are formatted correctly. You can test your skill execution schemas locally via CLI mocking:
         </p>
 
         <CodeBlock 
