@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronDown } from "lucide-react";
 
 interface FAQItem {
   question: string;
@@ -10,24 +9,34 @@ interface FAQItem {
 
 const FAQS: FAQItem[] = [
   {
-    question: "Can I switch plans at any time?",
-    answer: "Yes. Upgrade instantly, downgrade at the end of your billing cycle. No lock-in contracts.",
+    question: "Is the $15 Enterprise plan truly a one-time purchase?",
+    answer:
+      "Yes. You pay $15 once and receive perpetual access for your team. There are no recurring subscriptions, hidden maintenance fees, or surprise tiers.",
   },
   {
-    question: "What happens if I exceed the API rate limit?",
-    answer: "Requests are throttled, not blocked. You'll receive a 429 response with a Retry-After header. Upgrade to Pro for higher limits.",
+    question: "How do I receive my license key after checkout?",
+    answer:
+      "License keys and authentication tokens are generated instantly via Polar.sh upon checkout and emailed directly to your billing email address.",
   },
   {
-    question: "Do you offer discounts for open-source projects?",
-    answer: "Yes — qualifying open-source projects get Pro features for free. Contact us with a link to your repo.",
+    question: "Can I host a private skill registry internally?",
+    answer:
+      "Yes. Enterprise access includes instructions and container images for running air-gapped, on-premise private registries behind your corporate VPN or VPC.",
   },
   {
-    question: "Is there a free trial for Pro?",
-    answer: "Yes — 14-day free trial, no credit card required. Cancel anytime.",
+    question: "Do you offer custom invoicing or purchase orders?",
+    answer:
+      "Yes. If your company requires ACH, wire transfers, or custom PO invoicing, contact our team directly via the Connect page.",
   },
   {
-    question: "What payment methods do you accept?",
-    answer: "Visa, Mastercard, RuPay, UPI, Netbanking, Amex via Razorpay. Enterprise customers can pay via invoice.",
+    question: "What is your refund policy?",
+    answer:
+      "We offer a 14-day money-back guarantee. If Agent SPM doesn't streamline your agent development workflows, email support for a full refund.",
+  },
+  {
+    question: "Can I use public skills with the free developer tier?",
+    answer:
+      "Absolutely. The open-source CLI, public registry search, and unlimited package installs are free forever for everyone in the developer ecosystem.",
   },
 ];
 
@@ -39,54 +48,49 @@ export const PricingFAQ = () => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto mt-28">
+    <div className="w-full">
       {/* Header */}
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-surface-900 dark:text-surface-50 tracking-tight">
+        <h2
+          className="font-instrument-serif text-3xl sm:text-5xl italic text-black font-normal tracking-tight"
+          style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
+        >
           Frequently Asked Questions
         </h2>
-        <p className="mt-3 text-sm sm:text-base text-surface-500 dark:text-surface-400">
-          Have questions about billing, limits, or private registries? We have answers.
+        <p className="mt-2 text-sm sm:text-base text-black/60 font-sans">
+          Common questions about enterprise access, licensing, and private registries.
         </p>
       </div>
 
-      {/* Accordion container */}
-      <div className="space-y-4">
+      {/* 2-Column FAQ Grid matching Home Page FAQSection */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {FAQS.map((faq, idx) => {
           const isOpen = openIdx === idx;
           return (
             <div
               key={idx}
-              className="rounded-2xl border border-surface-200 dark:border-surface-800 bg-surface-0 overflow-hidden transition-all duration-300 hover:border-surface-300 dark:hover:border-surface-700 shadow-sm hover:shadow-md"
+              className="bg-[#F7F7F7] border border-black/5 rounded-[6px] p-5 sm:p-6 transition-all duration-200"
             >
-              {/* Question Trigger */}
               <button
                 type="button"
                 onClick={() => toggle(idx)}
-                className="flex items-center justify-between w-full p-6 text-left font-semibold text-surface-900 dark:text-surface-100 hover:text-brand-blue dark:hover:text-brand-blue transition-colors cursor-pointer select-none"
+                className="w-full flex items-start justify-between gap-4 text-left cursor-pointer group"
               >
-                <span className="pr-4 text-base sm:text-lg tracking-tight">{faq.question}</span>
-                <ChevronDown
-                  className={`h-5 w-5 text-surface-400 dark:text-surface-500 shrink-0 transform transition-transform duration-350 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                    isOpen ? "rotate-180 text-brand-blue dark:text-brand-blue" : ""
-                  }`}
-                />
+                <span className="font-sans text-base sm:text-lg font-semibold text-black group-hover:text-[#1A5FED] transition-colors leading-snug">
+                  {faq.question}
+                </span>
+                <span className="w-6 h-6 rounded-[2px] bg-white border border-black/10 flex items-center justify-center font-mono text-xs font-bold shrink-0 text-black/70 group-hover:border-[#1A5FED] group-hover:text-[#1A5FED] transition-all">
+                  {isOpen ? "−" : "+"}
+                </span>
               </button>
 
-              {/* Smooth Grid Rows Height Transition Accordion */}
-              <div
-                className={`grid transition-all duration-350 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                  isOpen
-                    ? "grid-rows-[1fr] opacity-100"
-                    : "grid-rows-[0fr] opacity-0"
-                }`}
-              >
-                <div className="overflow-hidden">
-                  <div className="p-6 pt-0 text-sm sm:text-base leading-relaxed text-surface-500 dark:text-surface-450 font-normal">
+              {isOpen && (
+                <div className="mt-4 pt-4 border-t border-black/5 animate-in fade-in duration-200">
+                  <p className="font-sans text-sm sm:text-base text-black/70 leading-relaxed">
                     {faq.answer}
-                  </div>
+                  </p>
                 </div>
-              </div>
+              )}
             </div>
           );
         })}
@@ -94,4 +98,3 @@ export const PricingFAQ = () => {
     </div>
   );
 };
-

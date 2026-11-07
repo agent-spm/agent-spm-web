@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const XIcon = ({ size = 20 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -35,7 +35,8 @@ const NavButton = ({
   active = false,
   icon,
   href,
-  ariaLabel
+  ariaLabel,
+  onClick,
 }: {
   prefixChar?: string;
   label?: string;
@@ -43,6 +44,7 @@ const NavButton = ({
   icon?: React.ReactNode;
   href?: string;
   ariaLabel?: string;
+  onClick?: (e: React.MouseEvent) => void;
 }) => {
 
   const baseClass = "group flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm cursor-pointer select-none";
@@ -60,25 +62,20 @@ const NavButton = ({
   let customClass = "";
   if (icon) {
     // Icon button style - exactly 36x36px to match nav button height
-    customClass = `${baseClass} w-9 h-9 bg-white text-black rounded-[4px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-brand-blue hover:shadow-md hover:-translate-y-[1px]`;
+    customClass = `${baseClass} w-9 h-9 bg-white text-black rounded-[4px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-white hover:shadow-md hover:-translate-y-[1px]`;
   } else {
     // Text navigation button - height 36px (h-9) to fit 20px font
     if (active) {
       // Active pill: blue bg, white border, rounded-full
       customClass = `${baseClass} h-9 px-[12px] bg-brand-blue text-white rounded-full border-2 border-white shadow-md hover:bg-brand-blue/90`;
     } else {
-      if (label === "DOCS") {
-        // Docs button: inactive by default, morphs into rounded-[18px] blue bg with white border on hover (exact capsule height transition)
-        customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[2px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-white hover:rounded-[18px] hover:shadow-md hover:-translate-y-[1px]`;
-      } else {
-        // Other text buttons (Blog, Connect): inactive by default, remains square (rounded-[2px]) on hover
-        customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[2px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-brand-blue hover:shadow-md hover:-translate-y-[1px]`;
-      }
+      // Inactive: white bg, morphs into rounded-[18px] blue pill with white border on hover
+      customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[2px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-white hover:rounded-[18px] hover:shadow-md hover:-translate-y-[1px]`;
     }
   }
 
   const content = (
-    <button className={customClass} aria-label={ariaLabel || label}>
+    <button className={customClass} aria-label={ariaLabel || label} onClick={onClick}>
       {icon ? (
         <span className="flex items-center justify-center">{icon}</span>
       ) : (
@@ -94,6 +91,7 @@ const NavButton = ({
     return (
       <Link
         href={href}
+        onClick={onClick}
         target={isExternal ? "_blank" : undefined}
         rel={isExternal ? "noopener noreferrer" : undefined}
       >
@@ -165,7 +163,70 @@ const MobileNavItem = ({ num, label, shortcut, href, onClick, index }: MobileNav
 
 export const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setMounted(true);
+    }, 50);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleBlogNavigate = useCallback(() => {
+    if (pathname === '/' || pathname === '') {
+      const lenis = (window as any).__lenis;
+      if (lenis) {
+        lenis.scrollTo('#blog', { offset: -30 });
+      } else {
+        document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' });
+      }
+      window.history.pushState(null, '', '#blog');
+    } else {
+      router.push('/#blog');
+    }
+  }, [pathname, router]);
+
+  // Global Keyboard Navigation Shortcuts: [B] Blog, [D] Docs, [C] Connect, [S] Search, [H] Home
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Preserve standard browser shortcuts (Cmd+C, Ctrl+C, Cmd+S, Cmd+D, etc.)
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      // Ignore when user is actively focused on an input, textarea, select, or contenteditable
+      const target = e.target as HTMLElement | null;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target?.isContentEditable
+      ) {
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+      if (key === 'b') {
+        e.preventDefault();
+        handleBlogNavigate();
+      } else if (key === 'd') {
+        e.preventDefault();
+        router.push('/docs');
+      } else if (key === 'c') {
+        e.preventDefault();
+        router.push('/connect');
+      } else if (key === 's') {
+        e.preventDefault();
+        router.push('/search');
+      } else if (key === 'h') {
+        e.preventDefault();
+        router.push('/');
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleBlogNavigate, router]);
 
   const isLinkActive = (href: string) => {
     if (!pathname) return false;
@@ -176,7 +237,15 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className="flex items-center gap-2 sm:gap-[5px] py-4 sm:py-5 w-full" aria-label="Main navigation">
+      <nav
+        className={`flex items-center gap-2 sm:gap-[5px] py-4 sm:py-5 w-full hero-transition-base duration-900 ${
+          mounted
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-7"
+        }`}
+        style={{ transitionDelay: "150ms" }}
+        aria-label="Main navigation"
+      >
 
         {/* Logo container - exactly 32x32px (h-8 w-8) matching the height of nav buttons */}
         <Link
@@ -196,9 +265,25 @@ export const Navbar = () => {
 
         {/* ── DESKTOP ONLY: nav links (height 32px, adjusts spaces width according to text) ── */}
         <div className="hidden lg:flex items-center gap-[5px] flex-nowrap">
-          <NavButton prefixChar="B" label="BLOG" href="/search/" active={false} />
-          <NavButton prefixChar="D" label="DOCS" href="/docs" active={false} />
-          <NavButton prefixChar="C" label="CONNECT" href="/connect/" active={false} />
+          <NavButton
+            prefixChar="B"
+            label="BLOG"
+            href="/#blog"
+            onClick={(e) => {
+              if (window.location.pathname === '/' || window.location.pathname === '') {
+                e.preventDefault();
+                const lenis = (window as any).__lenis;
+                if (lenis) {
+                  lenis.scrollTo('#blog', { offset: -30 });
+                } else {
+                  document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' });
+                }
+                window.history.pushState(null, '', '#blog');
+              }
+            }}
+          />
+          <NavButton prefixChar="D" label="DOCS" href="/docs" active={isLinkActive('/docs')} />
+          <NavButton prefixChar="C" label="CONNECT" href="/connect/" active={isLinkActive('/connect')} />
         </div>
 
         {/* ── DESKTOP ONLY: icon links (pushed to the right) ── */}
@@ -251,7 +336,27 @@ export const Navbar = () => {
 
             {/* Staggered Elastic Items */}
             <div className="flex flex-col my-auto pt-4 pb-6">
-              <MobileNavItem num="01" label="Blog" shortcut="[B]" href="/search/" onClick={() => setMenuOpen(false)} index={0} />
+              <MobileNavItem
+                num="01"
+                label="Blog"
+                shortcut="[B]"
+                href="/#blog"
+                onClick={() => {
+                  setMenuOpen(false);
+                  if (window.location.pathname === '/' || window.location.pathname === '') {
+                    setTimeout(() => {
+                      const lenis = (window as any).__lenis;
+                      if (lenis) {
+                        lenis.scrollTo('#blog', { offset: -30 });
+                      } else {
+                        document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                      window.history.pushState(null, '', '#blog');
+                    }, 100);
+                  }
+                }}
+                index={0}
+              />
               <MobileNavItem num="02" label="Docs" shortcut="[D]" href="/docs" onClick={() => setMenuOpen(false)} index={1} />
               <MobileNavItem num="03" label="Connect" shortcut="[C]" href="/connect/" onClick={() => setMenuOpen(false)} index={2} />
             </div>

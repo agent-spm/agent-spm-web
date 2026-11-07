@@ -44,17 +44,17 @@ export default function DocsLayout({
   };
 
   return (
-    <div className="w-full bg-[#F5F5F5] text-black min-h-screen selection:bg-brand-blue/10 selection:text-[#1B5FED]">
+    <div className="w-full bg-white text-black min-h-screen selection:bg-[#1A5FED]/10 selection:text-[#1A5FED]">
       
       {/* ── MOBILE HEADER (Hidden on Desktop) ── */}
-      <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3.5 bg-[#F5F5F5]/90 backdrop-blur-md border-b border-black/10">
+      <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3.5 bg-white/90 backdrop-blur-md border-b border-black/10">
         <div className="flex items-center gap-2">
           <Link 
             href="/docs" 
-            className="flex items-center gap-1.5 text-xs font-mono font-bold text-black/55 hover:text-[#1B5FED] transition-colors"
+            className="flex items-center gap-1.5 text-xs font-mono font-bold text-black/55 hover:text-[#1A5FED] transition-colors"
           >
             <BookOpen className="h-4 w-4" />
-            <span>DOCS</span>
+            <span>[DOCS]</span>
           </Link>
           <ChevronRight className="h-3 w-3 text-black/20" />
           <span className="text-xs font-mono font-bold text-black uppercase tracking-tight">
@@ -65,7 +65,7 @@ export default function DocsLayout({
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
-          className="bracket-btn flex items-center justify-center p-2 rounded-[4px]"
+          className="bracket-btn flex items-center justify-center p-2 rounded-[4px] border border-black/10"
           aria-label="Open menu"
         >
           <Menu className="h-4 w-4" />
@@ -82,7 +82,7 @@ export default function DocsLayout({
           />
           
           {/* Sliding Drawer Container */}
-          <div className="fixed inset-y-0 left-0 z-50 w-72 bg-[#F5F5F5] p-6 overflow-y-auto border-r border-black/10 shadow-2xl lg:hidden flex flex-col justify-between animate-[slideInRightElastic_0.4s_cubic-bezier(0.34,1.56,0.64,1)_both] [&_span]:!text-black [&_h4]:!text-black/40 [&_svg]:!text-black/50 [&_a]:!text-black/75 [&_a:hover]:!text-[#1B5FED] [&_a:hover]:!bg-black/5 [&_a.text-brand-blue]:!text-[#1B5FED] [&_a.text-brand-blue_svg]:!text-[#1B5FED] [&_a.text-brand-blue]:!bg-[#1B5FED]/8">
+          <div className="fixed inset-y-0 left-0 z-50 w-72 bg-white p-6 overflow-y-auto border-r border-black/10 shadow-2xl lg:hidden flex flex-col justify-between animate-[slideInRightElastic_0.4s_cubic-bezier(0.34,1.56,0.64,1)_both] [&_span]:!text-black [&_h4]:!text-black/40 [&_svg]:!text-black/50 [&_a]:!text-black/75 [&_a:hover]:!text-[#1A5FED] [&_a:hover]:!bg-black/5 [&_a.text-brand-blue]:!text-[#1A5FED] [&_a.text-brand-blue_svg]:!text-[#1A5FED] [&_a.text-brand-blue]:!bg-[#1A5FED]/8">
             <div className="space-y-6">
               
               {/* Drawer Header */}
@@ -93,7 +93,7 @@ export default function DocsLayout({
                 <button
                   type="button"
                   onClick={() => setMobileOpen(false)}
-                  className="bracket-btn p-1.5 flex items-center justify-center active:scale-95 transition-transform"
+                  className="bracket-btn p-1.5 flex items-center justify-center active:scale-95 transition-transform rounded-[4px] border border-black/10"
                   aria-label="Close menu"
                 >
                   <X className="h-4 w-4" />
@@ -105,18 +105,18 @@ export default function DocsLayout({
             </div>
 
             <div className="pt-4 border-t border-black/10 font-mono text-[9px] text-black/30 tracking-widest uppercase">
-              spm.dev &copy; {new Date().getFullYear()}
+              Agent SPM &copy; {new Date().getFullYear()}
             </div>
           </div>
         </>
       )}
 
       {/* ── MAIN LAYOUT GRID ── */}
-      <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-12 py-8 lg:py-12">
+      <div className="mx-auto max-w-[1300px] px-4 sm:px-6 lg:px-12 py-8 lg:py-12">
         <div className="flex flex-col lg:flex-row gap-12 items-start">
 
           {/* Desktop Sticky Sidebar (Hidden on Mobile) */}
-          <aside className="hidden lg:block w-[400px] shrink-0 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-black/10 hover:scrollbar-thumb-black/25">
+          <aside className="hidden lg:block w-[380px] shrink-0 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-black/10 hover:scrollbar-thumb-black/25">
             <DocsSidebar />
           </aside>
 
@@ -125,17 +125,17 @@ export default function DocsLayout({
             
             {/* Desktop Breadcrumbs (Clean keyboard style) */}
             <div className="hidden lg:flex items-center gap-2 mb-8 font-mono text-xs text-black/40 font-bold select-none">
-              <span className="flex items-center gap-1 hover:text-[#1B5FED] transition-colors cursor-pointer">
+              <span className="flex items-center gap-1 hover:text-[#1A5FED] transition-colors cursor-pointer">
                 [DOCS]
               </span>
               <ChevronRight className="h-3 w-3 text-black/20" />
-              <span className="text-[#1B5FED] tracking-wide uppercase">
+              <span className="text-[#1A5FED] tracking-wide uppercase">
                 {getCurrentDocTitle()}
               </span>
             </div>
 
             {/* Markdown / Core Document Body Container */}
-            <div className="prose prose-slate max-w-none prose-headings:font-sans prose-headings:font-bold prose-h1:text-4xl prose-h1:tracking-tight prose-h2:text-2xl prose-h2:tracking-tight prose-p:text-black/75 prose-code:font-mono prose-code:text-[#1B5FED] prose-code:bg-[#1B5FED]/5 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-[3px] prose-code:before:content-none prose-code:after:content-none prose-strong:text-black prose-a:text-[#1B5FED] hover:prose-a:underline">
+            <div className="prose prose-slate max-w-none prose-headings:font-sans prose-headings:font-bold prose-h1:text-4xl prose-h1:tracking-tight prose-h2:text-2xl prose-h2:tracking-tight prose-p:text-black/75 prose-code:font-mono prose-code:text-[#1A5FED] prose-code:bg-[#1A5FED]/5 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-[3px] prose-code:before:content-none prose-code:after:content-none prose-strong:text-black prose-a:text-[#1A5FED] hover:prose-a:underline">
               {children}
             </div>
 

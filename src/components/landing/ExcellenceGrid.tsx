@@ -149,8 +149,42 @@ export default function ExcellenceGrid() {
       className="relative w-full text-black py-24 z-20 overflow-hidden"
     >
       {/* ─── Light Blue Pixel Art Background ─── */}
-      <div className="absolute top-0 left-0 w-full z-10 pointer-events-none select-none opacity-85">
-        <PixelBox color="#0DA9FF33" />
+      <div className="absolute top-0 left-0 w-full z-10 pointer-events-none select-none opacity-90">
+        <PixelBox color="#78D2FF66" />
+      </div>
+
+      {/* Flanking Lateral Pixel Clusters (Left & Right Wings per reference mockup) */}
+      <div className="hidden xl:block absolute left-4 top-1/3 w-28 h-64 pointer-events-none select-none z-10 opacity-70">
+        <svg viewBox="0 0 120 260" className="w-full h-full" fill="none">
+          <rect x="10" y="20" width="18" height="18" fill="#78D2FF" fillOpacity="0.45" />
+          <rect x="28" y="20" width="18" height="18" fill="#BAE6FD" fillOpacity="0.55" />
+          <rect x="28" y="38" width="18" height="18" fill="#0080FF" fillOpacity="0.3" />
+          <rect x="46" y="38" width="18" height="18" fill="#90D5FF" fillOpacity="0.5" />
+          <rect x="46" y="56" width="18" height="18" fill="#78D2FF" fillOpacity="0.4" />
+          <rect x="10" y="74" width="18" height="18" fill="#BAE6FD" fillOpacity="0.6" />
+          <rect x="28" y="74" width="18" height="18" fill="#78D2FF" fillOpacity="0.35" />
+          <rect x="64" y="92" width="18" height="18" fill="#90D5FF" fillOpacity="0.45" />
+          <rect x="46" y="110" width="18" height="18" fill="#0080FF" fillOpacity="0.25" />
+          <rect x="28" y="128" width="18" height="18" fill="#BAE6FD" fillOpacity="0.5" />
+          <rect x="10" y="146" width="18" height="18" fill="#78D2FF" fillOpacity="0.35" />
+          <rect x="46" y="164" width="18" height="18" fill="#90D5FF" fillOpacity="0.4" />
+          <rect x="28" y="182" width="18" height="18" fill="#0080FF" fillOpacity="0.2" />
+        </svg>
+      </div>
+      <div className="hidden xl:block absolute right-4 top-1/3 w-28 h-64 pointer-events-none select-none z-10 opacity-70">
+        <svg viewBox="0 0 120 260" className="w-full h-full" fill="none">
+          <rect x="92" y="10" width="18" height="18" fill="#78D2FF" fillOpacity="0.45" />
+          <rect x="74" y="10" width="18" height="18" fill="#BAE6FD" fillOpacity="0.55" />
+          <rect x="56" y="28" width="18" height="18" fill="#90D5FF" fillOpacity="0.4" />
+          <rect x="74" y="46" width="18" height="18" fill="#0080FF" fillOpacity="0.25" />
+          <rect x="92" y="64" width="18" height="18" fill="#78D2FF" fillOpacity="0.5" />
+          <rect x="56" y="82" width="18" height="18" fill="#BAE6FD" fillOpacity="0.6" />
+          <rect x="38" y="100" width="18" height="18" fill="#90D5FF" fillOpacity="0.35" />
+          <rect x="56" y="118" width="18" height="18" fill="#78D2FF" fillOpacity="0.45" />
+          <rect x="74" y="136" width="18" height="18" fill="#0080FF" fillOpacity="0.3" />
+          <rect x="92" y="154" width="18" height="18" fill="#BAE6FD" fillOpacity="0.5" />
+          <rect x="56" y="172" width="18" height="18" fill="#78D2FF" fillOpacity="0.4" />
+        </svg>
       </div>
 
       <div className="max-w-[1200px] mx-auto px-6 flex flex-col items-center relative z-20">
