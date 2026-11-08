@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import LenisProvider from "@/components/providers/LenisProvider";
 import { DistortionFilter } from "@/components/ui/DistortionFilter";
+import { SessionProvider } from "@/lib/data/session-context";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,9 +57,13 @@ export default function RootLayout({
       </head>
       <body className="antialiased font-sans" suppressHydrationWarning>
         <DistortionFilter />
-        <LenisProvider>
-          {children}
-        </LenisProvider>
+        <SessionProvider>
+          <ToastProvider>
+            <LenisProvider>
+              {children}
+            </LenisProvider>
+          </ToastProvider>
+        </SessionProvider>
       </body>
     </html>
   );
