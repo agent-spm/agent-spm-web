@@ -29,7 +29,7 @@ const roleConfig = {
 
 export function TeamTable({ members }: TeamTableProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-surface-200 bg-surface-0 dark:border-surface-800 dark:bg-surface-950">
+    <div className="overflow-x-auto rounded-xl border border-surface-200 bg-surface-0 dark:border-surface-800 dark:bg-surface-950">
       <table className="min-w-full divide-y divide-surface-200 dark:divide-surface-800">
         <thead className="bg-surface-50 dark:bg-surface-900">
           <tr>
