@@ -13,7 +13,7 @@ const ITEMS: ExcellenceItem[] = [
   {
     title: "Designers",
     description:
-      "Use the command line interface and VS code extension to manage you skills for each workspace separately and effectively",
+      "Package Figma plugins, Canvas renderers, and Design System tokens into deterministic agent tools without writing backend glue code.",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -39,7 +39,7 @@ const ITEMS: ExcellenceItem[] = [
   {
     title: "Developers",
     description:
-      "Use the command line interface and VS code extension to manage you skills for each workspace separately and effectively",
+      "Single command spm install pulls typed MCP skills directly into Cursor, Claude Desktop, and VS Code with strict schema validation.",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -60,7 +60,7 @@ const ITEMS: ExcellenceItem[] = [
   {
     title: "Senior Engineers",
     description:
-      "Use the command line interface and VS code extension to manage you skills for each workspace separately and effectively",
+      "Eliminate runtime tool drift with deterministic semver locking, AST taint detection, and reproducible sandboxed container environments.",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -81,7 +81,7 @@ const ITEMS: ExcellenceItem[] = [
   {
     title: "Enterprise Companies",
     description:
-      "Use the command line interface and VS code extension to manage you skills for each workspace separately and effectively",
+      "Private air-gapped registry deployments, SAML/SCIM 2.0 directory sync, organizational RBAC perimeters, and SLSA L3 provenance.",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -102,7 +102,7 @@ const ITEMS: ExcellenceItem[] = [
   {
     title: "Founders and Operators",
     description:
-      "Use the command line interface and VS code extension to manage you skills for each workspace separately and effectively",
+      "Accelerate autonomous workflows from day one. Equip your domain agents with proven procedural skills without building infra from scratch.",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -123,7 +123,7 @@ const ITEMS: ExcellenceItem[] = [
   {
     title: "Personal Use",
     description:
-      "Use the command line interface and VS code extension to manage you skills for each workspace separately and effectively",
+      "Run lightweight, privacy-first local tools for personal AI assistants, local shell automations, and custom daily productivity workflows.",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"

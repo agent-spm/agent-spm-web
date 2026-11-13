@@ -11,17 +11,17 @@ const FEATURES: FeatureCard[] = [
   {
     title: "Skills and MCP context are managed with our extension",
     description:
-      "Use the command line interface and VS code extension to manage you skills for each workspace separately and effectively",
+      "Install, version, and orchestrate Model Context Protocol tools directly in your editor with instant sync across your agent workspaces.",
   },
   {
     title: "Use Skill mode context protocol (SMCP)",
     description:
-      "Use the command line interface and VS code extension to manage you skills for each workspace separately and effectively",
+      "Zero-latency JSON-RPC 2.0 communication channels connecting local sandboxes and cloud LLM runtimes with sub-millisecond tool dispatch.",
   },
   {
     title: "SuperAgent makes it whole",
     description:
-      "Use the command line interface and VS code extension to manage you skills for each workspace separately and effectively",
+      "Empower autonomous multi-agent teams with shared context perimeters, continuous memory handoffs, and cryptographic security verification.",
   },
 ];
 
@@ -56,7 +56,7 @@ export default function WorkspaceFeatures() {
               letterSpacing: '-3%'
             }}
           >
-            Use the command line interface and VS code extension to manage you
+            Use the command line interface and VS code extension to manage your
             skills for each workspace separately and effectively
           </p>
         </div>
