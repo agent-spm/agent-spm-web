@@ -2,6 +2,7 @@
 
 import React from "react";
 import { CodeBlock } from "@/components/docs/CodeBlock";
+import { TabbedCodeBlock, CodeTab } from "@/components/docs/TabbedCodeBlock";
 import { DocsNavigation } from "@/components/docs/DocsNavigation";
 import { Shield, Cpu, Zap, Layers } from "lucide-react";
 
@@ -78,16 +79,51 @@ export default function DocsOverviewPage() {
           A Quick Demonstration
         </h3>
         <p className="text-sm sm:text-base text-black/75 leading-relaxed">
-          Install and initialize packages using a single shell routine:
+          Install and initialize packages across CLI, Cursor, or your preferred agent runtime:
         </p>
         
-        <CodeBlock 
-          code={`# Install a package from the SPM registry
+        <TabbedCodeBlock
+          tabs={[
+            {
+              id: "bash-cli",
+              label: "Bash",
+              language: "bash",
+              code: `# Install a package from the SPM registry
 spm install @utils/json-validator
 
 # Initialize a package in your local codebase
-spm init @utils/json-validator --namespace custom-skills`}
-          language="bash"
+spm init @utils/json-validator --namespace custom-skills`,
+              filename: "terminal",
+            },
+            {
+              id: "cursor-mcp",
+              label: "Cursor",
+              language: "json",
+              code: `{
+  "mcpServers": {
+    "json-validator": {
+      "command": "npx",
+      "args": ["-y", "@spm/json-validator"],
+      "env": {
+        "SPM_API_KEY": "\${env:SPM_API_KEY}"
+      }
+    }
+  }
+}`,
+              filename: ".cursor/mcp.json",
+            },
+            {
+              id: "python-langchain",
+              label: "Python",
+              language: "python",
+              code: `from spm import load_skill
+
+# Load authenticated SPM tool into LangGraph agent
+validator_tool = load_skill("@utils/json-validator", api_key="spm_live_...")
+agent = create_react_agent(model="claude-3-5-sonnet", tools=[validator_tool])`,
+              filename: "agent.py",
+            },
+          ]}
         />
       </section>
 
