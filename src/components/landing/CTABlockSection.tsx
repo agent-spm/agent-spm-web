@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -23,6 +23,15 @@ const LinuxIcon = () => (
 );
 
 export const CTABlockSection = () => {
+  const [activeStep, setActiveStep] = useState(3);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveStep((prev) => (prev >= 3 ? 1 : prev + 1));
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section className="w-full bg-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
       {/* Duplicate <DistortionFilter /> removed (already rendered globally in src/app/layout.tsx) */}
@@ -130,29 +139,48 @@ export const CTABlockSection = () => {
                 </span>
               </div>
 
-              {/* Interactive Terminal Body */}
+              {/* Interactive Terminal Body with Auto-typing Loop */}
               <div className="font-mono text-xs sm:text-[13px] text-neutral-800 space-y-2.5 py-3 flex-1 overflow-y-auto">
                 <div className="flex items-center gap-2 text-neutral-400">
                   <span className="text-[#1A5FED] font-bold">~</span>
-                  <span>npx spm init my-agent</span>
+                  <span className="text-black font-medium">npx spm init my-agent</span>
+                  {activeStep === 1 && (
+                    <span className="w-2 h-4 bg-[#1A5FED] inline-block animate-pulse" />
+                  )}
                 </div>
-                <div className="text-[#1A5FED] font-medium pl-4">
-                  ✔ Initialized agent workspace (agent.config.json)
-                </div>
-                <div className="flex items-center gap-2 text-neutral-400">
-                  <span className="text-[#1A5FED] font-bold">~</span>
-                  <span>spm install @mcp/postgres @mcp/brave-search</span>
-                </div>
-                <div className="text-green-600 font-medium pl-4">
-                  ✔ Installed 2 packages (8 MCP tool endpoints active)
-                </div>
-                <div className="flex items-center gap-2 text-neutral-400">
-                  <span className="text-[#1A5FED] font-bold">~</span>
-                  <span>spm run agent</span>
-                </div>
-                <div className="text-neutral-700 pl-4 font-semibold">
-                  🚀 Autonomous agent loop running on port 3845
-                </div>
+                {activeStep >= 1 && (
+                  <div className="text-[#1A5FED] font-medium pl-4 animate-in fade-in duration-200">
+                    ✔ Initialized agent workspace (agent.config.json)
+                  </div>
+                )}
+
+                {activeStep >= 2 && (
+                  <>
+                    <div className="flex items-center gap-2 text-neutral-400 animate-in fade-in duration-200">
+                      <span className="text-[#1A5FED] font-bold">~</span>
+                      <span className="text-black font-medium">spm install @mcp/postgres @mcp/brave-search</span>
+                      {activeStep === 2 && (
+                        <span className="w-2 h-4 bg-[#1A5FED] inline-block animate-pulse" />
+                      )}
+                    </div>
+                    <div className="text-emerald-600 font-medium pl-4 animate-in fade-in duration-200">
+                      ✔ Installed 2 packages (8 MCP tool endpoints active)
+                    </div>
+                  </>
+                )}
+
+                {activeStep >= 3 && (
+                  <>
+                    <div className="flex items-center gap-2 text-neutral-400 animate-in fade-in duration-200">
+                      <span className="text-[#1A5FED] font-bold">~</span>
+                      <span className="text-black font-medium">spm run agent</span>
+                      <span className="w-2 h-4 bg-[#1A5FED] inline-block animate-pulse" />
+                    </div>
+                    <div className="text-neutral-800 pl-4 font-semibold animate-in fade-in duration-200 flex items-center gap-1.5">
+                      <span>🚀 Autonomous agent loop running on port 3845</span>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Window Footer */}
