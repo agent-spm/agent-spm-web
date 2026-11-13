@@ -221,6 +221,17 @@
     }
   }
 
+  /* Slide In Drawer from Left */
+  @keyframes slideInLeft {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(0);
+    }
+  }
+
   /* Premium Scale-In Spring Animation for Card */
   @keyframes scaleInFade {
     0% {

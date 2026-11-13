@@ -2,15 +2,16 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Download, Clock } from "lucide-react";
+import { Download, Clock, Eye } from "lucide-react";
 import { formatNumber, timeAgo } from "@/lib/utils";
 import type { PackageSearchResult } from "@/types/package";
 
 interface PackageCardProps {
   pkg: PackageSearchResult;
+  onQuickPeek?: () => void;
 }
 
-export function PackageCard({ pkg }: PackageCardProps) {
+export function PackageCard({ pkg, onQuickPeek }: PackageCardProps) {
   const installCmd = `spm install ${pkg.namespace}/${pkg.name}`;
   const [copied, setCopied] = useState(false);
 
@@ -41,10 +42,27 @@ export function PackageCard({ pkg }: PackageCardProps) {
           </p>
         </div>
         
-        {/* Version Badge */}
-        <span className="shrink-0 rounded-[2px] border border-black/10 bg-white px-2 py-0.5 font-mono text-xs text-black/60 shadow-xs">
-          v{pkg.latestVersion}
-        </span>
+        {/* Top-Right Badges & Actions */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="rounded-[2px] border border-black/10 bg-white px-2 py-0.5 font-mono text-xs text-black/60 shadow-xs">
+            v{pkg.latestVersion}
+          </span>
+          {onQuickPeek && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onQuickPeek();
+              }}
+              className="p-1 rounded-[2px] border border-black/10 bg-white text-black/40 hover:text-[#1A5FED] hover:border-[#1A5FED] hover:bg-[#1A5FED]/5 transition-colors cursor-pointer shadow-xs"
+              title="Quick Peek (Space)"
+              aria-label="Quick Peek"
+            >
+              <Eye className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Terminal Command Deck */}

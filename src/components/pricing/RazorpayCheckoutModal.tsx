@@ -163,7 +163,7 @@ export function RazorpayCheckoutModal({ isOpen, onClose, billingInterval }: Razo
       />
 
       {/* Modal Card: Styled to match the Leaderboard/Console card layout perfectly */}
-      <div className="relative w-full max-w-[420px] overflow-hidden rounded-[4px] border-2 border-[#E3E2DF] bg-[#EFEDE9] p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] transition-all duration-300 z-10 text-black animate-[scaleInFade_0.4s_cubic-bezier(0.34,1.56,0.64,1)_both]">
+      <div className="relative w-full max-w-[420px] max-h-[90vh] overflow-y-auto rounded-[4px] border-2 border-[#E3E2DF] bg-[#EFEDE9] p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] transition-all duration-300 z-10 text-black animate-[scaleInFade_0.4s_cubic-bezier(0.34,1.56,0.64,1)_both]">
         
         {/* Close Button: Styled as monospace [X] */}
         <button
