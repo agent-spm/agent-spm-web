@@ -70,7 +70,7 @@ const NavButton = ({
       customClass = `${baseClass} h-9 px-[12px] bg-brand-blue text-white rounded-full border-2 border-white shadow-md hover:bg-brand-blue/90`;
     } else {
       // Inactive: white bg, morphs into rounded-[18px] blue pill with white border on hover
-      customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[2px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-white hover:rounded-[18px] hover:shadow-md hover:-translate-y-[1px]`;
+      customClass = `${baseClass} h-9 px-[12px] bg-white text-black rounded-[4px] border-2 border-white hover:bg-brand-blue hover:text-white hover:border-white hover:rounded-[18px] hover:shadow-md hover:-translate-y-[1px]`;
     }
   }
 
@@ -215,6 +215,9 @@ export const Navbar = () => {
       } else if (key === 'c') {
         e.preventDefault();
         router.push('/connect');
+      } else if (key === 'l') {
+        e.preventDefault();
+        router.push('/login');
       } else if (key === 's') {
         e.preventDefault();
         router.push('/search');
@@ -234,6 +237,15 @@ export const Navbar = () => {
     const normalizedHref = href.replace(/\/$/, '');
     return normalizedPath === normalizedHref || normalizedPath.startsWith(normalizedHref + '/');
   };
+
+  const isGradientBg =
+    !pathname ||
+    pathname === '/' ||
+    pathname === '/pricing' ||
+    pathname === '/connect' ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/signup') ||
+    pathname.startsWith('/verify-2fa');
 
   return (
     <>
@@ -286,8 +298,18 @@ export const Navbar = () => {
           <NavButton prefixChar="C" label="CONNECT" href="/connect/" active={isLinkActive('/connect')} />
         </div>
 
-        {/* ── DESKTOP ONLY: icon links (pushed to the right) ── */}
+        {/* ── DESKTOP ONLY: auth & icon links (pushed to the right) ── */}
         <div className="hidden lg:flex items-center gap-[5px] flex-nowrap ml-auto">
+          <NavButton prefixChar="L" label="LOGIN" href="/login" active={isLinkActive('/login')} />
+
+          {/* Adaptive hairline dock divider */}
+          <div
+            className={`w-[1px] h-[18px] mx-1 shrink-0 self-center transition-colors duration-200 ${
+              isGradientBg ? "bg-white/40" : "bg-black/15"
+            }`}
+            aria-hidden="true"
+          />
+
           <NavButton ariaLabel="Follow us on GitHub" icon={<GithubIcon size={20} />} href="https://github.com/agent-spm" />
           <NavButton ariaLabel="Watch us on YouTube" icon={<YoutubeIcon size={20} />} href="/search/" />
           <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={20} />} href="https://x.com/agentspm" />
@@ -359,6 +381,7 @@ export const Navbar = () => {
               />
               <MobileNavItem num="02" label="Docs" shortcut="[D]" href="/docs" onClick={() => setMenuOpen(false)} index={1} />
               <MobileNavItem num="03" label="Connect" shortcut="[C]" href="/connect/" onClick={() => setMenuOpen(false)} index={2} />
+              <MobileNavItem num="04" label="Login" shortcut="[L]" href="/login" onClick={() => setMenuOpen(false)} index={3} />
             </div>
 
             {/* Footer with branding */}
