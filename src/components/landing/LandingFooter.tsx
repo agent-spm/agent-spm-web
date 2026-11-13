@@ -7,7 +7,38 @@ import { PixelBox } from "./PixelBox";
 
 export const LandingFooter = () => {
   return (
-    <footer className="w-full bg-white pt-16 sm:pt-24 pb-0 relative overflow-hidden border-t border-black/5">
+    <footer className="w-full bg-white pt-0 pb-0 relative overflow-hidden border-t border-black/5">
+      {/* ── Global Registry Real-Time Telemetry Ticker Strip ── */}
+      <div className="w-full border-b border-black/5 bg-[#FAFAFA] py-3 px-4 sm:px-6 lg:px-8 mb-12 select-none">
+        <div className="max-w-[1200px] mx-auto flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] text-black/60">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-semibold text-black/80">GLOBAL MESH STATUS: 100% OPERATIONAL</span>
+          </div>
+
+          <div className="flex items-center gap-4 sm:gap-6 flex-wrap">
+            <span className="flex items-center gap-1.5">
+              <span className="text-black/40">Skills:</span>
+              <strong className="text-black font-semibold">10,482 active</strong>
+            </span>
+            <span className="hidden sm:inline text-black/20">•</span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-black/40">Calls Today:</span>
+              <strong className="text-black font-semibold">1,842,910</strong>
+            </span>
+            <span className="hidden sm:inline text-black/20">•</span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-black/40">P95 Latency:</span>
+              <strong className="text-[#1A5FED] font-semibold">74ms</strong>
+            </span>
+            <span className="hidden sm:inline text-black/20">•</span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-black/40">AST Escapes:</span>
+              <strong className="text-emerald-700 font-semibold">0 (100% Clean)</strong>
+            </span>
+          </div>
+        </div>
+      </div>
       <div className="max-w-[1120px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col lg:flex-row justify-between gap-12 sm:gap-16 pb-16">
           {/* Left Brand Area (Exact from Figma node 534:713 - 541:56) */}

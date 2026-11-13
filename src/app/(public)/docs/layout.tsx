@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { DocsSidebar } from "@/components/docs/DocsSidebar";
+import { OnThisPageRail } from "@/components/docs/OnThisPageRail";
 import { Menu, X, ChevronRight, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -140,6 +141,11 @@ export default function DocsLayout({
             </div>
 
           </article>
+
+          {/* Desktop Right Rail: On-this-page Table of Contents & Developer Utilities */}
+          <aside className="hidden xl:block shrink-0">
+            <OnThisPageRail />
+          </aside>
 
         </div>
       </div>

@@ -1,17 +1,27 @@
-import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import React, { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 
 interface BookingFormProps {
   onBack: () => void;
-  onConfirm: () => void;
+  onConfirm: (name?: string, email?: string) => void;
 }
 
 export const BookingForm: React.FC<BookingFormProps> = ({ onBack, onConfirm }) => {
+  const [name, setName] = useState("Alex Chen");
+  const [email, setEmail] = useState("alex@acme.labs");
+  const [notes, setNotes] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onConfirm(name, email);
+  };
+
   return (
-    <div className="flex flex-col w-full max-w-[540px] animate-in fade-in slide-in-from-right-4 duration-300">
+    <form onSubmit={handleSubmit} className="flex flex-col w-full max-w-[540px] animate-in fade-in slide-in-from-right-4 duration-300">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <button 
+          type="button"
           onClick={onBack}
           className="w-8 h-8 flex items-center justify-center rounded-[4px] border border-black/10 hover:bg-black/5 transition-all cursor-pointer"
           aria-label="Back"
@@ -28,8 +38,11 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onBack, onConfirm }) =
           </label>
           <input 
             type="text" 
-            placeholder="Ada Lovelace" 
-            className="w-full h-[44px] bg-[#F7F7F7] border border-black/10 rounded-[4px] px-4 text-sm font-sans text-black placeholder:text-black/35 outline-none focus:border-[#1A5FED] focus:bg-white transition-all shadow-none"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Alex Chen" 
+            className="w-full h-[44px] bg-white border border-black/10 rounded-[6px] px-4 text-sm font-sans text-black placeholder:text-black/35 outline-none focus:border-[#1A5FED] focus:ring-2 focus:ring-[#1A5FED]/10 transition-all shadow-xs"
           />
         </div>
 
@@ -39,8 +52,11 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onBack, onConfirm }) =
           </label>
           <input 
             type="email" 
-            placeholder="ada@company.com" 
-            className="w-full h-[44px] bg-[#F7F7F7] border border-black/10 rounded-[4px] px-4 text-sm font-sans text-black placeholder:text-black/35 outline-none focus:border-[#1A5FED] focus:bg-white transition-all shadow-none"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="alex@acme.labs" 
+            className="w-full h-[44px] bg-white border border-black/10 rounded-[6px] px-4 text-sm font-sans text-black placeholder:text-black/35 outline-none focus:border-[#1A5FED] focus:ring-2 focus:ring-[#1A5FED]/10 transition-all shadow-xs"
           />
         </div>
 
@@ -50,15 +66,17 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onBack, onConfirm }) =
           </label>
           <textarea 
             rows={3}
-            placeholder="Tell us about the agent stack you are building..." 
-            className="w-full bg-[#F7F7F7] border border-black/10 rounded-[4px] p-4 text-sm font-sans text-black placeholder:text-black/35 outline-none focus:border-[#1A5FED] focus:bg-white transition-all shadow-none resize-none"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Tell us about your agent workflows or MCP packages..." 
+            className="w-full bg-white border border-black/10 rounded-[6px] p-4 text-sm font-sans text-black placeholder:text-black/35 outline-none focus:border-[#1A5FED] focus:ring-2 focus:ring-[#1A5FED]/10 transition-all shadow-xs resize-none"
           />
         </div>
 
         <div className="pt-2">
           <button 
-            onClick={onConfirm}
-            className="w-full sm:w-auto h-[44px] px-8 bg-black text-white rounded-[4px] font-sans font-semibold text-sm transition-all hover:bg-black/90 active:scale-[0.98] shadow-sm cursor-pointer"
+            type="submit"
+            className="w-full sm:w-auto h-[44px] px-8 bg-black text-white rounded-[6px] font-sans font-semibold text-sm transition-all hover:bg-black/90 active:scale-[0.98] shadow-sm cursor-pointer"
           >
             Confirm &amp; Schedule Call →
           </button>
@@ -67,6 +85,6 @@ export const BookingForm: React.FC<BookingFormProps> = ({ onBack, onConfirm }) =
           </p>
         </div>
       </div>
-    </div>
+    </form>
   );
 };

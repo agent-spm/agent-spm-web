@@ -2,25 +2,35 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { Navbar } from "@/components/layout/Navbar";
+import { LandingFooter } from "@/components/landing/LandingFooter";
+import { PixelBox } from "@/components/landing/PixelBox";
 import { FeatureTable } from "./FeatureTable";
 import { PricingFAQ } from "./PricingFAQ";
-import { PixelDissolve } from "@/components/landing/PixelDissolve";
 
 export const PricingPageContent = () => {
   const [tier, setTier] = useState<"developers" | "enterprise">("enterprise");
 
   return (
-    <div className="w-full min-h-screen bg-white text-black font-sans">
-      {/* ─── Hero Section with Cyan-Blue Gradient & Liquid Glass Card ─── */}
-      <section className="relative w-full overflow-hidden py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0080FF] via-[#78D2FF] to-white text-white">
-        {/* Top Pixel Dissolve */}
-        <div className="absolute inset-x-0 top-0 w-full pointer-events-none select-none opacity-40 z-0">
-          <PixelDissolve cellSize={24} height={160} seed={33} mode="faint-pattern" />
+    <div className="w-full min-h-screen bg-white text-black font-sans relative overflow-x-hidden selection:bg-[#1A5FED]/10 selection:text-[#1A5FED]">
+      {/* ─── Hero Section with Signature Deep Blue-Purple Gradient & Navbar ─── */}
+      <section
+        className="relative w-full overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(180deg, #190096 0%, #0080FF 18%, #78D2FF 53%, #cce9ff 72%, #ffffff 100%)",
+          boxShadow:
+            "inset 0 0 120px rgba(255,255,255,0.85), inset 0 0 40px rgba(255,255,255,0.5)",
+        }}
+      >
+        {/* Universal Agent SPM Navigation Bar inside the gradient (0 offset) */}
+        <div className="w-full max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-12 flex-shrink-0 relative z-20">
+          <Navbar />
         </div>
 
-        <div className="relative max-w-[1200px] mx-auto flex flex-col items-center z-10">
+        <div className="relative max-w-[1200px] mx-auto flex flex-col items-center z-10 pt-10 sm:pt-14 pb-12 px-4 sm:px-6 lg:px-8">
           {/* Eyebrow */}
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 backdrop-blur-md px-4 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-white">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 backdrop-blur-md px-4 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-white shadow-sm">
             <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
             LIFETIME ENTERPRISE ACCESS
           </div>
@@ -161,6 +171,16 @@ export const PricingPageContent = () => {
             </div>
           </div>
         </div>
+
+        {/* ─── Page 2 — Pixel art scroll-reveal zone matching Home page ─── */}
+        <div className="relative h-[36vh] sm:h-[48vh] w-full pointer-events-none">
+          <div
+            className="absolute left-0 w-full z-30 pointer-events-none select-none transform-gpu -translate-y-[10%]"
+            style={{ top: 0 }}
+          >
+            <PixelBox color="#ffffff" />
+          </div>
+        </div>
       </section>
 
       {/* ─── Detailed Feature Comparison Matrix ─── */}
@@ -172,6 +192,9 @@ export const PricingPageContent = () => {
       <section className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         <PricingFAQ />
       </section>
+
+      {/* ─── Landing Footer ─── */}
+      <LandingFooter />
     </div>
   );
 };
