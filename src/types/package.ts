@@ -51,6 +51,8 @@ export interface PackageSearchResult {
   weeklyDownloads: number;
   keywords: string[];
   updatedAt: string;
+  verified?: boolean;
+  securityScore?: number;
 }
 
 export interface PackageSearchResponse {
