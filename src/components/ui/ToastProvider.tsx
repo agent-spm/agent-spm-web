@@ -1,9 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+import { CheckCircle2, AlertCircle, AlertTriangle, Info, X } from "lucide-react";
 
-export type ToastType = "success" | "info" | "error";
+export type ToastType = "success" | "info" | "warning" | "neutral" | "error";
 
 export interface ToastItem {
   id: string;
@@ -49,6 +49,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((t) => {
           const isSuccess = t.type === "success";
           const isError = t.type === "error";
+          const isWarning = t.type === "warning";
+          const isNeutral = t.type === "neutral";
 
           return (
             <div
@@ -62,6 +64,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                     ? "bg-emerald-500/15 text-emerald-600"
                     : isError
                     ? "bg-red-500/15 text-red-600"
+                    : isWarning
+                    ? "bg-amber-500/15 text-amber-600"
+                    : isNeutral
+                    ? "bg-black/10 text-black/70"
                     : "bg-[#1B5FED]/15 text-[#1B5FED]"
                 }`}
               >
@@ -69,6 +75,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   <CheckCircle2 className="w-4 h-4" />
                 ) : isError ? (
                   <AlertCircle className="w-4 h-4" />
+                ) : isWarning ? (
+                  <AlertTriangle className="w-4 h-4" />
                 ) : (
                   <Info className="w-4 h-4" />
                 )}
