@@ -32,7 +32,7 @@ export default function AuditLogsPage() {
       `"${evt.resource}"`,
       evt.severity,
       evt.ipAddress,
-      `"${evt.userAgent.replace(/"/g, '""')}"`,
+      `"${(evt.userAgent ?? "").replace(/"/g, '""')}"`,
     ]);
 
     const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
