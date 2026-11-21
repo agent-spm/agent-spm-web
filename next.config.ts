@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Static export only in production for easy deployment on Hostinger Shared Hosting,
-  // while allowing dynamic route rendering in development!
-  output: process.env.NODE_ENV === "production" ? "export" : undefined,
+  // Disable static export on Vercel or when not explicitly requested via STATIC_EXPORT=true,
+  // allowing dynamic API routes (/api/checkout/*) and serverless functions to run properly.
+  output: process.env.STATIC_EXPORT === "true" ? "export" : undefined,
   trailingSlash: true,
   turbopack: {
     // Set to project root to avoid climbing up and hitting permission errors

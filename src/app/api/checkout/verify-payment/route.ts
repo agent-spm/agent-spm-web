@@ -2,10 +2,9 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { provisionProSubscription } from "@/lib/supabase/service";
 
-const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
 export async function POST(request: Request) {
   try {
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
     const body = await request.json();
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature, email } = body;
 

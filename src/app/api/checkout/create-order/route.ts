@@ -1,21 +1,30 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
-// Initialize Razorpay SDK on the server using keys
-const keyId = process.env.RAZORPAY_KEY_ID;
-const keySecret = process.env.RAZORPAY_KEY_SECRET;
+function getRazorpayClient() {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
-if (!keyId || !keySecret) {
-  throw new Error("Missing Razorpay API credentials in environment variables.");
+  if (!keyId || !keySecret) {
+    return null;
+  }
+
+  return new Razorpay({
+    key_id: keyId,
+    key_secret: keySecret,
+  });
 }
-
-const razorpay = new Razorpay({
-  key_id: keyId,
-  key_secret: keySecret,
-});
 
 export async function POST(request: Request) {
   try {
+    const razorpay = getRazorpayClient();
+    if (!razorpay) {
+      return NextResponse.json(
+        { error: "Missing Razorpay API credentials in environment variables." },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const { amount, currency, email } = body;
 
