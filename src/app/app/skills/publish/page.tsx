@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/data/session-context";
 import { PublishSuccessModal } from "@/components/modals/PublishSuccessModal";
+import { GitHubSkillImporter, GithubIcon } from "@/components/skills/GitHubSkillImporter";
 import {
   FileText,
   Upload,
@@ -14,12 +15,14 @@ import {
   FileCode,
   ArrowRight,
   ArrowLeft,
+  Sparkles,
 } from "lucide-react";
 
 export default function PublishWizardPage() {
   const router = useRouter();
   const { currentOrg, addSkill } = useSession();
 
+  const [publishMethod, setPublishMethod] = useState<"github" | "manual">("github");
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
 
   // Step 1: Manifest Fields
@@ -121,10 +124,135 @@ export default function PublishWizardPage() {
     }, 400);
   };
 
+  const handleGitHubImportSuccess = (skillData: {
+    name: string;
+    scope: string;
+    version: string;
+    description: string;
+    repoUrl: string;
+    license: string;
+  }) => {
+    setName(skillData.name);
+    setScope(skillData.scope);
+    setVersion(skillData.version);
+    setDescription(skillData.description);
+    setRepoUrl(skillData.repoUrl);
+    setLicense(skillData.license);
+
+    addSkill({
+      id: `skl_${skillData.name}_${Date.now()}`,
+      scope: skillData.scope,
+      name: skillData.name,
+      version: skillData.version,
+      status: "published",
+      visibility: "public",
+      description: skillData.description,
+      license: skillData.license,
+      readme: `# ${skillData.scope}/${skillData.name}\n\n${skillData.description}\n\n## Source\nImported from [${skillData.repoUrl}](${skillData.repoUrl})\n\n## Capabilities\n- Automated agent task execution\n- Full audit trail`,
+      repositoryUrl: skillData.repoUrl,
+      keywords: ["github-import", "agent", "tool", "mcp"],
+      agentCompatibility: agents,
+      totalDownloads: 0,
+      downloadSparkline: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      updatedAt: "Just now",
+      versions: [
+        {
+          version: skillData.version,
+          digest: "sha256:8f3c1a93b4e72d1f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
+          signature: "spm_sig_ed25519:7e1a3b...",
+          tarballSize: "142 KB",
+          downloads: 0,
+          publishedAt: new Date().toISOString(),
+          publishedBy: "GitHub Importer",
+        },
+      ],
+    });
+
+    setShowSuccessModal(true);
+  };
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto text-black">
-      {/* ── 4-STEP STEPPER HEADER ── */}
-      <div className="rounded-2xl border border-black/10 bg-white p-4 sm:p-5 shadow-sm">
+      {/* ── TOP-LEVEL PUBLISH METHOD SELECTOR ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={() => setPublishMethod("github")}
+          className={`flex items-start gap-3.5 p-4 rounded-2xl border transition-all text-left cursor-pointer ${
+            publishMethod === "github"
+              ? "bg-white border-[#1B5FED] ring-2 ring-[#1B5FED]/15 shadow-sm"
+              : "bg-black/[0.02] border-black/10 hover:bg-white hover:border-black/20"
+          }`}
+        >
+          <div
+            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+              publishMethod === "github"
+                ? "bg-black text-white"
+                : "bg-black/5 text-black/60"
+            }`}
+          >
+            <GithubIcon className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs font-bold text-black">
+                1-Click GitHub Import
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-sky-100 text-[#1B5FED] font-mono text-[10px] font-bold">
+                Recommended
+              </span>
+            </div>
+            <p className="text-xs text-black/60 font-sans mt-0.5">
+              Paste any GitHub skill or MCP repo URL. Auto-extracts manifests and inspects security.
+            </p>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setPublishMethod("manual")}
+          className={`flex items-start gap-3.5 p-4 rounded-2xl border transition-all text-left cursor-pointer ${
+            publishMethod === "manual"
+              ? "bg-white border-[#1B5FED] ring-2 ring-[#1B5FED]/15 shadow-sm"
+              : "bg-black/[0.02] border-black/10 hover:bg-white hover:border-black/20"
+          }`}
+        >
+          <div
+            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+              publishMethod === "manual"
+                ? "bg-[#1B5FED] text-white"
+                : "bg-black/5 text-black/60"
+            }`}
+          >
+            <FileCode className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs font-bold text-black">
+                Manual Manifest Wizard
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-black/5 text-black/60 font-mono text-[10px]">
+                Advanced
+              </span>
+            </div>
+            <p className="text-xs text-black/60 font-sans mt-0.5">
+              Assemble a package step-by-step from local files and configure spm.yaml parameters.
+            </p>
+          </div>
+        </button>
+      </div>
+
+      {/* ── METHOD 1: 1-CLICK GITHUB IMPORTER ── */}
+      {publishMethod === "github" ? (
+        <GitHubSkillImporter
+          onSuccessPublish={handleGitHubImportSuccess}
+          onSwitchToManual={() => setPublishMethod("manual")}
+        />
+      ) : (
+        /* ── METHOD 2: MANUAL STEPPER WIZARD ── */
+        <div className="space-y-6">
+          {/* 4-Step Stepper Header */}
+          <div className="rounded-2xl border border-black/10 bg-white p-4 sm:p-5 shadow-sm">
         <div className="grid grid-cols-4 gap-2">
           {[
             { step: 1, label: "Manifest", icon: FileText },
@@ -525,6 +653,8 @@ export default function PublishWizardPage() {
               <span className="text-black font-bold">{pipelineProgress}%</span>
             </div>
           </div>
+        </div>
+      )}
         </div>
       )}
 

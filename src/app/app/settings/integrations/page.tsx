@@ -80,6 +80,7 @@ export default function IntegrationsPage() {
       const newDel = {
         id: `del_sim_${Date.now()}`,
         webhookId: "wh_1",
+        endpointUrl: "https://api.acme.labs/spm-events",
         event: "skill.published",
         timestamp: new Date().toISOString(),
         statusCode: 200,

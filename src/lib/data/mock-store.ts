@@ -83,6 +83,7 @@ export interface AuditEvent {
   resource: string;
   ipAddress: string;
   countryCode: string;
+  userAgent?: string;
   details?: Record<string, any>;
 }
 
