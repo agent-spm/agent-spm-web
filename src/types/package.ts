@@ -4,6 +4,11 @@ export interface PackageVersion {
   digest: string;
   downloads: number;
   changelog?: string;
+  sizeBytes?: number;
+  fileCount?: number;
+  downloadUrl?: string;
+  verified?: boolean;
+  confirmed?: boolean;
 }
 
 export interface PackageAuthor {
@@ -38,6 +43,12 @@ export interface Package {
   weeklyDownloads: number;
   createdAt: string;
   updatedAt: string;
+  verified?: boolean;
+  releaseUrl?: string;
+  sizeBytes?: number;
+  fileCount?: number;
+  integrity?: string;
+  readmeSource?: "github-skill" | "github-readme" | "generated";
 }
 
 export interface PackageSearchResult {
