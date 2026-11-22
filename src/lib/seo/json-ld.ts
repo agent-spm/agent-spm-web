@@ -47,7 +47,7 @@ export function generateOrganizationJsonLd() {
     "@type": "Organization",
     name: "SPM — Skills Package Manager",
     url: APP_URL,
-    logo: `${APP_URL}/logo.png`,
+    logo: `${APP_URL}/images/logo.png`,
     description:
       "The open registry for AI agent skill packages. Discover, publish, and manage reusable agent capabilities.",
     sameAs: ["https://github.com/agent-spm-registry"],
