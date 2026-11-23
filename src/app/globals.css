@@ -72,6 +72,19 @@
   /* Smooth image rendering */
   img {
     image-rendering: -webkit-optimize-contrast;
+    max-inline-size: 100%;
+  }
+
+  /* Prevent mobile drawer/modal scroll chaining into underlying document */
+  .spm-nav-dialog:modal {
+    overscroll-behavior: contain;
+  }
+
+  .spm-nav-dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
   }
 }
 

@@ -130,24 +130,14 @@ export default function NotFound() {
         <div className="relative z-20 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 pb-8">
           {/* Animated Pixel "4 0 4" Glyph */}
           <div
-            className={`w-full max-w-[420px] sm:max-w-[480px] md:max-w-[540px] mb-8 sm:mb-10 hero-transition-base duration-1000 ${
-              mounted
-                ? "opacity-100 blur-0 translate-y-0 scale-100"
-                : "opacity-0 blur-[18px] translate-y-6 scale-90"
-            }`}
-            style={{ transitionDelay: "80ms" }}
+            className="w-full max-w-[420px] sm:max-w-[480px] md:max-w-[540px] mb-8 sm:mb-10"
           >
             <Pixel404Glyph />
           </div>
 
           {/* Eyebrow Status Pill */}
           <div
-            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white font-mono text-xs sm:text-sm mb-5 shadow-sm hero-transition-base duration-900 ${
-              mounted
-                ? "opacity-100 blur-0 translate-y-0"
-                : "opacity-0 blur-[10px] translate-y-3"
-            }`}
-            style={{ transitionDelay: "220ms" }}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white font-mono text-xs sm:text-sm mb-5 shadow-sm"
           >
             <span className="w-2 h-2 rounded-full bg-[#FF3B30] animate-pulse" />
             <span className="tracking-wide uppercase font-semibold">
@@ -157,14 +147,9 @@ export default function NotFound() {
 
           {/* Headline — Instrument Serif Italic */}
           <h1
-            className={`text-3xl sm:text-5xl md:text-6xl lg:text-[68px] font-normal italic leading-[1.08] tracking-tight text-white mb-5 select-none text-center max-w-[700px] hero-transition-base duration-1000 ${
-              mounted
-                ? "opacity-100 blur-0 translate-y-0"
-                : "opacity-0 blur-[14px] translate-y-4"
-            }`}
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-[68px] font-normal italic leading-[1.08] tracking-tight text-white mb-5 select-none text-center max-w-[700px]"
             style={{
               fontFamily: "'Instrument Serif', Georgia, serif",
-              transitionDelay: "350ms",
             }}
           >
             This page couldn&apos;t
@@ -173,14 +158,9 @@ export default function NotFound() {
 
           {/* Subtitle */}
           <p
-            className={`font-sans text-sm sm:text-base md:text-lg text-white/90 max-w-[560px] font-medium leading-relaxed mb-8 sm:mb-10 text-center hero-transition-base duration-1000 ${
-              mounted
-                ? "opacity-95 translate-y-0"
-                : "opacity-0 translate-y-6"
-            }`}
+            className="font-sans text-sm sm:text-base md:text-lg text-white/90 max-w-[560px] font-medium leading-relaxed mb-8 sm:mb-10 text-center"
             style={{
               letterSpacing: "-0.02em",
-              transitionDelay: "500ms",
             }}
           >
             The skill, route, or package you&apos;re looking for doesn&apos;t exist

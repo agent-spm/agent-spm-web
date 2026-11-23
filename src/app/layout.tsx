@@ -47,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning className={inter.variable}>
       <head>
         {/* Preconnect to Google Fonts for mono font */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
