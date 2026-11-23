@@ -11,7 +11,63 @@ export default function Verify2faPage() {
   const { setPersona } = useSession();
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const verifyTotpCode = async (code: string) => {
+    if (code.length !== 6) return;
+    setLoading(true);
+    setErrorMessage(null);
+    try {
+      const { createSupabaseBrowserClient } = await import("@/lib/supabase/client");
+      const supabase = createSupabaseBrowserClient();
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
+        setErrorMessage("Your session has expired. Please sign in again.");
+        setLoading(false);
+        return;
+      }
+
+      const { data: factorsData, error: factorsErr } = await supabase.auth.mfa.listFactors();
+      if (factorsErr) {
+        setErrorMessage(factorsErr.message || "Unable to verify MFA factors.");
+        setLoading(false);
+        return;
+      }
+
+      const totpFactor =
+        factorsData?.totp?.find((f: { status?: string; id: string }) => f.status === "verified") ||
+        factorsData?.totp?.[0];
+
+      if (!totpFactor) {
+        setErrorMessage(
+          "No TOTP authenticator is enrolled on this account. Enroll one in Settings → Security first."
+        );
+        setLoading(false);
+        return;
+      }
+
+      const { error: verifyErr } = await supabase.auth.mfa.challengeAndVerify({
+        factorId: totpFactor.id,
+        code,
+      });
+
+      if (verifyErr) {
+        setErrorMessage(verifyErr.message || "Invalid 6-digit verification code.");
+        setDigits(["", "", "", "", "", ""]);
+        inputRefs.current[0]?.focus();
+        setLoading(false);
+        return;
+      }
+
+      setPersona("owner");
+      router.push("/app");
+      router.refresh();
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : "Verification failed.");
+      setLoading(false);
+    }
+  };
 
   const handleChange = (index: number, val: string) => {
     if (!/^\d*$/.test(val)) return;
@@ -26,11 +82,7 @@ export default function Verify2faPage() {
 
     // Auto submit if all filled
     if (index === 5 && val && newDigits.every((d) => d !== "")) {
-      setLoading(true);
-      setTimeout(() => {
-        setPersona("owner");
-        router.push("/app");
-      }, 600);
+      void verifyTotpCode(newDigits.join(""));
     }
   };
 
@@ -40,12 +92,30 @@ export default function Verify2faPage() {
     }
   };
 
-  const handleBiometric = () => {
+  const handleBiometric = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setPersona("owner");
-      router.push("/app");
-    }, 700);
+    setErrorMessage(null);
+    try {
+      const { createSupabaseBrowserClient } = await import("@/lib/supabase/client");
+      const supabase = createSupabaseBrowserClient();
+      const { data: factorsData } = await supabase.auth.mfa.listFactors();
+      const verifiedFactors = (factorsData?.all || []).filter(
+        (f: { status?: string; factor_type?: string }) =>
+          f.status === "verified" && f.factor_type === "webauthn"
+      );
+      if (verifiedFactors.length === 0) {
+        setErrorMessage(
+          "No WebAuthn passkey factor is enrolled on your account. Please enter your 6-digit authenticator code."
+        );
+        setLoading(false);
+        return;
+      }
+      setErrorMessage("Please complete verification with your 6-digit authenticator code.");
+      setLoading(false);
+    } catch {
+      setErrorMessage("WebAuthn verification failed. Please use your 6-digit authenticator code.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,14 +127,14 @@ export default function Verify2faPage() {
       </div>
 
       {/* ── Headline & Subcopy ── */}
-      <div className="text-center max-w-xl mb-8 sm:mb-10">
+      <div className="text-center max-w-xl mb-8 sm:mb-10 px-2">
         <h1
-          className="font-instrument-serif text-5xl sm:text-6xl lg:text-[68px] leading-[1.05] italic font-normal tracking-tight text-black mb-3 select-none"
+          className="font-instrument-serif text-4xl sm:text-6xl lg:text-[68px] leading-[1.05] italic font-normal tracking-tight text-black mb-3 select-none"
           style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
         >
           Two-factor verification.
         </h1>
-        <p className="font-sans text-base sm:text-lg text-black/75 font-medium leading-relaxed max-w-md mx-auto">
+        <p className="font-sans text-sm sm:text-lg text-black/75 font-medium leading-relaxed max-w-md mx-auto">
           Enter the 6-digit code from your authenticator app (1Password, Google Authenticator) or use a passkey.
         </p>
       </div>
@@ -81,8 +151,8 @@ export default function Verify2faPage() {
         <div className="glass-card-specular pointer-events-none" aria-hidden="true" />
 
         {/* Layer 3: Foreground Content */}
-        <div className="glass-card-content relative z-10 p-6 sm:p-8">
-          <div className="mb-6 flex items-center justify-between border-b border-black/10 pb-4">
+        <div className="glass-card-content relative z-10 p-4 sm:p-8">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-4">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-[#1B5FED]" />
               <span className="font-mono text-xs uppercase tracking-wider text-black/70 font-semibold">
@@ -96,34 +166,35 @@ export default function Verify2faPage() {
 
           {/* 6-Digit Code Inputs */}
           <div className="mb-6">
-            <div className="flex justify-between gap-2">
+            <div className="grid grid-cols-6 gap-1.5 sm:gap-2.5">
               {digits.map((digit, idx) => (
                 <input
                   key={idx}
                   ref={(el) => { inputRefs.current[idx] = el; }}
                   type="text"
                   inputMode="numeric"
+                  aria-label={`Verification digit ${idx + 1}`}
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handleChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
-                  className="h-12 w-12 sm:h-14 sm:w-14 rounded-[4px] border border-black/10 bg-white text-center font-mono text-xl sm:text-2xl font-bold text-black focus:border-[#1B5FED] focus:outline-none focus:ring-2 focus:ring-[#1B5FED]/20 shadow-sm"
+                  className="h-11 sm:h-14 w-full min-w-0 rounded-[4px] border border-black/10 bg-white text-center font-mono text-lg sm:text-2xl font-bold text-black focus:border-[#1B5FED] focus:outline-none focus:ring-2 focus:ring-[#1B5FED]/20 shadow-sm"
                 />
               ))}
             </div>
           </div>
 
           <div className="space-y-3">
+            {errorMessage && (
+              <div className="mb-3 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-600 font-mono">
+                {errorMessage}
+              </div>
+            )}
+
             <button
               type="button"
               disabled={loading || digits.some((d) => !d)}
-              onClick={() => {
-                setLoading(true);
-                setTimeout(() => {
-                  setPersona("owner");
-                  router.push("/app");
-                }, 600);
-              }}
+              onClick={() => void verifyTotpCode(digits.join(""))}
               className="w-full rounded-[4px] bg-[#1B5FED] hover:bg-[#154ec4] px-4 py-3 text-xs font-mono font-semibold uppercase tracking-wider text-white transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.99] disabled:opacity-50 cursor-pointer"
             >
               {loading ? "Verifying Token..." : "Verify Code & Proceed"}
@@ -144,15 +215,7 @@ export default function Verify2faPage() {
               <ArrowLeft className="w-3 h-3" />
               <span>Back to sign in</span>
             </Link>
-            <button
-              type="button"
-              onClick={() => {
-                setDigits(["1", "2", "3", "4", "5", "6"]);
-              }}
-              className="text-[#1B5FED] font-bold hover:underline cursor-pointer"
-            >
-              [Auto-fill Demo Code]
-            </button>
+            <span className="text-[11px] text-black/40">Secured via WebAuthn</span>
           </div>
         </div>
       </div>
