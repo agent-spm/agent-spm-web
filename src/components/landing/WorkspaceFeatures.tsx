@@ -1,43 +1,70 @@
 "use client";
 
 import React from "react";
+import ExtensionRegistryDemo from "./demos/ExtensionRegistryDemo";
+import SmcpProtocolDemo from "./demos/SmcpProtocolDemo";
+import SuperAgentSecurityDemo from "./demos/SuperAgentSecurityDemo";
+import {
+  DemoPackageItem,
+  FALLBACK_DEMO_PACKAGES,
+  pickUniqueDemoPackages,
+} from "./demos/demo-types";
 
-interface FeatureCard {
+interface FeatureCardSpec {
+  id: "extension" | "smcp" | "superagent";
+  tag: string;
   title: string;
   description: string;
 }
 
-const FEATURES: FeatureCard[] = [
+const FEATURES: FeatureCardSpec[] = [
   {
+    id: "extension",
+    tag: "[01] IDE EXTENSION & REGISTRY",
     title: "Skills and MCP context are managed with our extension",
     description:
-      "Install, version, and orchestrate Model Context Protocol tools directly in your editor with instant sync across your agent workspaces.",
+      "Search the live registry, install skills into your workspace, and sync runtime configs directly in Cursor, Claude, VS Code, or Antigravity.",
   },
   {
+    id: "smcp",
+    tag: "[02] SMCP PROTOCOL & SCHEMA DIET",
     title: "Use Skill mode context protocol (SMCP)",
     description:
-      "Zero-latency JSON-RPC 2.0 communication channels connecting local sandboxes and cloud LLM runtimes with sub-millisecond tool dispatch.",
+      "Run real registry commands, inspect JSON-RPC 2.0 tool envelopes, and trim redundant prompt tokens with live Schema Diet compression.",
   },
   {
+    id: "superagent",
+    tag: "[03] SUPERAGENT INTEGRITY GATE",
     title: "SuperAgent makes it whole",
     description:
-      "Empower autonomous multi-agent teams with shared context perimeters, continuous memory handoffs, and cryptographic security verification.",
+      "Connect scoped skills to agent workflows with cryptographic SHA-256 verification gates and isolated runtime permissions.",
   },
 ];
 
-export default function WorkspaceFeatures() {
+export default function WorkspaceFeatures({
+  initialPackages,
+}: {
+  initialPackages?: DemoPackageItem[];
+}) {
+  const safePackages = pickUniqueDemoPackages(
+    initialPackages && initialPackages.length > 0
+      ? initialPackages
+      : FALLBACK_DEMO_PACKAGES,
+    12
+  );
+
   return (
     <section className="relative w-full bg-white text-black py-24 z-20">
-      <div className="max-w-[1200px] mx-auto px-6 flex flex-col items-center">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col items-center">
         {/* Section Header */}
-        <div className="text-center max-w-[700px] mb-16 flex flex-col items-center gap-y-4">
+        <div className="text-center max-w-[700px] mb-14 sm:mb-16 flex flex-col items-center gap-y-4">
           <h2
             style={{
               fontFamily: "Inter",
               fontWeight: 600,
               fontSize: "clamp(32px, 4.5vw, 48px)",
               lineHeight: "1",
-              letterSpacing: "-5%",
+              letterSpacing: "-0.05em",
               color: "#000000",
             }}
           >
@@ -50,35 +77,36 @@ export default function WorkspaceFeatures() {
               fontFamily: "Inter",
               fontWeight: 400,
               fontSize: "16px",
-              lineHeight: "1.2",
-              color: "#777777",
-              maxWidth: "500px",
-              letterSpacing: '-3%'
+              lineHeight: "1.35",
+              color: "#52525B",
+              maxWidth: "520px",
+              letterSpacing: "-0.02em",
             }}
           >
-            Use the command line interface and VS code extension to manage your
-            skills for each workspace separately and effectively
+            Try Agent SPM right here — browse real registry packages, test SMCP CLI &amp; Schema Diet commands, and verify SHA-256 integrity checks.
           </p>
         </div>
 
-        {/* Feature Cards Stack */}
-        <div className="w-full max-w-[960px] flex flex-col gap-y-8">
-          {FEATURES.map((feature, idx) => (
+        {/* Interactive Feature Demo Cards Stack */}
+        <div className="w-full max-w-[1000px] flex flex-col gap-y-10">
+          {FEATURES.map((feature) => (
             <div
-              key={idx}
-              className="w-full bg-[#F5F5F7] rounded-[4px] p-8 md:p-12 flex flex-col items-center text-center gap-y-6 md:gap-y-8 border border-neutral-100/50 shadow-sm"
+              key={feature.id}
+              className="w-full bg-[#F5F5F7] rounded-[6px] p-4 sm:p-8 md:p-10 flex flex-col items-center text-center gap-y-5 sm:gap-y-6 border border-black/5 shadow-sm"
             >
-              {/* Card Text */}
-              <div className="max-w-[740px] flex flex-col gap-y-3">
+              {/* Card Header */}
+              <div className="max-w-[740px] flex flex-col items-center gap-y-2.5">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-[3px] border border-black/10 bg-white font-mono text-[10px] font-semibold uppercase tracking-wider text-[#1B5FED]">
+                  {feature.tag}
+                </span>
                 <h3
                   style={{
                     fontFamily: "Inter",
                     fontWeight: 600,
-                    fontSize: "28px",
+                    fontSize: "clamp(20px, 3vw, 28px)",
                     lineHeight: "1.2",
                     letterSpacing: "-0.02em",
                     color: "#000000",
-
                   }}
                 >
                   {feature.title}
@@ -87,11 +115,11 @@ export default function WorkspaceFeatures() {
                   style={{
                     fontFamily: "Inter",
                     fontWeight: 400,
-                    fontSize: "16px",
-                    lineHeight: "1.2",
-                    color: "#777777",
-                    maxWidth: "500px",
-                    letterSpacing: "-0.03em",
+                    fontSize: "15px",
+                    lineHeight: "1.4",
+                    color: "#52525B",
+                    maxWidth: "580px",
+                    letterSpacing: "-0.015em",
                     margin: "0 auto",
                   }}
                 >
@@ -99,12 +127,16 @@ export default function WorkspaceFeatures() {
                 </p>
               </div>
 
-              {/* Mock Video Box */}
-              <div className="w-full aspect-[16/9] bg-[#D9D9D9] rounded-[4px] flex items-center justify-center relative overflow-hidden group cursor-pointer border border-neutral-200/40">
-
-                {/* Subtle shine / premium styling inside card */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-black/[0.02] to-white/[0.08] pointer-events-none" />
-              </div>
+              {/* Interactive Dark IDE Workbench (Replaced Static Placeholder) */}
+              {feature.id === "extension" && (
+                <ExtensionRegistryDemo initialPackages={safePackages} />
+              )}
+              {feature.id === "smcp" && (
+                <SmcpProtocolDemo initialPackages={safePackages} />
+              )}
+              {feature.id === "superagent" && (
+                <SuperAgentSecurityDemo initialPackages={safePackages} />
+              )}
             </div>
           ))}
         </div>
