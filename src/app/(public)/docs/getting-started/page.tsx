@@ -77,7 +77,7 @@ spm login`}
         />
 
         <div className="p-4 rounded-[6px] border border-[#1A5FED]/20 bg-[#1A5FED]/5 text-xs sm:text-sm text-black/75 leading-relaxed">
-          <span className="font-bold text-[#1A5FED]">Protip:</span> If you are operating inside a headless CI/CD server, you can set the environment token directly using: <code className="font-mono bg-white px-1.5 py-0.5 rounded-[2px] border border-black/10">export SPM_TOKEN="your_token_here"</code>.
+          <span className="font-bold text-[#1A5FED]">Protip:</span> If you are operating inside a headless CI/CD server, you can set the environment token directly using: <code className="font-mono bg-white px-1.5 py-0.5 rounded-[2px] border border-black/10">export SPM_TOKEN=&quot;your_token_here&quot;</code>.
         </div>
       </section>
 

@@ -1,9 +1,22 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+
+const SpmBlueMark = ({ size = 24 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 40 40"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    className="shrink-0"
+  >
+    <path d="M12 9H28V20H19.5L24 24.5V30H12V24.5H16.5L12 20V9Z" fill="#1B5FED" />
+  </svg>
+);
 
 const XIcon = ({ size = 20 }: { size?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -74,32 +87,42 @@ const NavButton = ({
     }
   }
 
-  const content = (
-    <button className={customClass} aria-label={ariaLabel || label} onClick={onClick}>
-      {icon ? (
-        <span className="flex items-center justify-center">{icon}</span>
-      ) : (
-        <span style={typographyStyle} className="flex items-center whitespace-nowrap">
-          <span>[{prefixChar}]</span>
-          <span style={{ marginLeft: '0.3em' }}>{label}</span>
-        </span>
-      )}
-    </button>
+  const inner = icon ? (
+    <span className="flex items-center justify-center">{icon}</span>
+  ) : (
+    <span style={typographyStyle} className="flex items-center whitespace-nowrap">
+      <span>[{prefixChar}]</span>
+      <span style={{ marginLeft: '0.3em' }}>{label}</span>
+    </span>
   );
+
   if (href) {
     const isExternal = href.startsWith("http");
     return (
       <Link
         href={href}
         onClick={onClick}
+        className={customClass}
+        aria-label={ariaLabel || label}
+        aria-current={active ? "page" : undefined}
         target={isExternal ? "_blank" : undefined}
         rel={isExternal ? "noopener noreferrer" : undefined}
       >
-        {content}
+        {inner}
       </Link>
     );
   }
-  return content;
+
+  return (
+    <button
+      type="button"
+      className={customClass}
+      aria-label={ariaLabel || label}
+      onClick={onClick}
+    >
+      {inner}
+    </button>
+  );
 };
 
 // 3×3 grid dots icon
@@ -129,32 +152,48 @@ interface MobileNavItemProps {
   label: string;
   shortcut: string;
   href: string;
+  active?: boolean;
   onClick: () => void;
   index: number;
 }
 
-const MobileNavItem = ({ num, label, shortcut, href, onClick, index }: MobileNavItemProps) => {
+const MobileNavItem = ({ num, label, shortcut, href, active = false, onClick, index }: MobileNavItemProps) => {
   return (
     <Link
       href={href}
       onClick={onClick}
-      className="flex items-center justify-between py-5 border-b border-black/5 group cursor-pointer active:bg-black/[0.02] transition-colors"
+      aria-current={active ? "page" : undefined}
+      className={`flex items-center justify-between min-h-[52px] py-4 px-2 border-b border-black/5 group cursor-pointer active:bg-black/[0.02] transition-colors ${
+        active ? "bg-[#1A5FED]/[0.04] rounded-[8px] px-3 border-transparent" : ""
+      }`}
       style={{
         animation: `slideInRightElastic 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both`,
         animationDelay: `${0.06 * index}s`
       }}
     >
-      <div className="flex items-baseline gap-4">
+      <div className="flex items-baseline gap-4 min-w-0">
         {/* Index */}
-        <span className="font-mono text-xs text-brand-blue/70 font-semibold">{num}</span>
+        <span className={`font-mono text-xs font-semibold ${active ? "text-[#1A5FED]" : "text-brand-blue/70"}`}>
+          {num}
+        </span>
         {/* Menu label */}
-        <span className="font-sans text-xl font-medium tracking-tight text-black group-hover:translate-x-1 transition-transform duration-200 uppercase">
+        <span
+          className={`font-sans text-xl font-medium tracking-tight group-hover:translate-x-1 transition-transform duration-200 uppercase truncate ${
+            active ? "text-[#1A5FED] font-semibold" : "text-black"
+          }`}
+        >
           {label}
         </span>
       </div>
 
       {/* Keycap Indicator */}
-      <span className="font-mono text-xs bg-black/5 text-black/40 px-2 py-0.5 rounded border border-black/5 group-hover:bg-brand-blue group-hover:text-white group-hover:border-transparent transition-all duration-200 uppercase">
+      <span
+        className={`font-mono text-xs px-2 py-0.5 rounded border shrink-0 transition-all duration-200 uppercase ${
+          active
+            ? "bg-brand-blue text-white border-transparent font-bold"
+            : "bg-black/5 text-black/45 border-black/5 group-hover:bg-brand-blue group-hover:text-white group-hover:border-transparent"
+        }`}
+      >
         {shortcut}
       </span>
     </Link>
@@ -163,38 +202,31 @@ const MobileNavItem = ({ num, label, shortcut, href, onClick, index }: MobileNav
 
 export const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
+  // Close mobile drawer on route transitions
   useEffect(() => {
-    const t = setTimeout(() => {
-      setMounted(true);
-    }, 50);
-    return () => clearTimeout(t);
-  }, []);
+    setMenuOpen(false);
+  }, [pathname]);
 
-  const handleBlogNavigate = useCallback(() => {
-    if (pathname === '/' || pathname === '') {
-      const lenis = (window as any).__lenis;
-      if (lenis) {
-        lenis.scrollTo('#blog', { offset: -30 });
-      } else {
-        document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' });
-      }
-      window.history.pushState(null, '', '#blog');
-    } else {
-      router.push('/#blog');
+  // Synchronize native top-layer <dialog> modality
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (menuOpen && !dialog.open) {
+      dialog.showModal();
+    } else if (!menuOpen && dialog.open) {
+      dialog.close();
     }
-  }, [pathname, router]);
+  }, [menuOpen]);
 
-  // Global Keyboard Navigation Shortcuts: [B] Blog, [D] Docs, [C] Connect, [S] Search, [H] Home
+  // Global Keyboard Navigation Shortcuts: [S] Search Skills, [D] Docs, [C] Connect, [L] Login, [H] Home
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      // Preserve standard browser shortcuts (Cmd+C, Ctrl+C, Cmd+S, Cmd+D, etc.)
       if (e.metaKey || e.ctrlKey || e.altKey) return;
 
-      // Ignore when user is actively focused on an input, textarea, select, or contenteditable
       const target = e.target as HTMLElement | null;
       if (
         target instanceof HTMLInputElement ||
@@ -206,30 +238,32 @@ export const Navbar = () => {
       }
 
       const key = e.key.toLowerCase();
-      if (key === 'b') {
+      if (key === 's') {
         e.preventDefault();
-        handleBlogNavigate();
+        setMenuOpen(false);
+        router.push('/search');
       } else if (key === 'd') {
         e.preventDefault();
+        setMenuOpen(false);
         router.push('/docs');
       } else if (key === 'c') {
         e.preventDefault();
+        setMenuOpen(false);
         router.push('/connect');
       } else if (key === 'l') {
         e.preventDefault();
+        setMenuOpen(false);
         router.push('/login');
-      } else if (key === 's') {
-        e.preventDefault();
-        router.push('/search');
       } else if (key === 'h') {
         e.preventDefault();
+        setMenuOpen(false);
         router.push('/');
       }
     }
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleBlogNavigate, router]);
+  }, [router]);
 
   const isLinkActive = (href: string) => {
     if (!pathname) return false;
@@ -247,60 +281,45 @@ export const Navbar = () => {
     pathname.startsWith('/signup') ||
     pathname.startsWith('/verify-2fa');
 
+  const isSearchActive = isLinkActive('/search') || isLinkActive('/packages');
+  const isDocsActive = isLinkActive('/docs');
+  const isConnectActive = isLinkActive('/connect');
+  const isLoginActive = isLinkActive('/login') || isLinkActive('/signup') || isLinkActive('/verify-2fa');
+
   return (
     <>
       <nav
-        className={`flex items-center gap-2 sm:gap-[5px] py-4 sm:py-5 w-full hero-transition-base duration-900 ${
-          mounted
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 -translate-y-7"
-        }`}
-        style={{ transitionDelay: "150ms" }}
+        className="flex flex-wrap items-center gap-1.5 sm:gap-[5px] py-4 sm:py-5 w-full transition-opacity duration-300 opacity-100"
         aria-label="Main navigation"
       >
 
-        {/* Logo container - exactly 32x32px (h-8 w-8) matching the height of nav buttons */}
+        {/* Logo container - 36x36px matching nav pill height */}
         <Link
           href="/"
-          className="flex items-center justify-center w-9 h-9 bg-white rounded-[4px] border border-white flex-shrink-0 cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm"
+          aria-label="Agent SPM Home"
+          className="flex items-center justify-center w-9 h-9 bg-white rounded-[4px] border-2 border-white flex-shrink-0 cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm"
         >
-          <Image src="/images/blueLogo.png" alt="Agent SPM Logo" width={32} height={32} className="object-contain" />
+          <SpmBlueMark size={26} />
         </Link>
 
-        {/* ── MOBILE ONLY: Github + Youtube + X + Discord right next to logo ── */}
-        <div className="flex items-center gap-[6px] lg:hidden">
+        {/* ── MOBILE & TABLET: Social icon buttons next to logo ── */}
+        <div className="flex items-center gap-1.5 sm:gap-[6px] lg:hidden">
           <NavButton ariaLabel="Follow us on GitHub" icon={<GithubIcon size={18} />} href="https://github.com/agent-spm" />
-          <NavButton ariaLabel="Watch us on YouTube" icon={<YoutubeIcon size={18} />} href="/search/" />
+          <NavButton ariaLabel="Watch us on YouTube" icon={<YoutubeIcon size={18} />} href="https://youtube.com/" />
           <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={18} />} href="https://x.com/agentspm" />
           <NavButton ariaLabel="Join us on Discord" icon={<DiscordIcon size={20} />} href="https://discord.gg/Qgg73H9Jm" />
         </div>
 
-        {/* ── DESKTOP ONLY: nav links (height 32px, adjusts spaces width according to text) ── */}
+        {/* ── DESKTOP: nav links (36px pills, Skill Search replaces Blog) ── */}
         <div className="hidden lg:flex items-center gap-[5px] flex-nowrap">
-          <NavButton
-            prefixChar="B"
-            label="BLOG"
-            href="/#blog"
-            onClick={(e) => {
-              if (window.location.pathname === '/' || window.location.pathname === '') {
-                e.preventDefault();
-                const lenis = (window as any).__lenis;
-                if (lenis) {
-                  lenis.scrollTo('#blog', { offset: -30 });
-                } else {
-                  document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' });
-                }
-                window.history.pushState(null, '', '#blog');
-              }
-            }}
-          />
-          <NavButton prefixChar="D" label="DOCS" href="/docs" active={isLinkActive('/docs')} />
-          <NavButton prefixChar="C" label="CONNECT" href="/connect/" active={isLinkActive('/connect')} />
+          <NavButton prefixChar="S" label="SEARCH" href="/search" active={isSearchActive} />
+          <NavButton prefixChar="D" label="DOCS" href="/docs" active={isDocsActive} />
+          <NavButton prefixChar="C" label="CONNECT" href="/connect" active={isConnectActive} />
         </div>
 
-        {/* ── DESKTOP ONLY: auth & icon links (pushed to the right) ── */}
+        {/* ── DESKTOP: auth & icon links ── */}
         <div className="hidden lg:flex items-center gap-[5px] flex-nowrap ml-auto">
-          <NavButton prefixChar="L" label="LOGIN" href="/login" active={isLinkActive('/login')} />
+          <NavButton prefixChar="L" label="LOGIN" href="/login" active={isLoginActive} />
 
           {/* Adaptive hairline dock divider */}
           <div
@@ -311,16 +330,19 @@ export const Navbar = () => {
           />
 
           <NavButton ariaLabel="Follow us on GitHub" icon={<GithubIcon size={20} />} href="https://github.com/agent-spm" />
-          <NavButton ariaLabel="Watch us on YouTube" icon={<YoutubeIcon size={20} />} href="/search/" />
+          <NavButton ariaLabel="Watch us on YouTube" icon={<YoutubeIcon size={20} />} href="https://youtube.com/" />
           <NavButton ariaLabel="Follow us on X (Twitter)" icon={<XIcon size={20} />} href="https://x.com/agentspm" />
           <NavButton ariaLabel="Join us on Discord" icon={<DiscordIcon size={22} />} href="https://discord.gg/Qgg73H9Jm" />
         </div>
 
-        {/* ── MOBILE ONLY: Menu Grid Toggle Button ── */}
+        {/* ── MOBILE & TABLET: Menu Grid Toggle Button ── */}
         <div className="ml-auto lg:hidden">
           <button
-            className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm hover:bg-brand-blue hover:text-white hover:border-brand-blue"
+            type="button"
+            className="w-9 h-9 bg-white text-black rounded-[4px] border-2 border-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm hover:bg-brand-blue hover:text-white hover:border-brand-blue cursor-pointer"
             aria-label="Open menu"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav-drawer"
             onClick={() => setMenuOpen(true)}
           >
             <GridMenuIcon />
@@ -329,26 +351,46 @@ export const Navbar = () => {
 
       </nav>
 
-      {/* ── PREMIUM MOBILE FLOATING CARD SPRING OVERLAY ── */}
-      {menuOpen && (
-        <div
-          className="fixed inset-0 z-[9999] bg-black/35 backdrop-blur-[10px] p-3 sm:p-4 flex flex-col justify-stretch animate-[fadeIn_0.25s_ease-out]"
-          onClick={() => setMenuOpen(false)}
-        >
-          {/* Unfolding Elastic Card Container */}
+      {/* ── ACCESSIBLE TOP-LAYER MOBILE NAVIGATION DRAWER ── */}
+      <dialog
+        id="mobile-nav-drawer"
+        ref={dialogRef}
+        aria-label="Mobile navigation menu"
+        onCancel={(e) => {
+          e.preventDefault();
+          setMenuOpen(false);
+        }}
+        onClick={(e) => {
+          if (e.target === dialogRef.current) {
+            setMenuOpen(false);
+          }
+        }}
+        className="spm-nav-dialog lg:hidden m-0 p-3 sm:p-4 w-full max-w-none h-full max-h-none bg-transparent border-0 open:flex items-center justify-center"
+      >
+        {menuOpen && (
           <div
-            className="w-full h-full bg-[#F4F4F2]/98 backdrop-blur-md rounded-[20px] shadow-2xl border border-white/40 p-6 flex flex-col justify-between overflow-y-auto animate-[scaleInFade_0.4s_cubic-bezier(0.34,1.56,0.64,1)_both]"
+            className="w-full max-w-md h-full max-h-[calc(100svh-1.5rem)] bg-[#F4F4F2]/98 backdrop-blur-md rounded-[20px] shadow-2xl border border-white/40 p-5 sm:p-6 flex flex-col justify-between overflow-y-auto overscroll-contain animate-[scaleInFade_0.35s_cubic-bezier(0.34,1.56,0.64,1)_both]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-black/5">
-              <div className="flex items-center gap-2">
-                <Image src="/images/blueLogo.png" alt="Agent SPM Logo" width={28} height={28} className="object-contain" />
-                <span className="font-mono text-xs font-bold tracking-widest text-black/40 uppercase">NAVIGATION</span>
-              </div>
+            <div className="flex items-center justify-between gap-3 pb-4 border-b border-black/5 shrink-0">
+              <Link
+                href="/"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2.5 min-w-0"
+              >
+                <div className="w-8 h-8 rounded-[4px] bg-white border border-black/10 flex items-center justify-center shrink-0 shadow-xs">
+                  <SpmBlueMark size={20} />
+                </div>
+                <span className="font-mono text-xs font-bold tracking-widest text-black/50 uppercase whitespace-nowrap">
+                  NAVIGATION
+                </span>
+              </Link>
 
               <button
-                className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center active:scale-95 transition-all hover:bg-brand-blue hover:text-white hover:border-brand-blue"
+                type="button"
+                autoFocus
+                className="w-9 h-9 bg-white text-black rounded-[6px] border border-black/10 flex items-center justify-center shrink-0 active:scale-95 transition-all hover:bg-brand-blue hover:text-white hover:border-brand-blue cursor-pointer"
                 onClick={() => setMenuOpen(false)}
                 aria-label="Close menu"
               >
@@ -357,41 +399,23 @@ export const Navbar = () => {
             </div>
 
             {/* Staggered Elastic Items */}
-            <div className="flex flex-col my-auto pt-4 pb-6">
-              <MobileNavItem
-                num="01"
-                label="Blog"
-                shortcut="[B]"
-                href="/#blog"
-                onClick={() => {
-                  setMenuOpen(false);
-                  if (window.location.pathname === '/' || window.location.pathname === '') {
-                    setTimeout(() => {
-                      const lenis = (window as any).__lenis;
-                      if (lenis) {
-                        lenis.scrollTo('#blog', { offset: -30 });
-                      } else {
-                        document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' });
-                      }
-                      window.history.pushState(null, '', '#blog');
-                    }, 100);
-                  }
-                }}
-                index={0}
-              />
-              <MobileNavItem num="02" label="Docs" shortcut="[D]" href="/docs" onClick={() => setMenuOpen(false)} index={1} />
-              <MobileNavItem num="03" label="Connect" shortcut="[C]" href="/connect/" onClick={() => setMenuOpen(false)} index={2} />
-              <MobileNavItem num="04" label="Login" shortcut="[L]" href="/login" onClick={() => setMenuOpen(false)} index={3} />
+            <div className="flex flex-col my-auto py-4 gap-1">
+              <MobileNavItem num="01" label="Search Skills" shortcut="[S]" href="/search" active={isSearchActive} onClick={() => setMenuOpen(false)} index={0} />
+              <MobileNavItem num="02" label="Docs" shortcut="[D]" href="/docs" active={isDocsActive} onClick={() => setMenuOpen(false)} index={1} />
+              <MobileNavItem num="03" label="Connect" shortcut="[C]" href="/connect" active={isConnectActive} onClick={() => setMenuOpen(false)} index={2} />
+              <MobileNavItem num="04" label="Login" shortcut="[L]" href="/login" active={isLoginActive} onClick={() => setMenuOpen(false)} index={3} />
             </div>
 
             {/* Footer with branding */}
-            <div className="pt-5 border-t border-black/5 flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <span className="font-sans text-xs text-black/40 font-medium">FOLLOW US</span>
-                <div className="flex items-center gap-3">
+            <div className="pt-4 border-t border-black/5 flex flex-col gap-4 shrink-0">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-sans text-xs text-black/45 font-medium whitespace-nowrap">FOLLOW US</span>
+                <div className="flex items-center gap-2.5">
                   <a
-                    href="/search/"
-                    className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white hover:border-brand-blue active:scale-95 shadow-sm"
+                    href="https://youtube.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 bg-white text-black rounded-[6px] border border-black/5 flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white active:scale-95 shadow-xs"
                     aria-label="Watch us on YouTube"
                   >
                     <YoutubeIcon size={16} />
@@ -400,7 +424,7 @@ export const Navbar = () => {
                     href="https://github.com/agent-spm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white hover:border-brand-blue active:scale-95 shadow-sm"
+                    className="w-9 h-9 bg-white text-black rounded-[6px] border border-black/5 flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white active:scale-95 shadow-xs"
                     aria-label="Follow us on GitHub"
                   >
                     <GithubIcon size={16} />
@@ -409,7 +433,7 @@ export const Navbar = () => {
                     href="https://x.com/agentspm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white hover:border-brand-blue active:scale-95 shadow-sm"
+                    className="w-9 h-9 bg-white text-black rounded-[6px] border border-black/5 flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white active:scale-95 shadow-xs"
                     aria-label="Follow us on X"
                   >
                     <XIcon size={16} />
@@ -418,21 +442,20 @@ export const Navbar = () => {
                     href="https://discord.gg/Qgg73H9Jm"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 bg-white text-black rounded-[4px] border border-white flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white hover:border-brand-blue active:scale-95 shadow-sm"
+                    className="w-9 h-9 bg-white text-black rounded-[6px] border border-black/5 flex items-center justify-center transition-all duration-200 hover:bg-brand-blue hover:text-white active:scale-95 shadow-xs"
                     aria-label="Join Discord"
                   >
                     <DiscordIcon size={18} />
                   </a>
                 </div>
               </div>
-              <span className="font-mono text-[9px] text-black/35 tracking-wider text-center">
+              <span suppressHydrationWarning className="font-mono text-[9px] text-black/35 tracking-wider text-center">
                 © {new Date().getFullYear()} AGENT SPM PLATFORM
               </span>
             </div>
-
           </div>
-        </div>
-      )}
+        )}
+      </dialog>
     </>
   );
 };
