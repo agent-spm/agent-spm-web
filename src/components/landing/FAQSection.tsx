@@ -56,7 +56,7 @@ const FAQS: FAQItem[] = [
   {
     question: "How does payment and billing work?",
     answer:
-      "We offer a simple one-time developer access payment or enterprise subscriptions securely processed via Polar.sh and Stripe.",
+      "Developer registry discovery and publishing open packages are free; team and enterprise licenses are securely processed via Razorpay.",
   },
 ];
 
