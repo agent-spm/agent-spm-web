@@ -108,7 +108,7 @@ export const ConnectPageContent = () => {
           </div>
 
           {/* ─── 4-Layer Liquid Glass Chiclet Card ─── */}
-          <div className="glass-card-shell relative w-full max-w-[1100px] min-h-[560px] rounded-[12px] border border-black/10 shadow-2xl text-black flex flex-col md:flex-row overflow-hidden transition-all duration-300">
+          <div className="glass-card-shell relative w-full max-w-[1100px] min-h-[560px] rounded-[12px] border border-black/10 shadow-2xl text-black flex flex-col lg:flex-row overflow-hidden transition-all duration-300">
             {/* Layer 0: Liquid Distortion Filter */}
             <div className="glass-card-filter pointer-events-none" aria-hidden="true" />
 
@@ -119,18 +119,18 @@ export const ConnectPageContent = () => {
             <div className="glass-card-specular pointer-events-none" aria-hidden="true" />
 
             {/* Layer 3: Crisp Foreground Content */}
-            <div className="glass-card-content relative z-10 w-full flex flex-col md:flex-row h-full">
-              {/* Left Side: Permanently Visible Info */}
-              <aside className="w-full md:w-[320px] border-b md:border-b-0 md:border-r border-black/10 p-6 md:p-8 bg-white/80 z-10 shrink-0">
+            <div className="glass-card-content relative z-10 w-full flex flex-col lg:flex-row h-full min-w-0">
+              {/* Left Side: Stacks on mobile/tablet (<lg), docked sidebar on desktop (lg+) */}
+              <aside className="w-full lg:w-[300px] xl:w-[330px] min-w-0 border-b lg:border-b-0 lg:border-r border-black/10 p-5 sm:p-6 lg:p-8 bg-white/80 z-10 shrink-0">
                 <ConnectHero />
               </aside>
 
               {/* Right Side: Step-dependent Interactive Content */}
-              <main className="flex-1 relative bg-white/50">
+              <main className="flex-1 min-w-0 relative bg-white/50">
                 {step === "selection" && (
-                  <div className="flex flex-col md:flex-row h-full animate-in fade-in slide-in-from-right-2 duration-300">
+                  <div className="flex flex-col md:flex-row h-full min-w-0 animate-in fade-in slide-in-from-right-2 duration-300">
                     {/* Calendar Pane */}
-                    <div className="flex-1 p-6 md:p-8 border-b md:border-b-0 md:border-r border-black/10 flex justify-center">
+                    <div className="flex-1 min-w-0 p-5 sm:p-6 lg:p-8 border-b md:border-b-0 md:border-r border-black/10 flex justify-center">
                       <Calendar
                         selectedDate={selectedDate}
                         onDateSelect={handleDateSelect}
@@ -138,7 +138,7 @@ export const ConnectPageContent = () => {
                     </div>
 
                     {/* Time Slots Pane */}
-                    <div className="w-full md:w-[280px] p-6 md:p-8 flex justify-center bg-black/[0.015]">
+                    <div className="w-full md:w-[260px] lg:w-[270px] shrink-0 p-5 sm:p-6 lg:p-7 flex justify-center bg-black/[0.015]">
                       <TimeSlotPicker
                         selectedDate={selectedDate}
                         selectedTime={selectedTime}
@@ -150,7 +150,7 @@ export const ConnectPageContent = () => {
                 )}
 
                 {step === "details" && (
-                  <div className="h-full p-8 md:p-12 flex items-start justify-center bg-white/60 overflow-y-auto">
+                  <div className="h-full p-5 sm:p-8 md:p-12 flex items-start justify-center bg-white/60 overflow-y-auto">
                     <BookingForm
                       onBack={handleBack}
                       onConfirm={handleConfirm}
@@ -159,7 +159,7 @@ export const ConnectPageContent = () => {
                 )}
 
                 {step === "confirmed" && (
-                  <div className="h-full p-8 md:p-14 flex flex-col items-center justify-center text-center bg-white/70 animate-in fade-in zoom-in-95 duration-300 space-y-6">
+                  <div className="h-full p-6 sm:p-8 md:p-14 flex flex-col items-center justify-center text-center bg-white/70 animate-in fade-in zoom-in-95 duration-300 space-y-6">
                     <div className="w-16 h-16 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-600 flex items-center justify-center shadow-sm">
                       <CheckCircle2 className="w-8 h-8" />
                     </div>

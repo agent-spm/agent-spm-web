@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export const ConnectHero = () => {
   return (
-    <div className="flex flex-col pt-2 pr-4 sm:pr-8 h-full">
+    <div className="flex flex-col pt-1 lg:pr-4 h-full">
       {/* Branding */}
       <div className="flex items-center gap-3 mb-5">
         <div className="w-8 h-8 relative rounded-[2px] overflow-hidden">
@@ -40,7 +40,7 @@ export const ConnectHero = () => {
         </h1>
       </div>
 
-      <p className="text-sm leading-relaxed font-normal text-black/70 mb-8 max-w-[320px] font-sans">
+      <p className="text-sm leading-relaxed font-normal text-black/70 mb-6 lg:mb-8 max-w-2xl lg:max-w-[320px] font-sans">
         Schedule a direct intro call with our engineers to discuss how Agent SPM can accelerate your agent workflows and multi-agent systems.
       </p>
 
