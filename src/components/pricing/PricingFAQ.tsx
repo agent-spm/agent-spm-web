@@ -16,7 +16,7 @@ const FAQS: FAQItem[] = [
   {
     question: "How do I receive my license key after checkout?",
     answer:
-      "License keys and authentication tokens are generated instantly via Polar.sh upon checkout and emailed directly to your billing email address.",
+      "License keys and workspace entitlements are provisioned instantly upon Razorpay checkout verification and associated with your Agent SPM account.",
   },
   {
     question: "Can I host a private skill registry internally?",

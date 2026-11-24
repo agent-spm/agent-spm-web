@@ -153,11 +153,9 @@ export const PricingPageContent = () => {
                 <a
                   href={
                     tier === "enterprise"
-                      ? "https://buy.polar.sh/spm-enterprise"
+                      ? "/app/billing?plan=enterprise_lifetime"
                       : "/search"
                   }
-                  target={tier === "enterprise" ? "_blank" : undefined}
-                  rel={tier === "enterprise" ? "noopener noreferrer" : undefined}
                   className="w-full block text-center py-3.5 px-4 rounded-[4px] bg-black text-white font-sans text-sm font-semibold hover:bg-black/90 active:scale-[0.99] transition-all shadow-md"
                 >
                   {tier === "enterprise"
@@ -165,7 +163,7 @@ export const PricingPageContent = () => {
                     : "Start Building — Free"}
                 </a>
                 <p className="font-sans text-[11px] text-center text-black/45 mt-3">
-                  Powered by Polar.sh • Instant license key delivery
+                  Powered by Razorpay • Instant workspace &amp; license activation
                 </p>
               </div>
             </div>

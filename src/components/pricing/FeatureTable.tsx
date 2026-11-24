@@ -89,7 +89,12 @@ export const FeatureTable = () => {
 
       {/* Sleek, Premium Table Container Card */}
       <div className="bg-white border border-black/10 rounded-[8px] shadow-sm overflow-hidden">
-        <div className="w-full overflow-x-auto">
+        <div
+          role="region"
+          aria-label="Capabilities comparison matrix"
+          tabIndex={0}
+          className="w-full overflow-x-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A5FED]"
+        >
           <table className="w-full min-w-[700px] text-left border-collapse">
             <thead>
               <tr className="border-b border-black/10 bg-[#F7F7F7]">
