@@ -1,8 +1,8 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, X, ArrowRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 interface SearchBarProps {
   size?: "sm" | "lg";
@@ -15,18 +15,41 @@ export function SearchBar({
 }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const urlQuery = searchParams.get("q") || "";
+  const [query, setQuery] = useState(urlQuery);
   const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    setQuery(urlQuery);
+  }, [urlQuery]);
+
+  const navigateWithQuery = useCallback(
+    (nextQuery: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("page");
+      if (nextQuery.trim()) {
+        params.set("q", nextQuery.trim());
+      } else {
+        params.delete("q");
+      }
+      const qs = params.toString();
+      router.push(qs ? `/search?${qs}` : "/search");
+    },
+    [router, searchParams]
+  );
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      if (query.trim()) {
-        router.push(`/search/?q=${encodeURIComponent(query.trim())}`);
-      }
+      navigateWithQuery(query);
     },
-    [query, router]
+    [query, navigateWithQuery]
   );
+
+  const handleClear = useCallback(() => {
+    setQuery("");
+    navigateWithQuery("");
+  }, [navigateWithQuery]);
 
   return (
     <form onSubmit={handleSubmit} role="search" aria-label="Search packages" className="w-full">
@@ -38,7 +61,7 @@ export function SearchBar({
         }`}
       >
         <Search 
-          className={`absolute left-4 h-5 w-5 transition-all duration-200 ${
+          className={`absolute left-3.5 sm:left-4 h-5 w-5 transition-all duration-200 pointer-events-none ${
             isFocused ? "text-[#1A5FED]" : "text-black/40"
           }`} 
         />
@@ -49,11 +72,30 @@ export function SearchBar({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
-          className={`w-full bg-transparent pl-12 pr-12 text-black placeholder:text-black/40 focus:outline-none font-sans ${
-            size === "lg" ? "py-4 text-base" : "py-2.5 text-sm"
+          className={`w-full min-w-0 bg-transparent pl-10 sm:pl-12 ${
+            query ? "pr-20 sm:pr-32" : "pr-12 sm:pr-24"
+          } text-black placeholder:text-black/40 focus:outline-none font-sans appearance-none [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden ${
+            size === "lg" ? "py-3.5 sm:py-4 text-sm sm:text-base" : "py-2.5 text-sm"
           }`}
           aria-label="Search packages"
         />
+        {query && (
+          <button
+            type="button"
+            onClick={handleClear}
+            aria-label="Clear search query"
+            className="absolute right-11 sm:right-22 inline-flex h-7 w-7 items-center justify-center rounded-full text-black/45 hover:bg-black/5 hover:text-black transition-colors cursor-pointer"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+        <button
+          type="submit"
+          aria-label="Run package search"
+          className="sm:hidden absolute right-2 inline-flex h-8 w-8 items-center justify-center rounded-[6px] bg-[#1A5FED] text-white shadow-xs active:scale-95 transition-transform cursor-pointer"
+        >
+          <ArrowRight className="h-4 w-4" />
+        </button>
         <kbd 
           className={`absolute right-4 hidden rounded-[2px] border px-2 py-0.5 font-mono text-[10px] font-bold transition-all sm:inline select-none ${
             isFocused 
