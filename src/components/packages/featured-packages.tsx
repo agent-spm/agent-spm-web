@@ -9,7 +9,7 @@ export async function FeaturedPackages() {
     const response = await registryApi.getFeaturedPackages();
     packages = response.packages || [];
   } catch (error) {
-    console.error(
+    console.warn(
       "Failed to fetch featured packages:",
       error instanceof Error ? error.message : String(error)
     );
