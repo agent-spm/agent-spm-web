@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { SidebarNav } from "./SidebarNav";
 import { Topbar } from "./Topbar";
 import { CommandPalette } from "../modals/CommandPalette";
-import { PersonaSwitcherModal } from "../modals/PersonaSwitcherModal";
 import { InviteMemberModal } from "../modals/InviteMemberModal";
 import { CreateApiKeyModal } from "../modals/CreateApiKeyModal";
 import { X } from "lucide-react";
@@ -14,7 +13,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const [personaModalOpen, setPersonaModalOpen] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
 
@@ -69,7 +67,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="relative min-h-screen bg-[#F5F5F7] text-black font-sans flex selection:bg-[#1B5FED] selection:text-white">
       {/* Desktop Persistent Sidebar */}
       <div className="hidden lg:block w-64 flex-shrink-0 sticky top-0 h-screen z-30">
-        <SidebarNav onOpenPersonaModal={() => setPersonaModalOpen(true)} />
+        <SidebarNav />
       </div>
 
       {/* Mobile Drawer Overlay */}
@@ -95,10 +93,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <div className="flex-1 overflow-hidden">
               <SidebarNav
-                onOpenPersonaModal={() => {
-                  setMobileMenuOpen(false);
-                  setPersonaModalOpen(true);
-                }}
                 onCloseMobile={() => setMobileMenuOpen(false)}
               />
             </div>
@@ -126,12 +120,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         onClose={() => setCommandPaletteOpen(false)}
         onOpenApiKeyModal={() => setApiKeyModalOpen(true)}
         onOpenInviteModal={() => setInviteModalOpen(true)}
-        onOpenPersonaModal={() => setPersonaModalOpen(true)}
-      />
-
-      <PersonaSwitcherModal
-        isOpen={personaModalOpen}
-        onClose={() => setPersonaModalOpen(false)}
       />
 
       <InviteMemberModal

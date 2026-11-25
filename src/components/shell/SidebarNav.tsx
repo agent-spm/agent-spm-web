@@ -24,7 +24,9 @@ import {
   Workflow,
   Activity,
   Zap,
+  LogOut,
 } from "lucide-react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 interface SidebarNavProps {
   onOpenPersonaModal?: () => void;
@@ -47,13 +49,24 @@ interface NavGroup {
 
 export function SidebarNav({ onOpenPersonaModal, onCloseMobile }: SidebarNavProps) {
   const pathname = usePathname();
-  const { currentPersona, currentOrg } = useSession();
+  const { currentPersona, currentOrg, skills, teamMembers } = useSession();
 
   const isLinkActive = (href: string) => {
     if (href === "/app") {
       return pathname === "/app";
     }
-    return pathname.startsWith(href);
+    if (href === "/app/skills") {
+      // Only active on /app/skills or /app/skills/[scope]/[name], NOT /app/skills/workspace (DAG Studio)
+      return (
+        pathname === "/app/skills" ||
+        (pathname.startsWith("/app/skills/") && !pathname.startsWith("/app/skills/workspace"))
+      );
+    }
+    if (href === "/app/settings") {
+      // Only active on exactly /app/settings, NOT child pages like /app/settings/security, /app/settings/audit, etc.
+      return pathname === "/app/settings";
+    }
+    return pathname === href || pathname.startsWith(href + "/");
   };
 
   const navGroups: NavGroup[] = [
@@ -61,17 +74,17 @@ export function SidebarNav({ onOpenPersonaModal, onCloseMobile }: SidebarNavProp
       groupTitle: "WORKSPACE",
       items: [
         { label: "Overview", href: "/app", icon: LayoutDashboard },
-        { label: "My Skills", href: "/app/skills", icon: TerminalSquare, badge: `${currentOrg.skillsCount}` },
+        { label: "My Skills", href: "/app/skills", icon: TerminalSquare, badge: `${skills.length}` },
         { label: "DAG Studio", href: "/app/skills/workspace", icon: Workflow, badge: "BETA", badgeHighlight: true },
         { label: "Fleet War-Room", href: "/app/fleet", icon: Activity, badge: "LIVE", badgeHighlight: true },
-        { label: "Team", href: "/app/team", icon: Users, badge: `${currentOrg.seatsUsed}/${currentOrg.seatsAllowed}` },
+        { label: "Team", href: "/app/team", icon: Users, badge: `${teamMembers.length}/${currentOrg.seatsAllowed}` },
         { label: "Analytics", href: "/app/analytics", icon: BarChart3 },
       ],
     },
     {
       groupTitle: "OPERATIONS & TOOLS",
       items: [
-        { label: "Schema Token Diet", href: "/tools/schema-diet", icon: Zap },
+        { label: "Schema Token Diet", href: "/app/tools/schema-diet", icon: Zap },
         { label: "Audit Logs", href: "/app/settings/audit", icon: ScrollText, badge: "NEW", badgeHighlight: true },
         { label: "Integrations", href: "/app/settings/integrations", icon: Webhook },
       ],
@@ -88,7 +101,7 @@ export function SidebarNav({ onOpenPersonaModal, onCloseMobile }: SidebarNavProp
     {
       groupTitle: "USAGE & PLAN",
       items: [
-        { label: "Billing & Invoices", href: "/pricing", icon: CreditCard },
+        { label: "Billing & Invoices", href: "/app/billing", icon: CreditCard },
       ],
     },
   ];
@@ -139,7 +152,7 @@ export function SidebarNav({ onOpenPersonaModal, onCloseMobile }: SidebarNavProp
                       )}
 
                       {item.badge && (
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono uppercase ${
+                        <span suppressHydrationWarning className={`text-[10px] px-1.5 py-0.2 rounded font-mono uppercase ${
                           active
                             ? "bg-white/20 text-white"
                             : item.badgeHighlight
@@ -158,31 +171,56 @@ export function SidebarNav({ onOpenPersonaModal, onCloseMobile }: SidebarNavProp
         ))}
       </nav>
 
-      {/* Active Persona Banner & Quick Switcher Trigger */}
+      {/* ── Authenticated User Profile Card ── */}
       <div className="p-3 border-t border-black/10 bg-[#FAFAFA]">
-        <button
-          onClick={onOpenPersonaModal}
-          className="w-full flex items-center justify-between p-2 rounded-[6px] border border-black/10 bg-white hover:border-[#1B5FED]/40 hover:shadow-xs transition-all text-left cursor-pointer group"
-          aria-label="Switch active persona for testing"
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-full bg-[#1B5FED]/10 border border-[#1B5FED]/20 flex items-center justify-center text-[#1B5FED] font-mono font-bold text-xs">
-              {currentPersona.name.charAt(0)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="font-mono text-xs font-semibold text-black truncate group-hover:text-[#1B5FED]">
-                {currentPersona.name}
+        <div className="w-full p-2.5 rounded-[6px] border border-black/10 bg-white shadow-xs">
+          <div className="flex items-center justify-between gap-2">
+            <Link
+              href="/app/settings"
+              className="flex items-center gap-2.5 min-w-0 group cursor-pointer flex-1"
+              title="Open Account Settings"
+            >
+              <div className="w-8 h-8 rounded-full bg-[#1B5FED]/10 border border-[#1B5FED]/20 flex items-center justify-center text-[#1B5FED] font-mono font-bold text-xs flex-shrink-0 group-hover:scale-105 transition-transform">
+                {(currentPersona.name || "U").charAt(0).toUpperCase()}
               </div>
-              <div className="text-[10px] text-black/50 uppercase font-mono tracking-wider">
-                Role: <span className="text-[#1B5FED] font-bold">{currentPersona.role}</span>
+              <div className="min-w-0 flex-1">
+                <div className="font-mono text-xs font-bold text-black truncate group-hover:text-[#1B5FED]">
+                  {currentPersona.name}
+                </div>
+                <div className="text-[10px] text-black/50 font-mono flex items-center gap-1.5 truncate">
+                  <span className="text-[#1B5FED] font-semibold uppercase">{currentPersona.isStaff ? "SUPERADMIN" : currentPersona.role}</span>
+                  <span>•</span>
+                  <span>{currentPersona.email ? `@${currentPersona.email.split("@")[0]}` : "@guest"}</span>
+                </div>
               </div>
-            </div>
-          </div>
+            </Link>
 
-          <div className="flex items-center gap-1 text-[10px] font-mono text-black/40 group-hover:text-black">
-            <span>[S]</span>
+            <button
+              onClick={async () => {
+                try {
+                  await fetch("/api/auth/logout", { method: "POST" });
+                } catch (e) {
+                  console.warn("Logout error:", e);
+                }
+                try {
+                  const supabase = createSupabaseBrowserClient();
+                  await supabase.auth.signOut({ scope: "global" });
+                } catch (e) {
+                  console.warn("Supabase signOut error:", e);
+                }
+                if (typeof window !== "undefined") {
+                  localStorage.removeItem("spm_persona");
+                  sessionStorage.clear();
+                }
+                window.location.href = "/login";
+              }}
+              title="Sign Out"
+              className="p-1.5 rounded-[4px] border border-black/10 text-black/40 hover:text-red-600 hover:border-red-300 hover:bg-red-50 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
           </div>
-        </button>
+        </div>
 
         {currentPersona.isStaff && (
           <Link
