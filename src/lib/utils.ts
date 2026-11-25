@@ -46,3 +46,17 @@ export function slugify(text: string): string {
     .replace(/[\s_]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+export function getErrorMessage(err: unknown, fallback = "Unexpected error"): string {
+  if (err instanceof Error && err.message) return err.message;
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "message" in err &&
+    typeof (err as { message?: unknown }).message === "string"
+  ) {
+    return (err as { message: string }).message || fallback;
+  }
+  if (typeof err === "string" && err.trim()) return err;
+  return fallback;
+}

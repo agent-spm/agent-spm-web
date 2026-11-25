@@ -54,8 +54,8 @@ export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
   return (
     <div className="flex flex-col w-full h-full max-w-[320px]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-2 px-1">
-        <h2 className="text-base font-semibold text-black font-sans">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2 px-1">
+        <h2 suppressHydrationWarning className="text-base font-semibold text-black font-sans">
           {formattedDate}
         </h2>
         <div className="flex items-center p-0.5 bg-[#F5F5F7] rounded-[4px] border border-black/5 gap-0.5 font-mono">
@@ -110,7 +110,7 @@ export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
               {isSelected && (
                 <button
                   onClick={onConfirm}
-                  className="w-20 h-[40px] bg-black text-white rounded-[6px] font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-black/90 active:scale-95 transition-all cursor-pointer font-mono shrink-0 animate-in fade-in slide-in-from-left-2 duration-150"
+                  className="px-3 h-[40px] bg-black text-white rounded-[6px] font-bold text-xs uppercase tracking-wider shadow-sm hover:bg-black/90 active:scale-95 transition-all cursor-pointer font-mono shrink-0 whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-150"
                 >
                   NEXT →
                 </button>

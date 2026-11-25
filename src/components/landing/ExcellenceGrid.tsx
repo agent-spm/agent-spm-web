@@ -215,7 +215,7 @@ export default function ExcellenceGrid() {
               letterSpacing: "-0.03em",
             }}
           >
-            Use the command line interface and VS code extension to manage you
+            Use the command line interface and VS code extension to manage your
             skills for each workspace separately and effectively
           </p>
         </div>

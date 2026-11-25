@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useSession } from "@/lib/data/session-context";
 import { InviteMemberModal } from "@/components/modals/InviteMemberModal";
+import { useToast } from "@/components/ui/ToastProvider";
 import {
   UserPlus,
   MoreVertical,
@@ -11,6 +12,7 @@ import {
 
 export default function TeamPage() {
   const { currentOrg, teamMembers, pendingInvites, revokeInvite } = useSession();
+  const { showToast } = useToast();
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   const totalSeatsUsed = teamMembers.length + pendingInvites.length;
@@ -133,8 +135,14 @@ export default function TeamPage() {
 
                   <td className="py-3.5 px-4 text-right whitespace-nowrap">
                     <button
-                      onClick={() => alert(`Managing role for ${member.name}`)}
-                      className="p-1.5 rounded-lg text-black/50 hover:text-black hover:bg-black/5 transition-all"
+                      onClick={() =>
+                        showToast({
+                          title: "Manage Member Role",
+                          message: `${member.name} has ${member.role.toUpperCase()} privileges.`,
+                          type: "info",
+                        })
+                      }
+                      className="p-1.5 rounded-lg text-black/50 hover:text-black hover:bg-black/5 transition-all cursor-pointer"
                       aria-label="Member options"
                     >
                       <MoreVertical className="w-4 h-4" />
@@ -195,8 +203,14 @@ export default function TeamPage() {
 
                     <td className="py-3.5 px-4 text-right whitespace-nowrap space-x-2">
                       <button
-                        onClick={() => alert(`Resent invitation to ${inv.email}`)}
-                        className="px-3 py-1 rounded-xl border border-black/10 bg-white hover:bg-black/5 font-mono text-xs text-black shadow-xs transition-colors"
+                        onClick={() =>
+                          showToast({
+                            title: "Invitation Resent",
+                            message: `Access link dispatched to ${inv.email}.`,
+                            type: "success",
+                          })
+                        }
+                        className="px-3 py-1 rounded-xl border border-black/10 bg-white hover:bg-black/5 font-mono text-xs text-black shadow-xs transition-colors cursor-pointer"
                       >
                         Resend
                       </button>

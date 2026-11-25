@@ -122,7 +122,7 @@ export const PricingSection = () => {
           <div>
             {/* Solid Black Action Button */}
             <Link
-              href="/checkout"
+              href={tier === "enterprise" ? "/pricing" : "/docs/getting-started"}
               className="w-full h-[48px] rounded-[6px] bg-black text-white font-sans text-base font-semibold flex items-center justify-center shadow-lg hover:bg-neutral-800 transition-all active:scale-98 mb-4"
             >
               <span>{tier === "enterprise" ? "Buy License" : "Download Free"}</span>
@@ -138,8 +138,8 @@ export const PricingSection = () => {
 
         {/* ─── Footnote (Figma node 328:2331) ─── */}
         <p className="font-sans text-xs sm:text-sm text-center text-black/60 font-medium max-w-[682px] mt-8 mb-4 relative z-10">
-          Secure checkout by Polar.sh, powered by Stripe. Prices are in USD,
-          excluding VAT and may vary by location.
+          Secure checkout powered by Razorpay. Base prices listed in USD;
+          INR &amp; local currency equivalents apply at checkout.
         </p>
       </div>
 

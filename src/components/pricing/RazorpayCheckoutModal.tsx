@@ -9,10 +9,19 @@ interface RazorpayCheckoutModalProps {
   billingInterval: "monthly" | "yearly";
 }
 
+interface RazorpayInstance {
+  open: () => void;
+  on: (event: string, handler: (response: { error?: { description?: string } }) => void) => void;
+}
+
+type RazorpayWindow = Window & {
+  Razorpay?: new (options: Record<string, unknown>) => RazorpayInstance;
+};
+
 // Function to dynamically load Razorpay checkout script
 const loadRazorpayScript = () => {
   return new Promise<boolean>((resolve) => {
-    if ((window as any).Razorpay) {
+    if ((window as RazorpayWindow).Razorpay) {
       resolve(true);
       return;
     }
@@ -62,15 +71,14 @@ export function RazorpayCheckoutModal({ isOpen, onClose, billingInterval }: Razo
         throw new Error("Failed to load Razorpay SDK. Please check your internet connection.");
       }
 
-      // 2. Call order creation API
+      // 2. Call order creation API (server resolves authoritative price from planId)
       const orderResponse = await fetch("/api/checkout/create-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: amountInPaise,
-          currency: "INR",
+          planId: billingInterval,
           email: trimmedEmail,
         }),
       });
@@ -81,9 +89,38 @@ export function RazorpayCheckoutModal({ isOpen, onClose, billingInterval }: Razo
         throw new Error(orderData.error || "Failed to initiate payment transaction.");
       }
 
+      if (orderData.is_test) {
+        const verifyResponse = await fetch("/api/checkout/verify-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_payment_id: `pay_dev_${Date.now()}`,
+            razorpay_order_id: orderData.order_id,
+            razorpay_signature: "dev_local_placeholder",
+            planId: billingInterval,
+            email: trimmedEmail,
+          }),
+        });
+        const verifyData = await verifyResponse.json().catch(() => ({}));
+        if (!verifyResponse.ok) {
+          throw new Error(
+            verifyData.error ||
+              "Payment gateway credentials are not configured for checkout."
+          );
+        }
+        setSuccess(true);
+        setLoading(false);
+        return;
+      }
+
+      const keyId = orderData.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!keyId) {
+        throw new Error("Razorpay public key is not configured.");
+      }
+
       // 3. Launch Razorpay Standard Checkout
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: keyId,
         amount: orderData.amount,
         currency: orderData.currency,
         name: "Agent SPM",
@@ -101,7 +138,11 @@ export function RazorpayCheckoutModal({ isOpen, onClose, billingInterval }: Razo
             setError("Payment was cancelled. You can retry whenever you are ready.");
           },
         },
-        handler: async function (response: any) {
+        handler: async function (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) {
           setLoading(true);
           try {
             // 4. Verify payment on server
@@ -114,6 +155,7 @@ export function RazorpayCheckoutModal({ isOpen, onClose, billingInterval }: Razo
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_signature: response.razorpay_signature,
+                planId: billingInterval,
                 email: trimmedEmail,
               }),
             });
@@ -125,24 +167,28 @@ export function RazorpayCheckoutModal({ isOpen, onClose, billingInterval }: Razo
             }
 
             setSuccess(true);
-          } catch (err: any) {
-            setError(err.message || "Failed to verify transaction signature.");
+          } catch (err: unknown) {
+            setError((err instanceof Error ? err.message : null) || "Failed to verify transaction signature.");
           } finally {
             setLoading(false);
           }
         },
       };
 
-      const paymentObject = new (window as any).Razorpay(options);
-      
-      paymentObject.on("payment.failed", function (response: any) {
-        setError(response.error.description || "Payment transaction failed.");
+      const RazorpayCtor = (window as RazorpayWindow).Razorpay;
+      if (!RazorpayCtor) {
+        throw new Error("Razorpay checkout SDK is unavailable.");
+      }
+      const paymentObject = new RazorpayCtor(options);
+
+      paymentObject.on("payment.failed", function (response: { error?: { description?: string } }) {
+        setError(response.error?.description || "Payment transaction failed.");
         setLoading(false);
       });
 
       paymentObject.open();
-    } catch (err: any) {
-      setError(err.message || "An unexpected checkout error occurred.");
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : null) || "An unexpected checkout error occurred.");
       setLoading(false);
     }
   };

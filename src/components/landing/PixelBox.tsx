@@ -390,7 +390,7 @@ export const PixelBox: React.FC<PixelBoxProps> = ({
 
       for (let i = 0; i < visible; i++) {
         const cell = activeCells[i];
-        ctx!.fillStyle = (cell as any).color || color;
+        ctx!.fillStyle = (cell as { c: number; r: number; color?: string }).color || color;
         const x0 = Math.floor(cell.c * p);
         const x1 = Math.floor((cell.c + 1) * p);
         const y0 = Math.floor(cell.r * p);

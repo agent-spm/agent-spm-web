@@ -40,9 +40,9 @@ export default function Hero() {
           <Image
             src="/images/white.png"
             alt="Agent SPM"
-            width={16}
-            height={16}
-            className="object-contain flex-shrink-0 w-[12px] md:w-[14px] lg:w-[18px] h-[12px] md:h-[16px] lg:h-[22px]"
+            width={44}
+            height={56}
+            className="object-contain flex-shrink-0 w-auto h-[14px] md:h-[16px] lg:h-[22px]"
             priority
           />
           <span

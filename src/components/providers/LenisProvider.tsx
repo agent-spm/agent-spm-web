@@ -17,7 +17,8 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
     });
 
     // Expose lenis instance globally for smooth programmatic scrolling
-    (window as any).__lenis = lenis;
+    type LenisWindow = Window & { __lenis?: Lenis };
+    (window as LenisWindow).__lenis = lenis;
 
     // Handle initial hash on direct link visit or page reload (e.g. /#blog)
     if (window.location.hash) {
@@ -35,7 +36,7 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
 
     return () => {
       cancelAnimationFrame(rafId);
-      delete (window as any).__lenis;
+      delete (window as LenisWindow).__lenis;
       lenis.destroy();
     };
   }, []);

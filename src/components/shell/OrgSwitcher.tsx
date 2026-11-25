@@ -8,7 +8,7 @@ import { SEED_ORGANIZATIONS } from "@/lib/data/mock-store";
 import { ChevronDown, Check, Plus, ExternalLink, ShieldCheck } from "lucide-react";
 
 export function OrgSwitcher() {
-  const { currentOrg, setOrg } = useSession();
+  const { currentOrg, organizations, setOrg } = useSession();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -52,15 +52,15 @@ export function OrgSwitcher() {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <span className="font-mono text-xs font-bold text-black tracking-tight truncate">
+              <span suppressHydrationWarning className="font-mono text-xs font-bold text-black tracking-tight truncate">
                 {currentOrg.slug}
               </span>
               {getPlanBadge(currentOrg.plan)}
             </div>
             <div className="flex items-center gap-1.5 text-[10px] text-black/50 font-mono">
-              <span className="truncate">{currentOrg.name}</span>
+              <span suppressHydrationWarning className="truncate">{currentOrg.name}</span>
               <span>•</span>
-              <span className="text-[#1B5FED] font-bold">{currentOrg.registryVersion}</span>
+              <span suppressHydrationWarning className="text-[#1B5FED] font-bold">{currentOrg.registryVersion}</span>
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@ export function OrgSwitcher() {
           </div>
 
           <div className="space-y-1">
-            {SEED_ORGANIZATIONS.map((org) => {
+            {(organizations.length > 0 ? organizations : SEED_ORGANIZATIONS).map((org) => {
               const active = org.id === currentOrg.id;
               return (
                 <button

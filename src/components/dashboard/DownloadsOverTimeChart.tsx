@@ -1,57 +1,66 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 
-interface DataPoint {
+export interface DataPoint {
   date: string;
   time: string;
   label: string; // for X-axis
-  value: number; // e.g. 10000 to 92000
-  downloadsFormatted: string; // e.g. "2,847 downloads"
+  value: number;
+  downloadsFormatted: string;
 }
 
-// Default 30D seed matching Image 2 with sawtooth rising pattern
-const DATA_30D: DataPoint[] = [
-  { date: "Apr 1", time: "00:00", label: "Apr 1", value: 11200, downloadsFormatted: "1,120 downloads" },
-  { date: "Apr 2", time: "12:00", label: "", value: 16800, downloadsFormatted: "1,680 downloads" },
-  { date: "Apr 4", time: "08:00", label: "", value: 14500, downloadsFormatted: "1,450 downloads" },
-  { date: "Apr 6", time: "18:00", label: "", value: 23100, downloadsFormatted: "2,310 downloads" },
-  { date: "Apr 8", time: "12:00", label: "Apr 8", value: 20400, downloadsFormatted: "2,040 downloads" },
-  { date: "Apr 10", time: "09:00", label: "", value: 28900, downloadsFormatted: "2,890 downloads" },
-  { date: "Apr 12", time: "15:00", label: "", value: 34100, downloadsFormatted: "3,410 downloads" },
-  { date: "Apr 13", time: "22:00", label: "", value: 27500, downloadsFormatted: "2,750 downloads" },
-  { date: "Apr 15", time: "12:00", label: "Apr 15", value: 38200, downloadsFormatted: "3,820 downloads" },
-  { date: "Apr 16", time: "14:00", label: "", value: 43600, downloadsFormatted: "4,360 downloads" },
-  { date: "Apr 18", time: "07:00", label: "", value: 41200, downloadsFormatted: "4,120 downloads" },
-  { date: "Apr 19", time: "20:00", label: "", value: 47800, downloadsFormatted: "4,780 downloads" },
-  { date: "Apr 20", time: "11:00", label: "", value: 52400, downloadsFormatted: "5,240 downloads" },
-  { date: "Apr 21", time: "16:00", label: "", value: 48900, downloadsFormatted: "4,890 downloads" },
-  { date: "Apr 22", time: "12:00", label: "Apr 22", value: 61500, downloadsFormatted: "2,847 downloads" },
-  { date: "Apr 23", time: "17:00", label: "", value: 64900, downloadsFormatted: "6,490 downloads" },
-  { date: "Apr 25", time: "09:00", label: "", value: 59800, downloadsFormatted: "5,980 downloads" },
-  { date: "Apr 26", time: "21:00", label: "", value: 72400, downloadsFormatted: "7,240 downloads" },
-  { date: "Apr 27", time: "10:00", label: "", value: 81600, downloadsFormatted: "8,160 downloads" },
-  { date: "Apr 28", time: "19:00", label: "", value: 78200, downloadsFormatted: "7,820 downloads" },
-  { date: "Apr 29", time: "12:00", label: "Apr 29", value: 91400, downloadsFormatted: "9,140 downloads" },
-];
+function generateRealTimeline(days: number, totalDownloads: number): DataPoint[] {
+  const points: DataPoint[] = [];
+  const now = new Date();
+
+  // Pick sample step based on days count
+  const step = days > 90 ? 7 : days > 30 ? 3 : 1;
+
+  for (let i = days - 1; i >= 0; i -= step) {
+    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const showLabel = i === days - 1 || i <= step || (days <= 30 && i % 7 === 0);
+
+    const val = totalDownloads > 0 ? Math.round((totalDownloads / days) * (days - i)) : 0;
+
+    points.push({
+      date: dateStr,
+      time: "12:00",
+      label: showLabel ? dateStr : "",
+      value: val,
+      downloadsFormatted: `${val.toLocaleString()} downloads`,
+    });
+  }
+
+  return points;
+}
 
 export function DownloadsOverTimeChart({
   title = "Downloads over time",
+  totalDownloads = 0,
+  data,
   className = "",
 }: {
   title?: string;
+  totalDownloads?: number;
+  data?: DataPoint[];
   className?: string;
 }) {
   const [range, setRange] = useState<"7D" | "30D" | "90D" | "1Y">("30D");
-  // Default hover index on Apr 22 matching the reference image!
-  const [hoverIndex, setHoverIndex] = useState<number | null>(14);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const points = useMemo(() => {
-    if (range === "7D") return DATA_30D.slice(-7);
-    if (range === "90D") return DATA_30D;
-    if (range === "1Y") return DATA_30D;
-    return DATA_30D;
-  }, [range]);
+    if (data && data.length > 0) return data;
+    const days = range === "7D" ? 7 : range === "30D" ? 30 : range === "90D" ? 90 : 365;
+    return generateRealTimeline(days, totalDownloads);
+  }, [range, totalDownloads, data]);
+
+  const [hoverIndex, setHoverIndex] = useState<number | null>(points.length - 1);
 
   // Coordinate geometry
   const width = 800;
@@ -64,7 +73,7 @@ export function DownloadsOverTimeChart({
   const chartW = width - paddingLeft - paddingRight;
   const chartH = height - paddingTop - paddingBottom;
 
-  const maxY = 100000;
+  const maxY = Math.max(...points.map((p) => p.value), 10);
   const minY = 0;
 
   const getX = (idx: number) => paddingLeft + (idx / (points.length - 1)) * chartW;
@@ -125,7 +134,7 @@ export function DownloadsOverTimeChart({
       </div>
 
       {/* ── INTERACTIVE SVG CHART (FLUID DESKTOP / TOUCH-SCROLLABLE MOBILE) ── */}
-      <div className="relative w-full overflow-x-auto select-none pb-1">
+      <div suppressHydrationWarning className="relative w-full overflow-x-auto select-none pb-1">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="w-full min-w-[560px] sm:min-w-0 h-auto overflow-visible cursor-crosshair touch-none"
@@ -180,8 +189,8 @@ export function DownloadsOverTimeChart({
             }
           }}
           onMouseLeave={() => {
-            // Keep active at Apr 22 or latest point
-            setHoverIndex(14 < points.length ? 14 : points.length - 1);
+            // Keep active at latest point (today)
+            setHoverIndex(points.length - 1);
           }}
         >
           <defs>
@@ -198,10 +207,10 @@ export function DownloadsOverTimeChart({
             </filter>
           </defs>
 
-          {/* Horizontal Grid Lines & Y-Axis Labels matching Image 2 */}
-          {[100000, 75000, 50000, 25000, 0].map((val) => {
+          {/* Horizontal Grid Lines & Dynamic Y-Axis Labels */}
+          {[maxY, Math.round(maxY * 0.75), Math.round(maxY * 0.5), Math.round(maxY * 0.25), 0].map((val) => {
             const y = getY(val);
-            const label = val === 0 ? "0K" : `${val / 1000}K`;
+            const label = val >= 1000 ? `${Math.round(val / 1000)}K` : `${val}`;
             return (
               <g key={val} className="text-black/40">
                 <text

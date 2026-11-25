@@ -15,7 +15,8 @@ export function InstallCommand({
   className,
 }: InstallCommandProps) {
   const [copied, setCopied] = useState(false);
-  const command = `spm install ${namespace}/${name}`;
+  const canonicalName = name.startsWith("@") && name.includes("/") ? name.split("/")[1] : name;
+  const command = `spm install ${canonicalName}`;
 
   const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(command);

@@ -11,6 +11,12 @@ import { Check, Copy } from "lucide-react";
 import { useState, useCallback, isValidElement, ReactNode } from "react";
 
 /* ─── Utils ─── */
+interface HastNode {
+  type?: string;
+  value?: string;
+  children?: HastNode[];
+}
+
 function extractText(node: ReactNode): string {
   if (typeof node === "string" || typeof node === "number") {
     return String(node);
@@ -18,8 +24,8 @@ function extractText(node: ReactNode): string {
   if (Array.isArray(node)) {
     return node.map(extractText).join("");
   }
-  if (isValidElement(node)) {
-    return extractText((node.props as any).children);
+  if (isValidElement<{ children?: ReactNode }>(node)) {
+    return extractText(node.props.children);
   }
   return "";
 }
@@ -34,11 +40,11 @@ const markdownComponents = {
     children,
     node,
     ...props
-  }: any) => {
+  }: React.ComponentPropsWithoutRef<"pre"> & { node?: HastNode }) => {
     // Try extracting from HAST node first (most reliable after syntax highlighting)
-    const extractHastText = (n: any): string => {
+    const extractHastText = (n: HastNode): string => {
       if (!n) return "";
-      if (n.type === "text") return n.value;
+      if (n.type === "text") return n.value ?? "";
       if (n.children) return n.children.map(extractHastText).join("");
       return "";
     };

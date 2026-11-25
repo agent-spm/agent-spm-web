@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Download, Clock, ExternalLink, GitBranch, Terminal, BookOpen, Scale, User, Tag, Zap, Play, ShieldCheck, Copy, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Download, Clock, ExternalLink, GitBranch, Terminal, BookOpen, Scale, User, Tag, Zap, Play, ShieldCheck, Shield, FileArchive, Fingerprint, Layers } from "lucide-react";
 import { formatNumber, timeAgo } from "@/lib/utils";
+import type { Package, PackageDependency, PackageVersion } from "@/types/package";
 import { CopyButton } from "@/components/ui/copy-button";
 import { ConnectAgentModal } from "@/components/modals/ConnectAgentModal";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -12,10 +14,18 @@ import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSanitize from "rehype-sanitize";
 
+function formatBytes(bytes?: number): string {
+  if (!bytes || bytes <= 0) return "—";
+  if (bytes < 1024) return `${bytes} B`;
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${kb.toFixed(1)} KB`;
+  return `${(kb / 1024).toFixed(2)} MB`;
+}
+
 interface PublicPackageDetailClientProps {
   namespace: string;
   name: string;
-  pkg: any;
+  pkg: Package;
   installCmd: string;
 }
 
@@ -25,9 +35,36 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
   pkg,
   installCmd,
 }) => {
+  const router = useRouter();
   const { showToast } = useToast();
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [activeView, setActiveView] = useState<"readme" | "playground">("readme");
+  const [downloadCount, setDownloadCount] = useState<number>(pkg.totalDownloads ?? 0);
+
+  useEffect(() => {
+    setDownloadCount(pkg.totalDownloads ?? 0);
+  }, [pkg.totalDownloads]);
+
+  const canonicalIdentifier =
+    pkg.displayName && pkg.displayName.startsWith("@")
+      ? pkg.displayName
+      : namespace === "@agent-spm"
+        ? name
+        : `${namespace}/${name}`;
+  const downloadApiUrl = `/api/packages/download?package=${encodeURIComponent(canonicalIdentifier)}&version=${encodeURIComponent(pkg.latestVersion || "latest")}`;
+  const safeTarFilename = `${name.replace(/[^a-zA-Z0-9._-]/g, "-")}-${(pkg.latestVersion || "1.0.0").replace(/[^a-zA-Z0-9._-]/g, "-")}.tgz`;
+
+  const handleTarballDownloadClick = () => {
+    setDownloadCount((prev) => prev + 1);
+    setTimeout(() => {
+      router.refresh();
+    }, 650);
+    showToast({
+      title: "Downloading Package Archive",
+      message: `${safeTarFilename} is downloading and download metrics have been updated.`,
+      type: "success",
+    });
+  };
 
   // Playground state for public visitors
   const [selectedTool, setSelectedTool] = useState("execute_tool");
@@ -44,9 +81,10 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
       setExecResult(
         JSON.stringify(
           {
-            status: "success",
+            mode: "sandbox-dry-run",
+            status: "simulated",
             executionTimeMs: 64,
-            output: `Verified execution output for ${namespace}/${name} against ${paramInput}.`,
+            output: `Simulated dry-run preview for ${namespace}/${name} against input "${paramInput}". Connect via CLI or MCP Runner for live runtime execution.`,
             tokenBurden: 280,
           },
           null,
@@ -54,8 +92,8 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
         )
       );
       showToast({
-        title: "Tool Executed Cleanly",
-        message: `${namespace}/${name} returned 200 OK in sandbox mode.`,
+        title: "Sandbox Dry-Run Completed",
+        message: `${namespace}/${name} preview generated client-side.`,
         type: "success",
       });
     }, 500);
@@ -66,7 +104,7 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Breadcrumb Navigation */}
         <nav className="mb-6 flex flex-wrap items-center gap-2 font-mono text-xs text-black/50">
-          <Link href="/search/" className="hover:text-[#1A5FED] transition-colors font-semibold">
+          <Link href="/search" className="hover:text-[#1A5FED] transition-colors font-semibold">
             [PACKAGES]
           </Link>
           <span className="text-black/30">/</span>
@@ -85,10 +123,17 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
               <span className="inline-flex items-center rounded-[4px] bg-[#1A5FED]/10 px-2.5 py-0.5 font-mono text-xs font-semibold text-[#1A5FED] border border-[#1A5FED]/20">
                 v{pkg.latestVersion}
               </span>
-              <span className="inline-flex items-center gap-1 rounded-[4px] bg-emerald-50 px-2.5 py-0.5 font-mono text-xs font-semibold text-emerald-800 border border-emerald-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>96/100 (Grade A+)</span>
-              </span>
+              {pkg.verified ? (
+                <span className="inline-flex items-center gap-1 rounded-[4px] bg-emerald-50 px-2.5 py-0.5 font-mono text-xs font-semibold text-emerald-800 border border-emerald-300">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Verified Package</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-[4px] bg-black/[0.04] px-2.5 py-0.5 font-mono text-xs font-semibold text-black/65 border border-black/15">
+                  <Shield className="w-3.5 h-3.5 text-black/50" />
+                  <span>Community Package</span>
+                </span>
+              )}
             </div>
             <p className="mt-3 text-base sm:text-lg leading-relaxed text-black/70 max-w-3xl font-sans">
               {pkg.description}
@@ -98,17 +143,26 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
             <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 font-mono text-xs text-black/55">
               <div className="flex items-center gap-1.5">
                 <Download className="h-4 w-4 text-black/40" />
-                <span className="font-semibold text-black">{formatNumber(pkg.weeklyDownloads)}</span>
-                <span>weekly downloads</span>
+                <span className="font-semibold text-black">{formatNumber(downloadCount)}</span>
+                <span>total downloads</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4 text-black/40" />
-                <span>Published {timeAgo(pkg.updatedAt)}</span>
+                <span suppressHydrationWarning>Updated {timeAgo(pkg.updatedAt)}</span>
               </div>
               {pkg.license && (
                 <div className="flex items-center gap-1.5">
                   <Scale className="h-4 w-4 text-black/40" />
                   <span>{pkg.license} License</span>
+                </div>
+              )}
+              {typeof pkg.sizeBytes === "number" && (
+                <div className="flex items-center gap-1.5">
+                  <FileArchive className="h-4 w-4 text-black/40" />
+                  <span>
+                    {formatBytes(pkg.sizeBytes)}
+                    {typeof pkg.fileCount === "number" ? ` (${pkg.fileCount} files)` : ""}
+                  </span>
                 </div>
               )}
             </div>
@@ -137,11 +191,21 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
               <span>Connect to Agent Runtime</span>
               <span className="text-[10px] bg-white/20 text-white px-1.5 py-0.2 rounded font-bold">[C]</span>
             </button>
+
+            <a
+              href={downloadApiUrl}
+              download={safeTarFilename}
+              onClick={handleTarballDownloadClick}
+              className="w-full h-10 rounded-[8px] border border-black/15 bg-white hover:bg-[#F7F7F7] text-black font-mono text-xs font-semibold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xs"
+            >
+              <Download className="w-3.5 h-3.5 text-[#1A5FED]" />
+              <span>Download Archive (.tgz)</span>
+            </a>
           </div>
         </div>
 
         {/* Tab Selector: README vs Live Playground */}
-        <div className="flex items-center gap-2 border-b border-black/10 mb-8 font-mono text-xs">
+        <div className="flex items-center gap-3 sm:gap-4 border-b border-black/10 mb-8 font-mono text-xs overflow-x-auto max-w-full whitespace-nowrap scrollbar-none">
           <button
             onClick={() => setActiveView("readme")}
             className={`flex items-center gap-2 pb-3 px-2 font-bold uppercase tracking-wider transition-colors border-b-2 cursor-pointer ${
@@ -163,9 +227,9 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
             }`}
           >
             <Play className="w-4 h-4 fill-current" />
-            <span>Interactive MCP Playground</span>
-            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-semibold">
-              LIVE
+            <span>MCP Sandbox Preview</span>
+            <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded font-semibold">
+              SANDBOX
             </span>
           </button>
         </div>
@@ -173,9 +237,19 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
         {/* Main Content & Sidebar */}
         <div className="grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-3">
           {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 min-w-0 space-y-6">
             {activeView === "readme" ? (
               <div className="bg-[#F7F7F7] border border-black/5 rounded-[8px] p-6 sm:p-8">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-2 border-b border-black/5 font-mono text-[11px] text-black/50">
+                  <span>
+                    {pkg.readmeSource === "github-skill"
+                      ? "SOURCE: GITHUB SKILL.MD"
+                      : pkg.readmeSource === "github-readme"
+                        ? "SOURCE: GITHUB README.MD"
+                        : "SOURCE: REGISTRY METADATA & MANIFEST"}
+                  </span>
+                  <span>PACKAGE: {pkg.displayName}</span>
+                </div>
                 <div className="prose prose-neutral max-w-none prose-headings:font-semibold prose-a:text-[#1A5FED] prose-pre:bg-transparent prose-pre:p-0">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
@@ -239,11 +313,11 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
               <div className="bg-[#F7F7F7] border border-black/5 rounded-[8px] p-6 sm:p-8 space-y-6">
                 <div className="flex items-center justify-between pb-3 border-b border-black/10">
                   <div>
-                    <h3 className="text-base font-bold font-mono text-black">Zero-Setup MCP Test Harness</h3>
-                    <p className="text-xs text-black/60 font-sans mt-0.5">Test tool parameters client-side without local credentials.</p>
+                    <h3 className="text-base font-bold font-mono text-black">Client-Side Dry-Run Simulator</h3>
+                    <p className="text-xs text-black/60 font-sans mt-0.5">Preview JSON-RPC request/response framing client-side without calling external agent runtimes.</p>
                   </div>
-                  <span className="font-mono text-xs px-2.5 py-0.5 rounded bg-sky-50 text-[#1A5FED] border border-sky-200 font-semibold">
-                    Draft 2020-12
+                  <span className="font-mono text-xs px-2.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-semibold">
+                    Simulated
                   </span>
                 </div>
 
@@ -317,13 +391,70 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
                       <GitBranch className="h-3.5 w-3.5" /> Repository
                     </dt>
                     <dd>
-                      <a href={pkg.repositoryUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-[#1A5FED] hover:underline flex items-center gap-1">
-                        GitHub Repository <ExternalLink className="h-3 w-3" />
+                      <a href={pkg.repositoryUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-[#1A5FED] hover:underline flex items-center gap-1 break-all">
+                        GitHub Repository <ExternalLink className="h-3 w-3 shrink-0" />
                       </a>
                     </dd>
                   </div>
                 )}
+                {pkg.integrity && pkg.integrity !== "unrecorded" && (
+                  <div>
+                    <dt className="text-xs text-black/45 flex items-center gap-1.5 mb-1 font-mono uppercase">
+                      <Fingerprint className="h-3.5 w-3.5" /> Integrity (SHA-256)
+                    </dt>
+                    <dd className="font-mono text-xs text-black/75 break-all bg-white border border-black/10 rounded px-2 py-1" title={pkg.integrity}>
+                      {pkg.integrity.length > 26 ? `${pkg.integrity.slice(0, 26)}…` : pkg.integrity}
+                    </dd>
+                  </div>
+                )}
+                {(typeof pkg.sizeBytes === "number" || typeof pkg.fileCount === "number") && (
+                  <div>
+                    <dt className="text-xs text-black/45 flex items-center gap-1.5 mb-1 font-mono uppercase">
+                      <FileArchive className="h-3.5 w-3.5" /> Bundle Size
+                    </dt>
+                    <dd className="font-mono text-xs font-medium text-black">
+                      {formatBytes(pkg.sizeBytes)}
+                      {typeof pkg.fileCount === "number" ? ` • ${pkg.fileCount} files` : ""}
+                    </dd>
+                  </div>
+                )}
+                <div>
+                  <dt className="text-xs text-black/45 flex items-center gap-1.5 mb-1 font-mono uppercase">
+                    <Download className="h-3.5 w-3.5" /> Archive Tarball
+                  </dt>
+                  <dd>
+                    <a
+                      href={downloadApiUrl}
+                      download={safeTarFilename}
+                      onClick={handleTarballDownloadClick}
+                      className="font-mono text-xs font-medium text-[#1A5FED] hover:underline inline-flex items-center gap-1"
+                    >
+                      Download v{pkg.latestVersion} (.tgz) <Download className="h-3 w-3 shrink-0" />
+                    </a>
+                  </dd>
+                </div>
               </dl>
+            </div>
+
+            {/* Dependencies Section */}
+            <div className="rounded-[8px] border border-black/5 bg-[#F7F7F7] p-5">
+              <h3 className="text-xs font-bold text-black/60 mb-3 flex items-center gap-1.5 uppercase tracking-wider font-mono">
+                <Layers className="h-3.5 w-3.5" /> [DEPENDENCIES] ({pkg.dependencies?.length || 0})
+              </h3>
+              {pkg.dependencies && pkg.dependencies.length > 0 ? (
+                <ul className="space-y-1.5 font-mono text-xs">
+                  {pkg.dependencies.map((dep: PackageDependency) => (
+                    <li key={`${dep.namespace}/${dep.name}`} className="flex items-center justify-between bg-white border border-black/10 rounded px-2.5 py-1.5">
+                      <Link href={`/packages/${dep.namespace}/${dep.name}`} className="text-[#1A5FED] hover:underline truncate">
+                        {dep.namespace !== "@agent-spm" ? `${dep.namespace}/${dep.name}` : dep.name}
+                      </Link>
+                      <span className="text-black/50 shrink-0">{dep.versionConstraint}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="font-mono text-xs text-black/50">Zero external dependencies</p>
+              )}
             </div>
 
             {/* Keywords Section */}
@@ -336,7 +467,7 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
                   {pkg.keywords.map((kw: string) => (
                     <Link 
                       key={kw} 
-                      href={`/search/?q=${kw}`}
+                      href={`/search?q=${encodeURIComponent(kw)}`}
                       className="inline-flex items-center rounded-[2px] bg-white border border-black/10 px-2.5 py-1 font-mono text-xs font-medium text-black/75 transition-colors hover:border-[#1A5FED] hover:text-[#1A5FED]"
                     >
                       #{kw}
@@ -353,10 +484,20 @@ export const PublicPackageDetailClient: React.FC<PublicPackageDetailClientProps>
               </h3>
               <div className="flow-root font-mono text-xs">
                 <ul className="-my-2 divide-y divide-black/5">
-                  {pkg.versions.map((v: any) => (
-                    <li key={v.version} className="flex items-center justify-between py-2.5">
-                      <span className="font-semibold text-[#1A5FED]">v{v.version}</span>
-                      <span className="text-black/45">{timeAgo(v.publishedAt)}</span>
+                  {pkg.versions.map((v: PackageVersion) => (
+                    <li key={v.version} className="flex items-center justify-between gap-2 py-2.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="font-semibold text-[#1A5FED]">v{v.version}</span>
+                        {v.verified && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+                            verified
+                          </span>
+                        )}
+                        {typeof v.sizeBytes === "number" && (
+                          <span className="text-[10px] text-black/40">{formatBytes(v.sizeBytes)}</span>
+                        )}
+                      </div>
+                      <span suppressHydrationWarning className="text-black/45 shrink-0">{timeAgo(v.publishedAt)}</span>
                     </li>
                   ))}
                 </ul>

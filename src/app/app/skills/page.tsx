@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/data/session-context";
@@ -22,6 +22,11 @@ import {
 export default function MySkillsPage() {
   const router = useRouter();
   const { skills, updateSkillStatus, deleteSkill } = useSession();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | SkillStatus>("all");
@@ -148,9 +153,11 @@ export default function MySkillsPage() {
             placeholder="Search skills by name, tag, or description..."
             className="w-full rounded-xl border border-black/10 bg-white pl-10 pr-24 py-2 text-sm text-black placeholder:text-black/40 focus:border-[#1B5FED] focus:ring-2 focus:ring-[#1B5FED]/20 focus:outline-none font-sans shadow-sm"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-xs text-black/50">
-            {filteredSkills.length} results
-          </span>
+          {mounted && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 font-mono text-xs text-black/50">
+              {filteredSkills.length} results
+            </span>
+          )}
         </div>
 
         {/* Status Tabs & Sort */}
@@ -215,7 +222,7 @@ export default function MySkillsPage() {
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-black/5 text-sm">
+            <tbody suppressHydrationWarning className="divide-y divide-black/5 text-sm">
               {filteredSkills.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center">
@@ -245,7 +252,7 @@ export default function MySkillsPage() {
                       <td className="py-4 px-5">
                         <Link href={detailHref} className="block group-hover:text-[#1B5FED] transition-colors">
                           <div className="font-mono text-xs font-bold text-black group-hover:text-[#1B5FED]">
-                            {sk.scope}/{sk.name}
+                            {sk.name.startsWith("@") ? sk.name : `${sk.scope}/${sk.name}`}
                           </div>
                           <div className="flex items-center gap-2 mt-0.5 text-xs text-black/60 font-mono">
                             <span className="font-semibold text-black/80">v{sk.version}</span>

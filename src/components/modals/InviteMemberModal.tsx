@@ -179,7 +179,7 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
             </label>
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value as any)}
+              onChange={(e) => setRole(e.target.value as typeof role)}
               className="w-full rounded-xl border border-black/15 bg-white px-3 py-2 text-sm text-black focus:border-[#1B5FED] focus:ring-2 focus:ring-[#1B5FED]/20 focus:outline-none font-mono"
             >
               <option value="member">Member (Can publish and use skills)</option>

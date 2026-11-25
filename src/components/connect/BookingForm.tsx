@@ -7,8 +7,8 @@ interface BookingFormProps {
 }
 
 export const BookingForm: React.FC<BookingFormProps> = ({ onBack, onConfirm }) => {
-  const [name, setName] = useState("Alex Chen");
-  const [email, setEmail] = useState("alex@acme.labs");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {

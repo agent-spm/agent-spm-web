@@ -59,7 +59,7 @@ export default function OpenSourceStats() {
                     fontFamily: "Inter",
                     fontWeight: 500,
                     fontStyle: "normal",
-                    fontSize: "30px",
+                    fontSize: "clamp(22px, 3vw, 30px)",
                     lineHeight: "1",
                     color: "#000000",
 
@@ -98,12 +98,12 @@ export default function OpenSourceStats() {
           style={{
             fontFamily: "'Inter', sans-serif",
             fontWeight: 500,
-            fontSize: "18px",
-            lineHeight: '1',
+            fontSize: "clamp(14px, 1.8vw, 18px)",
+            lineHeight: "1.45",
             color: "#000000",
             textAlign: "center",
             maxWidth: "520px",
-            marginTop: "-16px",
+            marginTop: "-8px",
           }}
         >
           Skills Package Manager is built by a global, growing, and thriving

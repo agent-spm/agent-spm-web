@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useToast } from "@/components/ui/ToastProvider";
 import {
   GitBranch,
   GitCommit,
@@ -45,6 +46,36 @@ import { useSession } from "@/lib/data/session-context";
 
 export type ImportScenario = "clean" | "duplicate" | "monorepo" | "security_block";
 
+function parseGithubUrl(url: string) {
+  const cleaned = url.trim().replace(/^https?:\/\/github\.com\//i, "").replace(/\.git$/i, "").replace(/\/$/, "");
+  const parts = cleaned.split("/").filter(Boolean);
+
+  if (parts.length >= 2) {
+    const owner = parts[0];
+    const repo = parts[1];
+    return {
+      owner,
+      repo,
+      name: repo.toLowerCase().replace(/[^a-z0-9-_]/g, "-"),
+      cleanFullName: `${owner}/${repo}`,
+    };
+  } else if (parts.length === 1) {
+    const name = parts[0].toLowerCase().replace(/[^a-z0-9-_]/g, "-");
+    return {
+      owner: "community",
+      repo: parts[0],
+      name,
+      cleanFullName: parts[0],
+    };
+  }
+  return {
+    owner: "agent-spm",
+    repo: "custom-skill",
+    name: "custom-skill",
+    cleanFullName: "agent-spm/custom-skill",
+  };
+}
+
 interface GitHubSkillImporterProps {
   onSuccessPublish: (skillData: {
     name: string;
@@ -62,6 +93,7 @@ export function GitHubSkillImporter({
   onSwitchToManual,
 }: GitHubSkillImporterProps) {
   const { currentOrg } = useSession();
+  const { showToast } = useToast();
 
   // URL input and state
   const [repoUrl, setRepoUrl] = useState("");
@@ -74,6 +106,14 @@ export function GitHubSkillImporter({
   const [analysisStep, setAnalysisStep] = useState(0);
   const [analyzed, setAnalyzed] = useState(false);
   const [scenario, setScenario] = useState<ImportScenario>("clean");
+
+  // Dynamic extracted package metadata
+  const [packageName, setPackageName] = useState("skills");
+  const [packageVersion, setPackageVersion] = useState("1.0.0");
+  const [packageDescription, setPackageDescription] = useState(
+    "High-performance autonomous agent skill imported from GitHub."
+  );
+  const [packageLicense, setPackageLicense] = useState("MIT");
 
   // Monorepo selection state
   const [selectedMonorepoSkills, setSelectedMonorepoSkills] = useState<string[]>([
@@ -118,10 +158,17 @@ export function GitHubSkillImporter({
     setRepoUrl(item.url);
     setScenario(item.scenario);
     setAnalyzed(false);
+    const parsed = parseGithubUrl(item.url);
+    setPackageName(parsed.name);
+    setPackageDescription(`SPM skill package: ${item.label}`);
   };
 
   const handleRunAnalysis = () => {
     if (!repoUrl.trim()) return;
+
+    const parsed = parseGithubUrl(repoUrl);
+    setPackageName(parsed.name);
+    setPackageDescription(`High-performance autonomous agent skill package imported from ${parsed.cleanFullName}.`);
 
     setIsAnalyzing(true);
     setAnalysisStep(1);
@@ -144,24 +191,23 @@ export function GitHubSkillImporter({
 
   const handlePublishImportedSkill = () => {
     onSuccessPublish({
-      name: scenario === "monorepo" ? "fetch-tool" : "web-crawler",
+      name: scenario === "monorepo" ? "fetch-tool" : packageName,
       scope: currentOrg.slug,
-      version: "1.0.0",
-      description:
-        "High-performance autonomous browser scraping & DOM extraction skill for AI agents.",
-      repoUrl: repoUrl || "https://github.com/modelcontextprotocol/servers",
-      license: "MIT",
+      version: packageVersion,
+      description: packageDescription,
+      repoUrl: repoUrl || `https://github.com/agent-spm-registry/${packageName}`,
+      license: packageLicense,
     });
   };
 
-  const mockYaml = `name: web-crawler
-version: 1.0.0
+  const mockYaml = `name: ${packageName}
+version: ${packageVersion}
 scope: ${currentOrg.slug}
-description: High-performance autonomous browser scraping & DOM extraction skill.
-license: MIT
+description: ${packageDescription}
+license: ${packageLicense}
 source:
   type: github
-  url: ${repoUrl || "https://github.com/modelcontextprotocol/servers"}
+  url: ${repoUrl || `https://github.com/agent-spm-registry/${packageName}`}
   commit: 8f3c1a93b4e72d1f
   pinned: true
 
@@ -531,9 +577,13 @@ entrypoint: "./dist/index.js"
                   <button
                     type="button"
                     onClick={() => {
-                      alert("Sync check completed: The upstream repository has no newer commits than v1.2.0.");
+                      showToast({
+                        title: "Upstream In Sync",
+                        message: "The upstream repository has no newer commits than v1.2.0.",
+                        type: "info",
+                      });
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100/50 text-amber-900 font-mono text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-amber-300 hover:bg-amber-100/50 text-amber-900 font-mono text-xs font-semibold cursor-pointer"
                   >
                     <RefreshCw className="w-3 h-3" />
                     <span>Check for Upstream Version Sync</span>
@@ -748,26 +798,43 @@ entrypoint: "./dist/index.js"
                   <div className="p-5 space-y-4 font-mono text-xs">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <span className="text-black/50 block text-[11px] uppercase">
+                        <span className="text-black/50 block text-[11px] uppercase font-semibold">
                           Target Package Identifier:
                         </span>
-                        <span className="text-black font-bold text-sm">
-                          {currentOrg.slug}/web-crawler
-                        </span>
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-black/50 font-mono text-sm">{currentOrg.slug}/</span>
+                          <input
+                            type="text"
+                            value={packageName}
+                            onChange={(e) => setPackageName(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, "-"))}
+                            placeholder="skill-name"
+                            className="font-bold text-sm text-black border-b border-dashed border-black/30 hover:border-[#1B5FED] focus:border-[#1B5FED] focus:outline-none bg-transparent px-1 py-0.5"
+                          />
+                        </div>
                       </div>
                       <div>
-                        <span className="text-black/50 block text-[11px] uppercase">
+                        <span className="text-black/50 block text-[11px] uppercase font-semibold">
                           Release Version (SemVer):
                         </span>
-                        <span className="text-[#1B5FED] font-bold text-sm">v1.0.0</span>
+                        <input
+                          type="text"
+                          value={packageVersion}
+                          onChange={(e) => setPackageVersion(e.target.value)}
+                          placeholder="1.0.0"
+                          className="font-bold text-sm text-[#1B5FED] border-b border-dashed border-sky-300 hover:border-[#1B5FED] focus:border-[#1B5FED] focus:outline-none bg-transparent px-1 py-0.5 mt-1"
+                        />
                       </div>
                       <div className="sm:col-span-2">
-                        <span className="text-black/50 block text-[11px] uppercase">
+                        <span className="text-black/50 block text-[11px] uppercase font-semibold">
                           Auto-Extracted Description:
                         </span>
-                        <span className="text-black/80 font-sans text-xs">
-                          High-performance autonomous browser scraping &amp; DOM extraction skill for AI agents.
-                        </span>
+                        <input
+                          type="text"
+                          value={packageDescription}
+                          onChange={(e) => setPackageDescription(e.target.value)}
+                          placeholder="Skill description..."
+                          className="w-full text-black/80 font-sans text-xs border border-black/10 rounded-lg p-2 mt-1 focus:border-[#1B5FED] focus:outline-none bg-white shadow-xs"
+                        />
                       </div>
                     </div>
 

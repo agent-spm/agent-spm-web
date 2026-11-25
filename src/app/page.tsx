@@ -9,13 +9,43 @@ import { FAQSection } from "@/components/landing/FAQSection";
 import { BlogSection } from "@/components/landing/BlogSection";
 import { CTABlockSection } from "@/components/landing/CTABlockSection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
+import { registryApi } from "@/lib/registry/api";
+import {
+  FALLBACK_DEMO_PACKAGES,
+  pickUniqueDemoPackages,
+  type DemoPackageItem,
+} from "@/components/landing/demos/demo-types";
+
+export const dynamic = "force-dynamic";
 
 /**
- * Landing page — composed entirely of self-contained section components.
- * This file owns the top-level gradient wrapper and the scroll structure.
- * All content lives in /components/landing/.
+ * Landing page — composed of self-contained section components with live
+ * public registry samples hydrated into the interactive homepage demos.
  */
-export default function Home() {
+export default async function Home() {
+  let initialDemoPackages: DemoPackageItem[] = FALLBACK_DEMO_PACKAGES;
+  try {
+    const res = await registryApi.searchPackages({ pageSize: 24, sort: "relevance" });
+    if (res.packages.length > 0) {
+      initialDemoPackages = pickUniqueDemoPackages(
+        res.packages.map((p) => ({
+          id: p.id,
+          namespace: p.namespace,
+          name: p.name,
+          fullName: p.namespace !== "@agent-spm" ? `${p.namespace}/${p.name}` : p.name,
+          description: p.description,
+          latestVersion: p.latestVersion,
+          totalDownloads: p.totalDownloads,
+          verified: Boolean(p.verified),
+          keywords: p.keywords,
+        })),
+        12
+      );
+    }
+  } catch {
+    // Preserve fast fallback packages if upstream is unreachable during static pre-render
+  }
+
   return (
     <main className="min-h-screen bg-white text-black font-sans relative overflow-x-hidden">
 
@@ -55,8 +85,8 @@ export default function Home() {
 
       </section>
 
-      {/* ─── Workspace Features Section (3 Demo Cards) ─── */}
-      <WorkspaceFeatures />
+      {/* ─── Workspace Features Section (3 Live Interactive Demo Workbenches) ─── */}
+      <WorkspaceFeatures initialPackages={initialDemoPackages} />
 
       {/* ─── Excellence Grid Section (6 Audience Cards) ─── */}
       <ExcellenceGrid />

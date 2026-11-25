@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "@/lib/data/session-context";
 import { useToast } from "@/components/ui/ToastProvider";
 import { AuditSeverity } from "@/lib/data/mock-store";
+import { escapeCsvCell } from "@/lib/security/sanitize";
 import {
   Download,
   ChevronRight,
@@ -24,15 +25,15 @@ export default function AuditLogsPage() {
   const handleExportCSV = () => {
     const headers = ["ID", "Timestamp (UTC)", "Actor Name", "Actor Email", "Action", "Resource", "Severity", "IP Address", "User Agent"];
     const rows = filteredEvents.map((evt) => [
-      evt.id,
-      evt.timestamp,
-      `"${evt.actor.name}"`,
-      `"${evt.actor.email}"`,
-      `"${evt.action}"`,
-      `"${evt.resource}"`,
-      evt.severity,
-      evt.ipAddress,
-      `"${(evt.userAgent ?? "").replace(/"/g, '""')}"`,
+      escapeCsvCell(evt.id),
+      escapeCsvCell(evt.timestamp),
+      escapeCsvCell(evt.actor.name),
+      escapeCsvCell(evt.actor.email),
+      escapeCsvCell(evt.action),
+      escapeCsvCell(evt.resource),
+      escapeCsvCell(evt.severity),
+      escapeCsvCell(evt.ipAddress),
+      escapeCsvCell(evt.userAgent ?? ""),
     ]);
 
     const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");

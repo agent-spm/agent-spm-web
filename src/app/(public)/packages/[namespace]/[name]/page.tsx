@@ -1,9 +1,24 @@
 import type { Metadata } from "next";
-import { registryApi } from "@/lib/registry/api";
+import { notFound } from "next/navigation";
+import { registryApi, PackageNotFoundError } from "@/lib/registry/api";
 import { getMockPackage, MOCK_PACKAGES } from "@/lib/registry/mock";
 import { PublicPackageDetailClient } from "@/components/packages/PublicPackageDetailClient";
 
+export const dynamic = "force-dynamic";
+
+const SHOWCASE_PACKAGES = new Set([
+  "@spm/env-wizard",
+  "@spm/git-hero",
+  "@spm/ghost-scanner",
+  "@lakshit/web2-ui",
+  "@daksh/system-design",
+  "@rahul/web2-security",
+]);
+
 export async function generateStaticParams() {
+  if (process.env.STATIC_EXPORT !== "true") {
+    return [];
+  }
   const paramsList = [
     ...MOCK_PACKAGES.map((pkg) => ({
       namespace: pkg.namespace,
@@ -69,11 +84,22 @@ export default async function PackageDetailPage({
   let pkg;
   try {
     pkg = await registryApi.getPackage(namespace, name);
-  } catch {
-    pkg = getMockPackage(namespace, name);
+  } catch (err) {
+    const isMockKnown =
+      MOCK_PACKAGES.some((m) => m.namespace === namespace && m.name === name) ||
+      SHOWCASE_PACKAGES.has(`${namespace}/${name}`);
+    if (isMockKnown) {
+      pkg = getMockPackage(namespace, name);
+    } else if (err instanceof PackageNotFoundError) {
+      notFound();
+    } else {
+      throw err;
+    }
   }
 
-  const installCmd = `spm install ${namespace}/${name}`;
+  const canonicalName = name.startsWith("@") && name.includes("/") ? name.split("/")[1] : name;
+  const installTarget = namespace && namespace !== "@agent-spm" ? `${namespace}/${canonicalName}` : canonicalName;
+  const installCmd = `spm install ${installTarget}`;
 
   return (
     <PublicPackageDetailClient

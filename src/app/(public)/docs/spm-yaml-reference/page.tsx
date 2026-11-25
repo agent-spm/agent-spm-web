@@ -25,7 +25,7 @@ export default function SpmYamlReferencePage() {
       {/* ── SECTION 1: INTRODUCTION ── */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold text-black tracking-tight">
-          The Manifest Manifest
+          The spm.yaml Manifest
         </h2>
         <p className="text-sm sm:text-base text-black/75 leading-relaxed">
           Every skill package has an <code>spm.yaml</code> manifest at its root directory. This manifest serves two critical operations:

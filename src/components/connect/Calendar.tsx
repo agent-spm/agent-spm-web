@@ -75,7 +75,7 @@ export const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect }
     <div className="flex flex-col w-full max-w-[460px]">
       {/* Month Navigation Header */}
       <div className="flex items-center justify-between mb-6 px-1">
-        <h2 className="text-xl font-semibold text-black font-sans">
+        <h2 suppressHydrationWarning className="text-xl font-semibold text-black font-sans">
           {monthName} <span className="text-black/40 font-normal">{year}</span>
         </h2>
         <div className="flex items-center gap-1.5 font-mono">
@@ -121,7 +121,7 @@ export const Calendar: React.FC<CalendarProps> = ({ selectedDate, onDateSelect }
       </div>
 
       {/* Days Grid */}
-      <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+      <div suppressHydrationWarning className="grid grid-cols-7 gap-1.5 sm:gap-2">
         {paddingDays.map((_, i) => (
           <div key={`pad-${i}`} className="w-full aspect-square" />
         ))}

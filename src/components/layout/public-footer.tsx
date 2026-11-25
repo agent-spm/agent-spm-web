@@ -14,20 +14,20 @@ interface FooterLink {
 
 const footerLinks: Record<string, FooterLink[]> = {
   PRODUCT: [
-    { label: "PRICING", prefix: "P", href: "/pricing/" },
+    { label: "PRICING", prefix: "P", href: "/pricing" },
     { label: "DOCUMENTATION", prefix: "D", href: "/docs" },
   ],
   RESOURCES: [
     { label: "CLI GUIDE", prefix: "C", href: "/docs/getting-started" },
     { label: "PUBLISHING", prefix: "V", href: "/docs/publishing" },
     { label: "API REFERENCE", prefix: "A", href: "/docs/skill-api" },
-    { label: "STATUS", prefix: "S", href: "https://status.spm.dev" },
+    { label: "SECURITY", prefix: "S", href: "/security" },
   ],
   COMPANY: [
-    { label: "ABOUT", prefix: "O", href: "/search/" },
-    { label: "BLOG", prefix: "B", href: "/search/" },
-    { label: "TERMS", prefix: "T", href: "/search/" },
-    { label: "PRIVACY", prefix: "R", href: "/search/" },
+    { label: "SEARCH SKILLS", prefix: "S", href: "/search" },
+    { label: "ABOUT", prefix: "O", href: "/docs" },
+    { label: "TERMS", prefix: "T", href: "/terms" },
+    { label: "PRIVACY", prefix: "R", href: "/privacy" },
   ],
 };
 

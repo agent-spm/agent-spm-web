@@ -33,13 +33,16 @@ export function QuickPeekDrawer({ pkg, onClose }: QuickPeekDrawerProps) {
 
   if (!pkg) return null;
 
-  const spmCmd = `spm install ${pkg.namespace}/${pkg.name}`;
+  const canonicalName = pkg.name.startsWith("@") && pkg.name.includes("/") ? pkg.name.split("/")[1] : pkg.name;
+  const normalizedNs = pkg.namespace.startsWith("@") ? pkg.namespace : `@${pkg.namespace}`;
+  const fullPackageId = `${normalizedNs}/${canonicalName}`;
+  const spmCmd = `spm install ${canonicalName}`;
   const cursorConfig = JSON.stringify(
     {
       mcpServers: {
-        [pkg.name]: {
+        [canonicalName]: {
           command: "npx",
-          args: ["-y", `@${pkg.namespace}/${pkg.name}`],
+          args: ["-y", fullPackageId],
           env: {
             SPM_API_KEY: "${env:SPM_API_KEY}",
           },
@@ -53,9 +56,9 @@ export function QuickPeekDrawer({ pkg, onClose }: QuickPeekDrawerProps) {
   const claudeConfig = JSON.stringify(
     {
       mcpServers: {
-        [pkg.name]: {
+        [canonicalName]: {
           command: "npx",
-          args: ["-y", `@${pkg.namespace}/${pkg.name}`],
+          args: ["-y", fullPackageId],
         },
       },
     },
@@ -89,11 +92,14 @@ export function QuickPeekDrawer({ pkg, onClose }: QuickPeekDrawerProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex justify-end animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Quick peek for ${pkg.name}`}
+      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex justify-end overscroll-contain animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-white h-full shadow-2xl flex flex-col justify-between border-l border-black/10 animate-in slide-in-from-right duration-200 font-sans"
+        className="w-full max-w-lg bg-white h-full shadow-2xl flex flex-col justify-between border-l border-black/10 overscroll-contain animate-in slide-in-from-right duration-200 font-sans"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
@@ -128,18 +134,20 @@ export function QuickPeekDrawer({ pkg, onClose }: QuickPeekDrawerProps) {
           </div>
 
           {/* Quick Metrics */}
-          <div className="flex items-center gap-4 pt-2 font-mono text-xs text-black/60">
+          <div className="flex flex-wrap items-center gap-3 pt-2 font-mono text-xs text-black/60">
             <span className="flex items-center gap-1.5">
               <Download className="w-3.5 h-3.5 text-black/40" />
               {formatNumber(pkg.totalDownloads)} downloads
             </span>
             <span className="text-black/30">•</span>
             <span className="flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-emerald-600" />
-              <strong className="text-emerald-700">96/100 Shield</strong>
+              <Shield className={`w-3.5 h-3.5 ${pkg.verified ? "text-emerald-600" : "text-black/45"}`} />
+              <strong className={pkg.verified ? "text-emerald-700" : "text-black/75"}>
+                {pkg.verified ? "Verified Publisher" : "Community Package"}
+              </strong>
             </span>
             <span className="text-black/30">•</span>
-            <span className="text-black/50">SLSA L3</span>
+            <span className="text-black/50">Shield {pkg.securityScore ?? 92}/100</span>
           </div>
         </div>
 
@@ -225,7 +233,7 @@ export function QuickPeekDrawer({ pkg, onClose }: QuickPeekDrawerProps) {
             Check Token Diet
           </Link>
           <Link
-            href={`/packages/${pkg.namespace}/${pkg.name}/`}
+            href={`/packages/${pkg.namespace}/${pkg.name}`}
             className="flex-1 py-2.5 px-4 rounded-xl bg-[#1A5FED] hover:bg-[#1A5FED]/90 text-white text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
           >
             <span>Open Full Page</span>

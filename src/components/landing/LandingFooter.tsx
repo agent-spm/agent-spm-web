@@ -93,23 +93,8 @@ export const LandingFooter = () => {
               </h4>
               <ul className="space-y-2.5 font-sans text-sm text-black/60">
                 <li>
-                  <Link
-                    href="/#blog"
-                    onClick={(e) => {
-                      if (window.location.pathname === '/' || window.location.pathname === '') {
-                        e.preventDefault();
-                        const lenis = (window as any).__lenis;
-                        if (lenis) {
-                          lenis.scrollTo('#blog', { offset: -30 });
-                        } else {
-                          document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' });
-                        }
-                        window.history.pushState(null, '', '#blog');
-                      }
-                    }}
-                    className="hover:text-black transition-colors"
-                  >
-                    Blog
+                  <Link href="/search" className="hover:text-black transition-colors">
+                    Search Skills
                   </Link>
                 </li>
                 <li>
@@ -123,8 +108,25 @@ export const LandingFooter = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/search" className="hover:text-black transition-colors">
-                    Skills Registry
+                  <Link
+                    href="/#blog"
+                    onClick={(e) => {
+                      if (window.location.pathname === '/' || window.location.pathname === '') {
+                        e.preventDefault();
+                        const lenis = (window as Window & {
+                          __lenis?: { scrollTo: (target: string, options?: { offset?: number }) => void };
+                        }).__lenis;
+                        if (lenis) {
+                          lenis.scrollTo('#blog', { offset: -30 });
+                        } else {
+                          document.getElementById('blog')?.scrollIntoView({ behavior: 'smooth' });
+                        }
+                        window.history.pushState(null, '', '#blog');
+                      }
+                    }}
+                    className="hover:text-black transition-colors"
+                  >
+                    Blog
                   </Link>
                 </li>
               </ul>

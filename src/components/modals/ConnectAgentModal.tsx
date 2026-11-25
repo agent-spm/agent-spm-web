@@ -131,7 +131,7 @@ print(f"Ready for LlamaIndex Agent Workflow: {tools}")`;
           ].map((t) => (
             <button
               key={t.id}
-              onClick={() => setActiveTab(t.id as any)}
+              onClick={() => setActiveTab(t.id as typeof activeTab)}
               className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
                 activeTab === t.id
                   ? "bg-[#1B5FED] text-white shadow-xs"

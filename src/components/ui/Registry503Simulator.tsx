@@ -1,12 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Copy, Check, RotateCcw, ExternalLink, ShieldCheck, AlertTriangle } from "lucide-react";
 
 export function Registry503Simulator() {
   const [copied, setCopied] = useState(false);
+  const [timestamp, setTimestamp] = useState("—");
   const traceId = "spm_trace_9a8f_us_east_20261108_0941";
+
+  useEffect(() => {
+    setTimestamp(new Date().toISOString());
+  }, []);
 
   const handleCopyTrace = () => {
     navigator.clipboard.writeText(traceId);
@@ -37,7 +42,7 @@ export function Registry503Simulator() {
         <div className="flex justify-between text-[11px]"><span className="text-surface-500">Retry Count:</span><span>3 of 5</span></div>
         <div className="flex justify-between text-[11px]"><span className="text-surface-500">Region:</span><span>us-east-1 (Virginia Cluster B)</span></div>
         <div className="flex justify-between text-[11px]"><span className="text-surface-500">Trace ID:</span><span className="text-[#00F0FF]">{traceId}</span></div>
-        <div className="flex justify-between text-[11px]"><span className="text-surface-500">Timestamp:</span><span>{new Date().toISOString()}</span></div>
+        <div className="flex justify-between text-[11px]"><span className="text-surface-500">Timestamp:</span><span>{timestamp}</span></div>
       </div>
 
       {/* Buttons: Retry Now, Status Page, Copy Trace ID */}

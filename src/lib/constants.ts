@@ -8,21 +8,21 @@ export const REGISTRY_API_URL =
 
 export const NAV_ITEMS = [
   { label: "Explore", href: "/" },
-  { label: "Search", href: "/search/" },
-  { label: "Documentation", href: "/search/" },
+  { label: "Search", href: "/search" },
+  { label: "Documentation", href: "/docs" },
 ] as const;
 
 export const DASHBOARD_NAV_ITEMS = [
   {
     label: "Overview",
-    href: "/dashboard",
+    href: "/app",
     icon: "LayoutDashboard" as const,
   },
-  { label: "Team", href: "/team", icon: "Users" as const },
-  { label: "Billing", href: "/billing", icon: "CreditCard" as const },
+  { label: "Team", href: "/app/team", icon: "Users" as const },
+  { label: "Billing", href: "/app/billing", icon: "CreditCard" as const },
 ] as const;
 
-export const PROTECTED_ROUTES = ["/dashboard", "/team", "/billing"];
+export const PROTECTED_ROUTES = ["/app", "/app/team", "/app/billing", "/admin"];
 
 export const SEO_DEFAULTS = {
   title: {

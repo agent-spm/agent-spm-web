@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/data/session-context";
@@ -22,19 +22,29 @@ import { DownloadsOverTimeChart } from "@/components/dashboard/DownloadsOverTime
 
 export default function OverviewPage() {
   const router = useRouter();
-  const { currentOrg, skills, auditEvents } = useSession();
+  const { currentOrg, skills, auditEvents, teamMembers, pendingInvites, apiKeys } = useSession();
+  const [mounted, setMounted] = useState(false);
 
-  // Top skills sorted by downloads
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Real KPI computations
+  const totalDownloads = skills.reduce((acc, s) => acc + (s.totalDownloads || 0), 0);
+  const activeMembersCount = teamMembers.length;
+  const pendingInvitesCount = pendingInvites.length;
+
+  // Top skills sorted by downloads or latest
   const topSkills = [...skills]
     .filter((s) => s.status === "published")
     .sort((a, b) => b.totalDownloads - a.totalDownloads)
     .slice(0, 5);
 
-  const topSkillMax = topSkills[0]?.totalDownloads || 1;
+  const topSkillMax = Math.max(topSkills[0]?.totalDownloads || 0, 1);
 
   return (
     <div className="space-y-6">
-      {/* ── 4 KPI CARDS ── */}
+      {/* ── 4 KPI CARDS (Real Supabase Registry Data) ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Total Skills */}
         <div className="rounded-[8px] border border-black/10 bg-white p-5 shadow-xs relative overflow-hidden group hover:border-[#1B5FED]/40 hover:shadow-md transition-all">
@@ -44,12 +54,12 @@ export default function OverviewPage() {
               <TerminalSquare className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-bold font-sans text-black tracking-tight">
+          <div suppressHydrationWarning className="text-3xl font-bold font-sans text-black tracking-tight">
             {skills.length}
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-xs font-mono text-emerald-700 font-semibold">
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>+2 published this month</span>
+            <span suppressHydrationWarning>{mounted ? skills.length : 0} packages live</span>
           </div>
         </div>
 
@@ -61,12 +71,12 @@ export default function OverviewPage() {
               <Download className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-bold font-sans text-black tracking-tight">
-            {SEED_OVERVIEW_KPIS.downloads.value}
+          <div suppressHydrationWarning className="text-3xl font-bold font-sans text-black tracking-tight">
+            {totalDownloads.toLocaleString()}
           </div>
-          <div className="mt-2 flex items-center gap-1.5 text-xs font-mono text-emerald-700 font-semibold">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>{SEED_OVERVIEW_KPIS.downloads.changeThisMonth} vs last 30d</span>
+          <div className="mt-2 flex items-center gap-1.5 text-xs font-mono text-black/50 font-semibold">
+            <Activity className="w-3.5 h-3.5 text-[#1B5FED]" />
+            <span>CLI & agent runtime pulls</span>
           </div>
         </div>
 
@@ -78,37 +88,39 @@ export default function OverviewPage() {
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-bold font-sans text-black tracking-tight">
-            {currentOrg.seatsUsed} <span className="text-lg text-black/40 font-normal">/ {currentOrg.seatsAllowed}</span>
+          <div suppressHydrationWarning className="text-3xl font-bold font-sans text-black tracking-tight">
+            {activeMembersCount} <span className="text-lg text-black/40 font-normal">/ {currentOrg.seatsAllowed}</span>
           </div>
           <div className="mt-2 text-xs font-mono text-black/50 flex items-center justify-between">
-            <span>6 active, 2 pending invites</span>
+            <span suppressHydrationWarning>
+              {activeMembersCount} active{pendingInvitesCount > 0 ? `, ${pendingInvitesCount} pending` : ", 0 pending"}
+            </span>
             <Link href="/app/team" className="text-[#1B5FED] font-semibold hover:underline">
               Manage →
             </Link>
           </div>
         </div>
 
-        {/* KPI 4: API Calls */}
+        {/* KPI 4: API Keys */}
         <div className="rounded-[8px] border border-black/10 bg-white p-5 shadow-xs relative overflow-hidden group hover:border-[#1B5FED]/40 hover:shadow-md transition-all">
           <div className="flex items-center justify-between text-black/50 mb-3">
-            <span className="font-mono text-xs uppercase font-semibold">API Calls</span>
+            <span className="font-mono text-xs uppercase font-semibold">API Keys</span>
             <div className="p-2 rounded-[4px] bg-amber-500/10 text-amber-700">
               <Activity className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-bold font-sans text-black tracking-tight">
-            {SEED_OVERVIEW_KPIS.apiCalls.value}
+          <div suppressHydrationWarning className="text-3xl font-bold font-sans text-black tracking-tight">
+            {apiKeys.length}
           </div>
-          <div className="mt-2 flex items-center gap-1.5 text-xs font-mono text-emerald-700 font-semibold">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>+24.1% compute volume</span>
+          <div className="mt-2 flex items-center gap-1.5 text-xs font-mono text-black/50 font-semibold">
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-700" />
+            <span>{apiKeys.length === 0 ? "No active keys" : `${apiKeys.length} active key${apiKeys.length > 1 ? "s" : ""}`}</span>
           </div>
         </div>
       </div>
 
-      {/* ── CUMULATIVE DOWNLOADS SAWTOOTH TIME-SERIES CHART ── */}
-      <DownloadsOverTimeChart title="Downloads over time" />
+      {/* ── LIVE DOWNLOADS TIME-SERIES CHART ── */}
+      <DownloadsOverTimeChart title="Downloads over time" totalDownloads={totalDownloads} />
 
       {/* ── SPLIT ROW: TOP SKILLS & INSTALL METHODS & ACTIVITY FEED ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -121,7 +133,7 @@ export default function OverviewPage() {
                 <p className="text-xs text-black/50 font-mono mt-0.5">Ranked by 30-day downloads</p>
               </div>
               <Link href="/app/skills" className="font-mono text-xs text-[#1B5FED] font-bold hover:underline flex items-center gap-1">
-                <span>View all ({skills.length})</span>
+                <span suppressHydrationWarning>View all {mounted ? `(${skills.length})` : ""}</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -161,21 +173,21 @@ export default function OverviewPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-4 rounded-[6px] border border-black/10 bg-[#FAFAFA] text-center">
-                <div className="font-mono text-2xl font-bold text-[#1B5FED]">68%</div>
-                <div className="font-mono text-xs font-semibold text-black mt-1">CLI Engine</div>
+                <div className="font-mono text-xl font-bold text-[#1B5FED]">Connected</div>
+                <div className="font-mono text-xs font-semibold text-black mt-1">SPM CLI</div>
                 <div className="font-mono text-[10px] text-black/50 mt-0.5">spm install</div>
               </div>
 
               <div className="p-4 rounded-[6px] border border-black/10 bg-[#FAFAFA] text-center">
-                <div className="font-mono text-2xl font-bold text-purple-700">24%</div>
-                <div className="font-mono text-xs font-semibold text-black mt-1">REST / API</div>
-                <div className="font-mono text-[10px] text-black/50 mt-0.5">Agent MCP runner</div>
+                <div className="font-mono text-xl font-bold text-purple-700">Ready</div>
+                <div className="font-mono text-xs font-semibold text-black mt-1">MCP Protocol</div>
+                <div className="font-mono text-[10px] text-black/50 mt-0.5">agent-spm-mcp</div>
               </div>
 
               <div className="p-4 rounded-[6px] border border-black/10 bg-[#FAFAFA] text-center">
-                <div className="font-mono text-2xl font-bold text-emerald-700">8%</div>
-                <div className="font-mono text-xs font-semibold text-black mt-1">Web UI</div>
-                <div className="font-mono text-[10px] text-black/50 mt-0.5">Interactive test</div>
+                <div className="font-mono text-xl font-bold text-emerald-700">Compatible</div>
+                <div className="font-mono text-xs font-semibold text-black mt-1">VS Code Ext</div>
+                <div className="font-mono text-[10px] text-black/50 mt-0.5">spm-vscode</div>
               </div>
             </div>
           </div>
@@ -199,7 +211,7 @@ export default function OverviewPage() {
               <div key={evt.id} className="p-3 rounded-[6px] border border-black/5 bg-[#FAFAFA] hover:bg-[#F0F7FF] transition-all space-y-1">
                 <div className="flex items-center justify-between text-[11px] font-mono text-black/50">
                   <span className="text-black font-semibold">{evt.actor.name}</span>
-                  <span className="flex items-center gap-1 text-[10px]">
+                  <span suppressHydrationWarning className="flex items-center gap-1 text-[10px]">
                     <Clock className="w-3 h-3 text-black/40" />
                     {new Date(evt.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
