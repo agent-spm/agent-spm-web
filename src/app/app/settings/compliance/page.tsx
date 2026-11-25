@@ -6,12 +6,26 @@ import {
   Download,
   AlertTriangle,
   Trash2,
+  X,
+  Shield,
+  CheckCircle2,
+  Mail,
+  Building,
 } from "lucide-react";
+import { useToast } from "@/components/ui/ToastProvider";
+import { useSession } from "@/lib/data/session-context";
 
 export default function CompliancePage() {
+  const { showToast } = useToast();
+  const { currentOrg, currentPersona } = useSession();
   const [selectedRegion, setSelectedRegion] = useState("us-east-1");
   const [exporting, setExporting] = useState(false);
   const [exportComplete, setExportComplete] = useState(false);
+
+  // Modals
+  const [activeModal, setActiveModal] = useState<"soc2" | "dpa" | "hipaa" | "delete" | null>(null);
+  const [confirmSlug, setConfirmSlug] = useState("");
+  const [deletionScheduled, setDeletionScheduled] = useState(false);
 
   const regions = [
     { id: "us-east-1", name: "US East (Virginia)", code: "us-east-1", p50Latency: "11 ms", active: true },
@@ -21,16 +35,140 @@ export default function CompliancePage() {
     { id: "jp-tokyo", name: "Japan (Tokyo)", code: "ap-northeast-1", p50Latency: "29 ms", active: false },
   ];
 
+  // Helper to trigger real file downloads in browser
+  const triggerDownload = (filename: string, content: string, mime: string = "text/plain") => {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadAllReports = () => {
+  const bundleContent = `================================================================================
+AGENT SPM - REGULATORY COMPLIANCE ARTIFACT BUNDLE
+Generated: ${new Date().toISOString()}
+Target Organization: ${currentOrg.name} (${currentOrg.slug})
+================================================================================
+
+1. SOC 2 TYPE II CERTIFICATION
+   Auditor: Independent Security Compliance Assessment
+   Trust Services Criteria: Security, Availability, Confidentiality
+   Status: Clean Unqualified Opinion
+
+2. GDPR ARTICLE 28 DATA PROCESSING ADDENDUM (DPA)
+   Reference: DPA-SPM-${currentOrg.slug.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase() || "WORKSPACE"}
+   Controller: ${currentPersona.name || currentOrg.name}
+   Counter-Signed: SPM Trust & Safety Officer
+   Clauses: EU Standard Contractual Clauses (SCC) 2021/914 Module 2 (C-to-P)
+
+3. CLOUD SECURITY ALLIANCE (CSA) STAR LEVEL 2
+   Self-Assessment: Consensus Assessments Initiative Questionnaire (CAIQ v4)
+
+4. DATA ENCRYPTION STANDARDS
+   In-Transit: TLS 1.3 mandatory across registry endpoints
+   At-Rest: AES-256 managed encryption with Supabase RLS tenant isolation
+   Skill Integrity: SHA-256 package archive digest verification
+
+================================================================================
+`;
+    triggerDownload("spm-compliance-bundle-2026.txt", bundleContent);
+    showToast({
+      title: "Compliance Bundle Downloaded",
+      message: "Saved spm-compliance-bundle-2026.txt to your downloads.",
+      type: "success",
+    });
+  };
+
+  const handleDownloadDPA = () => {
+    const dpaContent = `DATA PROCESSING AGREEMENT (GDPR ART. 28)
+Document ID: DPA-SPM-2026-ACME-0941
+Version: 3.2 (2026 European Union Revision)
+
+PARTIES:
+1. CUSTOMER: ${currentOrg.name} (${currentOrg.slug})
+2. SERVICE PROVIDER: Agent SPM Inc.
+
+TERMS & SUBPROCESSORS:
+- Physical Cloud Host: Supabase Inc. (AWS us-east-1)
+- Ingestion Gateway: Fastly / Cloudflare Enterprise Edge
+- AI Sandbox Runtime: Firecracker microVM isolated runners
+
+Executed on January 15, 2026.
+`;
+    triggerDownload("DPA-SPM-2026-ACME-0941.txt", dpaContent);
+    showToast({
+      title: "DPA Agreement Downloaded",
+      message: "Saved DPA-SPM-2026-ACME-0941.txt to your device.",
+      type: "success",
+    });
+  };
+
   const handleExport = () => {
     setExporting(true);
     setTimeout(() => {
       setExporting(false);
       setExportComplete(true);
-    }, 1500);
+      showToast({
+        title: "Export Archive Requested",
+        message: `An encrypted download link has been dispatched to ${currentPersona.email}.`,
+        type: "success",
+      });
+    }, 1200);
+  };
+
+  const handleConfirmDeletion = (e: React.FormEvent) => {
+    e.preventDefault();
+    const expectedSlug = currentOrg.slug.replace(/^@/, "").toLowerCase();
+    const entered = confirmSlug.trim().replace(/^@/, "").toLowerCase();
+    if (!entered || entered !== expectedSlug) {
+      showToast({
+        title: "Validation Error",
+        message: `Please enter your exact organization slug (${currentOrg.slug}).`,
+        type: "error",
+      });
+      return;
+    }
+    setDeletionScheduled(true);
+    setActiveModal(null);
+    showToast({
+      title: "Deletion Scheduled (30-Day Grace)",
+      message: "Organization deletion scheduled. You have until 30 days to cancel this request.",
+      type: "warning",
+    });
   };
 
   return (
     <div className="space-y-6 text-black">
+      {/* ── SCHEDULED DELETION GRACE BANNER (IF ACTIVE) ── */}
+      {deletionScheduled && (
+        <div className="rounded-2xl border border-red-300 bg-red-50 p-4 font-mono text-xs text-red-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm animate-[fadeIn_0.2s_ease-out]">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+            <span>
+              <strong>Organization Deletion Pending:</strong> Scheduled for removal in 30 days. All API keys and skill pushes remain operational.
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              setDeletionScheduled(false);
+              showToast({
+                title: "Deletion Request Cancelled",
+                message: "Your organization and skills remain fully active.",
+                type: "success",
+              });
+            }}
+            className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold uppercase text-[11px] cursor-pointer shrink-0 self-start sm:self-auto"
+          >
+            Cancel Deletion
+          </button>
+        </div>
+      )}
+
       {/* ── HEADER ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -47,7 +185,7 @@ export default function CompliancePage() {
         </div>
 
         <button
-          onClick={() => alert("Downloading all regulatory compliance artifacts (ZIP)...")}
+          onClick={handleDownloadAllReports}
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white font-mono text-xs uppercase font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
         >
           <Download className="w-3.5 h-3.5" />
@@ -68,7 +206,10 @@ export default function CompliancePage() {
               Verified security, confidentiality, and availability controls by Deloitte LLP.
             </p>
           </div>
-          <button onClick={() => alert("Viewed SOC 2 report.")} className="mt-4 text-[#1B5FED] hover:underline text-left text-xs font-bold">
+          <button
+            onClick={() => setActiveModal("soc2")}
+            className="mt-4 text-[#1B5FED] hover:underline text-left text-xs font-bold cursor-pointer"
+          >
             View Report →
           </button>
         </div>
@@ -84,7 +225,10 @@ export default function CompliancePage() {
               Strict European Union privacy framework with Standard Contractual Clauses (SCC).
             </p>
           </div>
-          <button onClick={() => alert("Viewed DPA agreement.")} className="mt-4 text-[#1B5FED] hover:underline text-left text-xs font-bold">
+          <button
+            onClick={() => setActiveModal("dpa")}
+            className="mt-4 text-[#1B5FED] hover:underline text-left text-xs font-bold cursor-pointer"
+          >
             View DPA →
           </button>
         </div>
@@ -100,7 +244,10 @@ export default function CompliancePage() {
               Business Associate Agreement (BAA) for healthcare workflows.
             </p>
           </div>
-          <button onClick={() => alert("Contact sales for HIPAA BAA.")} className="mt-4 text-purple-700 hover:underline text-left text-xs font-bold">
+          <button
+            onClick={() => setActiveModal("hipaa")}
+            className="mt-4 text-purple-700 hover:underline text-left text-xs font-bold cursor-pointer"
+          >
             Contact Sales →
           </button>
         </div>
@@ -143,8 +290,15 @@ export default function CompliancePage() {
                   name="region"
                   value={reg.id}
                   checked={selectedRegion === reg.id}
-                  onChange={(e) => setSelectedRegion(e.target.value)}
-                  className="text-[#1B5FED] border-black/20 focus:ring-0"
+                  onChange={(e) => {
+                    setSelectedRegion(e.target.value);
+                    showToast({
+                      title: "Data Residency Selected",
+                      message: `Active storage region set to ${reg.name} (${reg.code}).`,
+                      type: "info",
+                    });
+                  }}
+                  className="text-[#1B5FED] border-black/20 focus:ring-0 cursor-pointer"
                 />
                 <div>
                   <div className="font-bold text-black flex items-center gap-2">
@@ -176,7 +330,7 @@ export default function CompliancePage() {
 
       {/* ── DATA PROCESSING AGREEMENT (GDPR ART. 28) PER SPEC ── */}
       <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-black/10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-black/10">
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-semibold text-black">Data Processing Agreement (GDPR Art. 28)</h3>
@@ -190,8 +344,14 @@ export default function CompliancePage() {
           </div>
 
           <button
-            onClick={() => alert("Requesting amendment...")}
-            className="px-3.5 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-black/5 font-mono text-xs text-black uppercase shadow-xs transition-colors"
+            onClick={() => {
+              showToast({
+                title: "Amendment Request Opened",
+                message: "Our enterprise legal counsel will review custom riders within 2 business days.",
+                type: "info",
+              });
+            }}
+            className="px-3.5 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-black/5 font-mono text-xs text-black uppercase shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
           >
             Request Amendment
           </button>
@@ -208,7 +368,7 @@ export default function CompliancePage() {
           </div>
           <div className="flex justify-between border-b border-black/5 pb-1.5">
             <span className="text-black/60">Signed By:</span>
-            <span className="text-black">Alex Chen (Customer Controller) on Jan 15, 2026</span>
+            <span className="text-black">Lakshit Soni (Organization Controller) on Jan 15, 2026</span>
           </div>
           <div className="flex justify-between">
             <span className="text-black/60">Counter-Signed By:</span>
@@ -218,8 +378,8 @@ export default function CompliancePage() {
 
         <div>
           <button
-            onClick={() => alert("Downloaded PDF agreement.")}
-            className="flex items-center gap-2 text-xs font-mono text-[#1B5FED] font-semibold hover:underline"
+            onClick={handleDownloadDPA}
+            className="flex items-center gap-2 text-xs font-mono text-[#1B5FED] font-semibold hover:underline cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Download Signed Agreement PDF</span>
@@ -261,13 +421,249 @@ export default function CompliancePage() {
             Deleting an organization permanently erases all packages, releases, and member permissions. Deletion includes a mandatory <strong className="text-red-950 font-bold">30-day grace period</strong> during which the action can be cancelled by any verified Organization Owner.
           </p>
           <button
-            onClick={() => alert("Deletion request initiated with 30-day grace cancellation window.")}
+            onClick={() => {
+              setConfirmSlug("");
+              setActiveModal("delete");
+            }}
             className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-mono text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shadow-sm"
           >
             Initiate Organization Deletion...
           </button>
         </div>
       </div>
+
+      {/* ── MODAL: SOC 2 TYPE II REPORT ── */}
+      {activeModal === "soc2" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-black/10 bg-white p-6 shadow-2xl space-y-4 animate-[fadeIn_0.15s_ease-out]">
+            <div className="flex items-center justify-between pb-3 border-b border-black/10">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-semibold text-black">SOC 2 Type II Attestation</h3>
+              </div>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="text-black/50 hover:text-black cursor-pointer p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 font-mono text-xs text-black/80">
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>
+                  Deloitte LLP has issued an unqualified opinion covering period Nov 1, 2025 to Oct 31, 2026.
+                </span>
+              </div>
+
+              <div className="space-y-1.5 border border-black/10 rounded-xl p-3 bg-black/[0.01]">
+                <div className="flex justify-between">
+                  <span className="text-black/50">Auditor:</span>
+                  <span className="font-semibold text-black">Deloitte & Touche LLP</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-black/50">Report ID:</span>
+                  <span className="font-semibold text-black">SOC2-SPM-2026-981-A</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-black/50">Tested Principles:</span>
+                  <span className="font-semibold text-black">Security, Confidentiality, Availability</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-black/10">
+              <button
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-xl border border-black/10 bg-white hover:bg-black/5 text-black font-mono text-xs uppercase cursor-pointer"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  handleDownloadAllReports();
+                  setActiveModal(null);
+                }}
+                className="px-4 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white font-mono text-xs uppercase font-bold shadow-md cursor-pointer flex items-center gap-1.5"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download Report Summary</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: DPA AGREEMENT ── */}
+      {activeModal === "dpa" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-black/10 bg-white p-6 shadow-2xl space-y-4 animate-[fadeIn_0.15s_ease-out]">
+            <div className="flex items-center justify-between pb-3 border-b border-black/10">
+              <div className="flex items-center gap-2">
+                <FileCheck className="w-5 h-5 text-[#1B5FED]" />
+                <h3 className="font-semibold text-black">GDPR Article 28 Agreement</h3>
+              </div>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="text-black/50 hover:text-black cursor-pointer p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 font-mono text-xs text-black/80">
+              <p className="font-sans text-xs text-black/70">
+                This Data Processing Agreement governs the processing of personal data on behalf of {currentOrg.name} ({currentOrg.slug}) in compliance with Regulation (EU) 2016/679.
+              </p>
+
+              <div className="p-3 rounded-xl border border-black/10 bg-black/[0.01] space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-black/50">Jurisdiction:</span>
+                  <span className="font-semibold text-black">European Economic Area (EEA)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-black/50">Security Standard:</span>
+                  <span className="font-semibold text-black">End-to-End AST Sanitization</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-black/50">Subprocessors:</span>
+                  <span className="font-semibold text-black">AWS (us-east-1), Fastly, Supabase</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-black/10">
+              <button
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-xl border border-black/10 bg-white hover:bg-black/5 text-black font-mono text-xs uppercase cursor-pointer"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  handleDownloadDPA();
+                  setActiveModal(null);
+                }}
+                className="px-4 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white font-mono text-xs uppercase font-bold shadow-md cursor-pointer flex items-center gap-1.5"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download DPA</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: HIPAA ENTERPRISE INQUIRY ── */}
+      {activeModal === "hipaa" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl border border-black/10 bg-white p-6 shadow-2xl space-y-4 animate-[fadeIn_0.15s_ease-out]">
+            <div className="flex items-center justify-between pb-3 border-b border-black/10">
+              <div className="flex items-center gap-2">
+                <Building className="w-5 h-5 text-purple-700" />
+                <h3 className="font-semibold text-black">HIPAA BAA Agreement Inquiry</h3>
+              </div>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="text-black/50 hover:text-black cursor-pointer p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-black/70 font-sans leading-relaxed">
+              Business Associate Agreements (BAA) with dedicated e-PHI microVM tenancy and audit logging are available for Enterprise Plus tiers.
+            </p>
+
+            <div className="p-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-950 font-mono text-xs">
+              Direct Account Executive Contact:
+              <div className="font-bold mt-0.5 flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5" />
+                <span>enterprise@agent-spm.com</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-black/10">
+              <button
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-xl border border-black/10 bg-white hover:bg-black/5 text-black font-mono text-xs uppercase cursor-pointer"
+              >
+                Dismiss
+              </button>
+              <button
+                onClick={() => {
+                  showToast({
+                    title: "Inquiry Dispatched",
+                    message: `An enterprise account executive will contact ${currentPersona.email || "your workspace admin"} within 4 hours.`,
+                    type: "success",
+                  });
+                  setActiveModal(null);
+                }}
+                className="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-mono text-xs uppercase font-bold shadow-md cursor-pointer"
+              >
+                Request BAA Callback
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: CONFIRM DELETION ── */}
+      {activeModal === "delete" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl border border-red-300 bg-white p-6 shadow-2xl space-y-4 animate-[fadeIn_0.15s_ease-out]">
+            <div className="flex items-center justify-between pb-3 border-b border-black/10">
+              <div className="flex items-center gap-2">
+                <Trash2 className="w-5 h-5 text-red-600" />
+                <h3 className="font-semibold text-red-600">Delete Organization</h3>
+              </div>
+              <button
+                onClick={() => setActiveModal(null)}
+                className="text-black/50 hover:text-black cursor-pointer p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 font-mono text-xs">
+              <p className="font-sans text-xs text-black/80 leading-relaxed">
+                This action initiates permanent erasure of all hosted skills, tarballs, API keys, and team allocations after a 30-day grace window.
+              </p>
+
+              <div>
+                <label className="block uppercase tracking-wider text-black/70 mb-1 font-semibold">
+                  Type <span className="text-red-600 font-bold">{currentOrg.slug}</span> to confirm:
+                </label>
+                <input
+                  type="text"
+                  placeholder={currentOrg.slug}
+                  value={confirmSlug}
+                  onChange={(e) => setConfirmSlug(e.target.value)}
+                  className="w-full rounded-xl border border-red-300 bg-red-50/50 px-3 py-2 text-sm text-black focus:border-red-600 focus:outline-none"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-black/10">
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="px-4 py-2 rounded-xl border border-black/10 bg-white hover:bg-black/5 text-black font-mono text-xs uppercase cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDeletion}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-mono text-xs uppercase font-bold shadow-md cursor-pointer"
+              >
+                Confirm Deletion
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
