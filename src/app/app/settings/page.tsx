@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "@/lib/data/session-context";
 import { CreateApiKeyModal } from "@/components/modals/CreateApiKeyModal";
+import { useToast } from "@/components/ui/ToastProvider";
 import {
   KeyRound,
   Bell,
@@ -11,12 +12,28 @@ import {
   Building2,
   User,
   Plus,
+  Save,
+  CheckCircle2,
+  Shield,
+  ExternalLink,
 } from "lucide-react";
 
 export default function SettingsPage() {
-  const { currentOrg, currentPersona, apiKeys, revokeApiKey } = useSession();
+  const { currentOrg, userProfile, currentPersona, apiKeys, revokeApiKey } = useSession();
+  const { showToast } = useToast();
+
   const [activeTab, setActiveTab] = useState<"profile" | "organization" | "keys" | "notifications" | "billing">("keys");
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+
+  // Editable Profile fields
+  const [profileName, setProfileName] = useState(userProfile?.name || currentPersona.name || "");
+  const [profileGithub, setProfileGithub] = useState(userProfile?.githubUsername || "");
+  const [profileBio, setProfileBio] = useState("Full-stack engineer & AI registry architect");
+
+  // Editable Organization fields
+  const [orgName, setOrgName] = useState(currentOrg.name || "");
+  const [orgSlug, setOrgSlug] = useState(currentOrg.slug || "");
+  const [orgBillingEmail, setOrgBillingEmail] = useState(userProfile?.email || currentPersona.email || "");
 
   // Notification toggles
   const [notifications, setNotifications] = useState({
@@ -26,6 +43,50 @@ export default function SettingsPage() {
     weeklyDigest: true,
     marketing: false,
   });
+
+  // Keyboard shortcut [K] for API Key, [S] for Save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement).tagName)) return;
+      if (e.metaKey || e.ctrlKey) return;
+
+      if (e.key === "k" || e.key === "K") {
+        e.preventDefault();
+        setShowApiKeyModal(true);
+      } else if (e.key === "s" || e.key === "S") {
+        e.preventDefault();
+        handleSavePreferences();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [notifications]);
+
+  const handleSavePreferences = () => {
+    showToast({
+      title: "Notification Preferences Saved",
+      message: "Alert delivery triggers and digests updated.",
+      type: "success",
+    });
+  };
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    showToast({
+      title: "Profile Updated",
+      message: `Changes saved for ${profileName}.`,
+      type: "success",
+    });
+  };
+
+  const handleSaveOrg = (e: React.FormEvent) => {
+    e.preventDefault();
+    showToast({
+      title: "Organization Updated",
+      message: `Organization "${orgName}" details synchronized.`,
+      type: "success",
+    });
+  };
 
   return (
     <div className="space-y-6 text-black">
@@ -42,7 +103,7 @@ export default function SettingsPage() {
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as typeof activeTab)}
               className={`flex items-center gap-2 px-4 py-2 font-semibold uppercase tracking-wider transition-all border-b-2 cursor-pointer whitespace-nowrap ${
                 activeTab === tab.id
                   ? "border-[#1B5FED] text-[#1B5FED]"
@@ -65,6 +126,158 @@ export default function SettingsPage() {
           <Link href="/app/settings/compliance" className="text-purple-700 font-semibold hover:underline">Compliance</Link>
         </div>
       </div>
+
+      {/* ── TAB: PROFILE ── */}
+      {activeTab === "profile" && (
+        <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm space-y-5">
+          <div>
+            <h3 className="text-base font-semibold text-black">User Profile</h3>
+            <p className="text-xs font-mono text-black/60 mt-0.5">
+              Manage personal identity, verified GitHub association, and public GPG signing keys
+            </p>
+          </div>
+
+          <form onSubmit={handleSaveProfile} className="space-y-4 font-mono text-xs max-w-xl">
+            <div>
+              <label className="block uppercase tracking-wider text-black/70 mb-1 font-semibold">
+                Primary Account Email
+              </label>
+              <input
+                type="email"
+                disabled
+                value={userProfile?.email || currentPersona.email || ""}
+                className="w-full rounded-xl border border-black/15 bg-black/[0.03] px-3 py-2 text-black/60 font-mono shadow-xs cursor-not-allowed"
+              />
+              <span className="text-[11px] text-black/50 mt-1 block">Account authentication email is verified via Supabase.</span>
+            </div>
+
+            <div>
+              <label className="block uppercase tracking-wider text-black/70 mb-1 font-semibold">
+                Display Name
+              </label>
+              <input
+                type="text"
+                required
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                className="w-full rounded-xl border border-black/15 bg-white px-3 py-2 text-black focus:border-[#1B5FED] focus:outline-none shadow-xs"
+              />
+            </div>
+
+            <div>
+              <label className="block uppercase tracking-wider text-black/70 mb-1 font-semibold">
+                GitHub Username
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-black/50">github.com/</span>
+                <input
+                  type="text"
+                  value={profileGithub}
+                  onChange={(e) => setProfileGithub(e.target.value)}
+                  className="flex-1 rounded-xl border border-black/15 bg-white px-3 py-2 text-black focus:border-[#1B5FED] focus:outline-none shadow-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block uppercase tracking-wider text-black/70 mb-1 font-semibold">
+                Developer Bio
+              </label>
+              <textarea
+                rows={2}
+                value={profileBio}
+                onChange={(e) => setProfileBio(e.target.value)}
+                className="w-full rounded-xl border border-black/15 bg-white px-3 py-2 text-black focus:border-[#1B5FED] focus:outline-none shadow-xs font-sans text-xs"
+              />
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white uppercase font-bold text-xs shadow-md cursor-pointer transition-all active:scale-95"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span>Save Profile</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ── TAB: ORGANIZATION ── */}
+      {activeTab === "organization" && (
+        <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm space-y-5">
+          <div>
+            <h3 className="text-base font-semibold text-black">Organization Settings</h3>
+            <p className="text-xs font-mono text-black/60 mt-0.5">
+              Workspace configuration, scope identifiers, and contact routing
+            </p>
+          </div>
+
+          <form onSubmit={handleSaveOrg} className="space-y-4 font-mono text-xs max-w-xl">
+            <div>
+              <label className="block uppercase tracking-wider text-black/70 mb-1 font-semibold">
+                Organization Display Name
+              </label>
+              <input
+                type="text"
+                required
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
+                className="w-full rounded-xl border border-black/15 bg-white px-3 py-2 text-black focus:border-[#1B5FED] focus:outline-none shadow-xs"
+              />
+            </div>
+
+            <div>
+              <label className="block uppercase tracking-wider text-black/70 mb-1 font-semibold">
+                Scope Slug
+              </label>
+              <input
+                type="text"
+                required
+                value={orgSlug}
+                onChange={(e) => setOrgSlug(e.target.value)}
+                className="w-full rounded-xl border border-black/15 bg-white px-3 py-2 text-black focus:border-[#1B5FED] focus:outline-none shadow-xs"
+              />
+              <span className="text-[11px] text-black/50 mt-1 block">Used as the package namespace prefix (e.g. {orgSlug}/skill-name).</span>
+            </div>
+
+            <div>
+              <label className="block uppercase tracking-wider text-black/70 mb-1 font-semibold">
+                Billing & Security Contact Email
+              </label>
+              <input
+                type="email"
+                required
+                value={orgBillingEmail}
+                onChange={(e) => setOrgBillingEmail(e.target.value)}
+                className="w-full rounded-xl border border-black/15 bg-white px-3 py-2 text-black focus:border-[#1B5FED] focus:outline-none shadow-xs"
+              />
+            </div>
+
+            <div className="p-3 rounded-xl border border-black/10 bg-black/[0.01] space-y-1">
+              <div className="flex justify-between">
+                <span className="text-black/50">Registry API Engine:</span>
+                <span className="font-semibold text-black">v{currentOrg.registryVersion} (STABLE)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black/50">Assigned Quota:</span>
+                <span className="font-semibold text-black">{currentOrg.skillsCount} of {currentOrg.skillsAllowed} Skills</span>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white uppercase font-bold text-xs shadow-md cursor-pointer transition-all active:scale-95"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span>Save Organization</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* ── TAB: API KEYS PER SPEC ── */}
       {activeTab === "keys" && (
@@ -126,8 +339,15 @@ export default function SettingsPage() {
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <button
-                          onClick={() => revokeApiKey(key.id)}
-                          className="px-2.5 py-1 rounded-xl border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-mono transition-colors shadow-xs"
+                          onClick={() => {
+                            revokeApiKey(key.id);
+                            showToast({
+                              title: "API Key Revoked",
+                              message: `Key "${key.name}" is no longer authorized.`,
+                              type: "info",
+                            });
+                          }}
+                          className="px-2.5 py-1 rounded-xl border border-red-300 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-mono transition-colors shadow-xs cursor-pointer"
                         >
                           Revoke
                         </button>
@@ -187,11 +407,11 @@ export default function SettingsPage() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={(notifications as any)[item.id]}
+                  checked={notifications[item.id as keyof typeof notifications]}
                   onChange={(e) =>
                     setNotifications({ ...notifications, [item.id]: e.target.checked })
                   }
-                  className="rounded border-black/20 text-[#1B5FED] focus:ring-0 w-4 h-4"
+                  className="rounded border-black/20 text-[#1B5FED] focus:ring-0 w-4 h-4 cursor-pointer"
                 />
               </label>
             ))}
@@ -199,10 +419,11 @@ export default function SettingsPage() {
 
           <div className="pt-2">
             <button
-              onClick={() => alert("Notification settings saved.")}
-              className="px-4 py-2 rounded-xl bg-[#1B5FED] text-white font-mono text-xs font-semibold uppercase tracking-wider shadow-sm hover:bg-[#1B5FED]/90 transition-all cursor-pointer"
+              onClick={handleSavePreferences}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1B5FED] text-white font-mono text-xs font-semibold uppercase tracking-wider shadow-sm hover:bg-[#1B5FED]/90 transition-all cursor-pointer"
             >
-              Save Preferences [S]
+              <Save className="w-3.5 h-3.5" />
+              <span>Save Preferences [S]</span>
             </button>
           </div>
         </div>
@@ -211,6 +432,20 @@ export default function SettingsPage() {
       {/* ── TAB: BILLING PER SPEC ── */}
       {activeTab === "billing" && (
         <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-semibold text-black">Workspace Subscription Plan</h3>
+              <p className="text-xs font-mono text-black/60 mt-0.5">Manage quotas, payment cards, and invoices</p>
+            </div>
+            <Link
+              href="/app/billing"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white font-mono text-xs uppercase font-semibold shadow-xs"
+            >
+              <span>Dedicated Billing Dashboard</span>
+              <ExternalLink className="w-3 h-3" />
+            </Link>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               {
@@ -282,7 +517,7 @@ export default function SettingsPage() {
                     </button>
                   ) : (
                     <Link
-                      href="/pricing"
+                      href="/app/billing"
                       className="block w-full py-2.5 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-center font-mono text-xs text-white font-semibold uppercase shadow-sm"
                     >
                       {pl.id === "enterprise" ? "Contact Sales" : "Upgrade Plan"}
@@ -291,21 +526,6 @@ export default function SettingsPage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB: PROFILE & ORG ── */}
-      {(activeTab === "profile" || activeTab === "organization") && (
-        <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm space-y-4">
-          <h3 className="text-base font-semibold text-black capitalize">{activeTab} Details</h3>
-          <p className="text-xs font-mono text-black/60">
-            {activeTab === "profile" ? "Manage user identity and public GPG signing keys." : "Manage organization handle and billing address."}
-          </p>
-          <div className="p-4 rounded-xl border border-black/10 bg-black/[0.02] font-mono text-xs text-black/80 space-y-2">
-            <div><strong>Handle / Slug:</strong> {activeTab === "profile" ? currentPersona.email : currentOrg.slug}</div>
-            <div><strong>Display Name:</strong> {activeTab === "profile" ? currentPersona.name : currentOrg.name}</div>
-            <div><strong>Registry Version:</strong> {currentOrg.registryVersion}</div>
           </div>
         </div>
       )}
