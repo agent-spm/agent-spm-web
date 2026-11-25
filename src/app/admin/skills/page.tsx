@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/ToastProvider";
 import {
   TerminalSquare,
@@ -18,48 +19,48 @@ import {
 
 export default function AdminSkillsModerationPage() {
   const { showToast } = useToast();
-  const [skills, setSkills] = useState([
-    {
-      id: "mod_1",
-      slug: "@acme-labs/browser-tools",
-      version: "1.2.0",
-      publisher: "alex@acme.labs",
-      downloads: "142,850",
-      size: "142 KB",
-      flags: ["Featured"],
-      takedown: false,
-    },
-    {
-      id: "mod_2",
-      slug: "@shadow-tools/crypto-drainer",
-      version: "0.1.0",
-      publisher: "anon@tempmail.ninja",
-      downloads: "4",
-      size: "84 KB",
-      flags: ["Malware", "Flagged"],
-      takedown: false,
-    },
-    {
-      id: "mod_3",
-      slug: "@fake-openai/chatgpt-wrapper",
-      version: "2.0.1",
-      publisher: "spam@scam.ru",
-      downloads: "312",
-      size: "112 KB",
-      flags: ["Trademark", "Flagged"],
-      takedown: false,
-    },
-    {
-      id: "mod_4",
-      slug: "@acme-labs/code-analysis",
-      version: "0.9.4",
-      publisher: "sarah@acme.labs",
-      downloads: "89,400",
-      size: "284 KB",
-      flags: ["Featured"],
-      takedown: false,
-    },
-  ]);
+  const [skills, setSkills] = useState<
+    Array<{
+      id: string;
+      slug: string;
+      version: string;
+      publisher: string;
+      downloads: string;
+      size: string;
+      flags: string[];
+      takedown: boolean;
+    }>
+  >([]);
+
+  useEffect(() => {
+    async function loadLivePackages() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: dbPkgs } = await supabase
+          .from("packages")
+          .select("id, name, owner_id, latest_version, total_downloads, verified, created_at");
+        if (dbPkgs && dbPkgs.length > 0) {
+          const liveList = dbPkgs.map((p: { id: string; name: string; owner_id?: string | null; latest_version?: string | null; total_downloads?: number | null; verified?: boolean | null }) => {
+            const fullName = p.name.startsWith("@") ? p.name : `@agent-spm/${p.name}`;
+            return {
+              id: p.id,
+              slug: fullName,
+              version: p.latest_version || "1.0.0",
+              publisher: p.owner_id || "community",
+              downloads: (p.total_downloads || 0).toLocaleString(),
+              size: "—",
+              flags: [p.verified ? "Verified" : "Community"],
+              takedown: false,
+            };
+          });
+          setSkills(liveList);
+        }
+      } catch (e) {
+        console.warn("Live admin packages fetch skipped:", e);
+      }
+    }
+    loadLivePackages();
+  }, []);
 
   const [isScanning, setIsScanning] = useState(false);
   const flaggedCount = skills.filter((s) => s.flags.includes("Flagged") && !s.takedown).length;
