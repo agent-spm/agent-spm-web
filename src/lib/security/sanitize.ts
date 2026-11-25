@@ -77,3 +77,51 @@ export function sanitizeIdentifier(input: string): string {
     .replace(/^@/, "")
     .replace(/[^a-z0-9._-]/g, "");
 }
+
+/**
+ * Validates that an outbound webhook URL uses HTTPS and targets a public internet host
+ * (blocks localhost, loopback, private RFC1918 CIDRs, and cloud metadata IPs to prevent SSRF).
+ */
+export function isSafePublicWebhookUrl(rawUrl: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+
+  if (parsed.protocol !== "https:") {
+    return false;
+  }
+
+  const host = parsed.hostname.toLowerCase();
+  if (
+    !host ||
+    host === "localhost" ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    host === "::1" ||
+    host === "[::1]"
+  ) {
+    return false;
+  }
+
+  // Block raw IPv4 private, loopback, link-local, and metadata ranges
+  const ipv4Match = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4Match) {
+    const [, a, b] = ipv4Match.map(Number);
+    if (
+      a === 10 ||
+      a === 127 ||
+      a === 0 ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 100 && b >= 64 && b <= 127)
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
