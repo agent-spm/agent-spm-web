@@ -76,14 +76,22 @@ export async function GET(request: NextRequest) {
 
           // A. Provision public.users
           let publicUserId: string | null = null;
+          let accountSuspended = false;
           const { data: existingPubUser } = await adminSupabase
             .from("users")
-            .select("id")
+            .select("*")
             .eq("email", email)
             .maybeSingle();
 
           if (existingPubUser) {
             publicUserId = existingPubUser.id;
+            accountSuspended = existingPubUser.status === "suspended";
+            if (!existingPubUser.supabase_uid) {
+              await adminSupabase
+                .from("users")
+                .update({ supabase_uid: user.id })
+                .eq("id", existingPubUser.id);
+            }
           } else {
             const { data: newPubUser, error: pubInsertError } = await adminSupabase
               .from("users")
@@ -93,7 +101,7 @@ export async function GET(request: NextRequest) {
                 display_name: displayName,
                 role: isSuperAdmin ? "superadmin" : "user",
               })
-              .select("id")
+              .select("*")
               .single();
 
             if (pubInsertError || !newPubUser) {
@@ -101,6 +109,11 @@ export async function GET(request: NextRequest) {
             } else {
               publicUserId = newPubUser.id;
             }
+          }
+
+          if (accountSuspended && !isSuperAdmin) {
+            await supabase.auth.signOut({ scope: "local" });
+            return NextResponse.redirect(`${redirectBase}/login?error=account_suspended`);
           }
 
           // B. Provision developer personal organization namespace (@handle) safely
