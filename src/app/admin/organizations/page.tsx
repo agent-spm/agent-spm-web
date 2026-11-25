@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { Building2, Search, Plus, Shield, MoreVertical, Eye, ExternalLink } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
 
@@ -10,17 +11,51 @@ export default function AdminOrganizationsPage() {
   const { showToast } = useToast();
   const [search, setSearch] = useState("");
 
-  const orgs = [
-    { id: "org_1", slug: "@acme-labs", name: "Acme Labs", plan: "Pro", seats: "8 / 10", skills: 12, storage: "4.8 GB", status: "Active" },
-    { id: "org_2", slug: "@acme-enterprise", name: "Acme Enterprise Global", plan: "Enterprise", seats: "42 / ∞", skills: 128, storage: "48.2 GB", status: "Active" },
-    { id: "org_3", slug: "@personal-dev", name: "Personal Workspace", plan: "Free", seats: "1 / 3", skills: 3, storage: "240 MB", status: "Active" },
-    { id: "org_4", slug: "@spammer-dev", name: "Spam Network", plan: "Free", seats: "1 / 3", skills: 1, storage: "12 MB", status: "Suspended" },
-  ];
+  const [orgs, setOrgs] = useState<
+    Array<{
+      id: string;
+      slug: string;
+      name: string;
+      plan: string;
+      seats: string;
+      skills: number;
+      storage: string;
+      status: string;
+    }>
+  >([]);
+
+  useEffect(() => {
+    async function loadLiveOrgs() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: dbOrgs } = await supabase.from("organizations").select("*");
+        if (dbOrgs && dbOrgs.length > 0) {
+          const liveList = dbOrgs.map((o: { id: string; slug: string; name: string; plan?: string | null; seats_allowed?: number | null }) => {
+            const seatsAllowed = o.seats_allowed || (o.plan === "enterprise" ? 500 : o.plan === "pro" ? 100 : 3);
+            return {
+              id: o.id,
+              slug: o.slug.startsWith("@") ? o.slug : `@${o.slug}`,
+              name: o.name,
+              plan: o.plan ? o.plan.charAt(0).toUpperCase() + o.plan.slice(1) : "Free",
+              seats: `1 / ${seatsAllowed}`,
+              skills: 0,
+              storage: "—",
+              status: "Active",
+            };
+          });
+          setOrgs(liveList);
+        }
+      } catch (err) {
+        console.warn("Live orgs fetch error:", err);
+      }
+    }
+    loadLiveOrgs();
+  }, []);
 
   const handleImpersonate = (slug: string) => {
     showToast({
-      title: "Tenant Impersonation Active",
-      message: `Browsing ${slug} in read-only audit mode. Staff audit log recording.`,
+      title: "Tenant Active",
+      message: `Viewing workspace for ${slug}.`,
       type: "info",
     });
     router.push("/app");
@@ -31,7 +66,7 @@ export default function AdminOrganizationsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/10">
         <div>
           <h1 className="text-2xl font-bold font-sans text-black tracking-tight">Tenant Organizations</h1>
-          <p className="text-xs font-mono text-black/60 mt-0.5">Manage 2,410 organizations registered across global registry clusters</p>
+          <p className="text-xs font-mono text-black/60 mt-0.5">Manage organizations registered across global registry clusters ({orgs.length} active)</p>
         </div>
 
         <button

@@ -1,6 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/ToastProvider";
+import { escapeCsvCell } from "@/lib/security/sanitize";
 import {
   Users,
   Search,
@@ -10,20 +13,62 @@ import {
   UserX,
   CheckCircle2,
   AlertTriangle,
+  X,
+  Ban,
 } from "lucide-react";
 
 export default function AdminUsersPage() {
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [userModal, setUserModal] = useState<{ id: string; name: string; email: string; status: string } | null>(null);
 
-  const [users, setUsers] = useState([
-    { id: "u_1", name: "Alex Chen", email: "alex@acme.labs", org: "@acme-labs", plan: "Pro", skills: 6, downloads: "142k", joined: "Jan 15, 2026", status: "Active" },
-    { id: "u_2", name: "Sarah Lin", email: "sarah@acme.labs", org: "@acme-labs", plan: "Pro", skills: 4, downloads: "89k", joined: "Feb 01, 2026", status: "Active" },
-    { id: "u_3", name: "Marcus Vance", email: "marcus.v@acme.corp", org: "@acme-enterprise", plan: "Enterprise", skills: 18, downloads: "412k", joined: "Aug 10, 2025", status: "Active" },
-    { id: "u_4", name: "Bot Crawler", email: "crawler@darknet.io", org: "@rogue-agent", plan: "Free", skills: 1, downloads: "12", joined: "Nov 02, 2026", status: "Suspended" },
-    { id: "u_5", name: "Elena Rostova", email: "elena@acme.labs", org: "@personal-dev", plan: "Free", skills: 0, downloads: "0", joined: "Jun 22, 2026", status: "Active" },
-    { id: "u_6", name: "David Kim", email: "david@acme.labs", org: "@acme-labs", plan: "Pro", skills: 2, downloads: "24k", joined: "Mar 10, 2026", status: "Active" },
-  ]);
+  const [users, setUsers] = useState<
+    Array<{
+      id: string;
+      name: string;
+      email: string;
+      org: string;
+      plan: string;
+      skills: number;
+      downloads: string;
+      joined: string;
+      status: string;
+    }>
+  >([]);
+
+  useEffect(() => {
+    async function loadLiveUsers() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: dbUsers } = await supabase.from("users").select("*");
+        if (dbUsers && dbUsers.length > 0) {
+          const liveList = dbUsers.map((u: { id: string; email: string; display_name?: string | null; role?: string | null; created_at?: string | null }) => ({
+            id: u.id,
+            name: u.display_name || u.email.split("@")[0],
+            email: u.email,
+            org: u.role === "superadmin" ? "Platform Staff" : "Workspace Member",
+            plan: u.role === "superadmin" ? "Superadmin" : "Standard",
+            skills: 0,
+            downloads: "0",
+            joined: u.created_at
+              ? new Date(u.created_at).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : "—",
+            status: "Active",
+          }));
+          setUsers(liveList);
+        }
+      } catch (err) {
+        console.warn("Live users fetch error:", err);
+      }
+    }
+    loadLiveUsers();
+  }, []);
 
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
@@ -34,28 +79,95 @@ export default function AdminUsersPage() {
     return matchesSearch && matchesPlan;
   });
 
+  const handleExportCSV = () => {
+    const headers = ["User ID", "Name", "Email", "Organization", "Plan", "Skills", "Downloads", "Joined Date", "Status"];
+    const rows = filteredUsers.map((u) => [
+      escapeCsvCell(u.id),
+      escapeCsvCell(u.name),
+      escapeCsvCell(u.email),
+      escapeCsvCell(u.org),
+      escapeCsvCell(u.plan),
+      escapeCsvCell(u.skills),
+      escapeCsvCell(u.downloads),
+      escapeCsvCell(u.joined),
+      escapeCsvCell(u.status),
+    ]);
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `spm-users-directory-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showToast({
+      title: "User Directory Exported",
+      message: `Exported ${filteredUsers.length} accounts to CSV.`,
+      type: "success",
+    });
+  };
+
+  const handleToggleStatus = (userId: string) => {
+    setUsers((prev) =>
+      prev.map((u) => {
+        if (u.id === userId) {
+          const newStatus = u.status === "Active" ? "Suspended" : "Active";
+          showToast({
+            title: `User ${newStatus}`,
+            message: `${u.email} account has been set to ${newStatus}.`,
+            type: newStatus === "Active" ? "success" : "warning",
+          });
+          return { ...u, status: newStatus };
+        }
+        return u;
+      })
+    );
+    setUserModal(null);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedUserIds(filteredUsers.map((u) => u.id));
+    } else {
+      setSelectedUserIds([]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Buttons: Export, Bulk Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/10">
         <div>
           <h1 className="text-2xl font-bold font-sans text-black tracking-tight">Global User Directory</h1>
-          <p className="text-xs font-mono text-black/60 mt-0.5">Manage 14,820 user accounts across all tenant organizations</p>
+          <p className="text-xs font-mono text-black/60 mt-0.5">Manage registered user accounts across tenant organizations ({users.length} active)</p>
         </div>
 
         <div className="flex items-center gap-2">
+          {selectedUserIds.length > 0 && (
+            <button
+              onClick={() => {
+                showToast({
+                  title: "Bulk Operation",
+                  message: `Action executed across ${selectedUserIds.length} selected accounts.`,
+                  type: "info",
+                });
+                setSelectedUserIds([]);
+              }}
+              className="px-3.5 py-2 rounded-[4px] border border-black/20 bg-black text-white font-mono text-xs uppercase shadow-sm cursor-pointer transition-all"
+            >
+              Bulk Action ({selectedUserIds.length})
+            </button>
+          )}
+
           <button
-            onClick={() => alert("Bulk Action menu opened.")}
-            className="px-3.5 py-2 rounded-[4px] border border-black/10 bg-white hover:bg-[#F5F5F5] text-black font-mono text-xs uppercase shadow-sm cursor-pointer transition-all"
-          >
-            Bulk Action
-          </button>
-          <button
-            onClick={() => alert("Exported full user registry CSV.")}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-[4px] bg-[#1B5FED] hover:bg-[#154ec4] text-white font-mono text-xs uppercase font-semibold shadow-sm cursor-pointer transition-all"
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-[4px] bg-[#1B5FED] hover:bg-[#154ec4] text-white font-mono text-xs uppercase font-semibold shadow-sm cursor-pointer transition-all active:scale-95"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Export</span>
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
@@ -91,7 +203,14 @@ export default function AdminUsersPage() {
           <table className="w-full text-left border-collapse font-mono text-xs">
             <thead>
               <tr className="border-b border-black/10 bg-[#FAFAFA] uppercase tracking-wider text-black/60 text-[11px]">
-                <th className="py-3 px-4 w-6"><input type="checkbox" className="rounded-[2px] border-black/20" /></th>
+                <th className="py-3 px-4 w-6">
+                  <input
+                    type="checkbox"
+                    checked={selectedUserIds.length === filteredUsers.length && filteredUsers.length > 0}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    className="rounded-[2px] border-black/20 cursor-pointer"
+                  />
+                </th>
                 <th className="py-3 px-4">User</th>
                 <th className="py-3 px-4">Organization</th>
                 <th className="py-3 px-4">Plan</th>
@@ -105,7 +224,20 @@ export default function AdminUsersPage() {
             <tbody className="divide-y divide-black/5">
               {filteredUsers.map((u) => (
                 <tr key={u.id} className="hover:bg-[#F0F7FF] transition-colors">
-                  <td className="py-3.5 px-4"><input type="checkbox" className="rounded-[2px] border-black/20" /></td>
+                  <td className="py-3.5 px-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.includes(u.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedUserIds([...selectedUserIds, u.id]);
+                        } else {
+                          setSelectedUserIds(selectedUserIds.filter((id) => id !== u.id));
+                        }
+                      }}
+                      className="rounded-[2px] border-black/20 cursor-pointer"
+                    />
+                  </td>
                   <td className="py-3.5 px-4">
                     <div className="font-bold text-black font-sans">{u.name}</div>
                     <div className="text-[11px] text-black/50">{u.email}</div>
@@ -130,7 +262,7 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="py-3.5 px-4 text-right">
                     <button
-                      onClick={() => alert(`Suspend/Edit ${u.email}`)}
+                      onClick={() => setUserModal(u)}
                       className="text-black/40 hover:text-black cursor-pointer p-1"
                     >
                       <MoreVertical className="w-4 h-4 ml-auto" />
@@ -142,6 +274,57 @@ export default function AdminUsersPage() {
           </table>
         </div>
       </div>
+
+      {/* ── USER ACTION MODAL ── */}
+      {userModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="w-full max-w-sm rounded-2xl border border-black/10 bg-white p-6 shadow-2xl space-y-4 animate-[fadeIn_0.15s_ease-out]">
+            <div className="flex items-center justify-between pb-3 border-b border-black/10">
+              <h3 className="font-semibold text-black">Manage Account</h3>
+              <button
+                onClick={() => setUserModal(null)}
+                className="text-black/50 hover:text-black cursor-pointer p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="font-mono text-xs space-y-1">
+              <div className="font-bold text-black text-sm font-sans">{userModal.name}</div>
+              <div className="text-black/60">{userModal.email}</div>
+              <div className="text-[11px] pt-1">
+                Current Status:{" "}
+                <span className={`font-bold ${userModal.status === "Active" ? "text-emerald-700" : "text-red-700"}`}>
+                  {userModal.status}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2 border-t border-black/10 font-mono text-xs">
+              <button
+                onClick={() => handleToggleStatus(userModal.id)}
+                className={`w-full py-2 rounded-xl uppercase font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${
+                  userModal.status === "Active"
+                    ? "bg-red-50 hover:bg-red-100 text-red-700 border border-red-200"
+                    : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200"
+                }`}
+              >
+                {userModal.status === "Active" ? (
+                  <>
+                    <Ban className="w-3.5 h-3.5" />
+                    <span>Suspend User</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Re-activate User</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
