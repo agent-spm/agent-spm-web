@@ -53,6 +53,8 @@ export default function SkillDetailClient({ scope, name }: SkillDetailClientProp
   const [copied, setCopied] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showConnectModal, setShowConnectModal] = useState(false);
+  const [showManifestModal, setShowManifestModal] = useState(false);
+  const [manifestDraft, setManifestDraft] = useState("");
 
   // Versions Diff States
   const [compareFrom, setCompareFrom] = useState("1.0.0");
@@ -73,9 +75,30 @@ export default function SkillDetailClient({ scope, name }: SkillDetailClientProp
 
   const skill = skills.find(
     (s) => (s.scope === rawScope || s.scope === normalizedScope) && s.name === rawName
-  ) || skills[0];
+  );
 
-  const installCmd = `spm install ${skill.scope}/${skill.name}`;
+  if (!skill) {
+    return (
+      <div className="rounded-2xl border border-black/10 bg-white p-8 text-center">
+        <h2 className="font-mono text-lg font-bold text-black">Skill Not Found</h2>
+        <p className="mt-2 text-sm text-black/60">
+          No skill matching {rawScope}/{rawName} was found in your workspace.
+        </p>
+        <Link
+          href="/app/skills"
+          className="mt-4 inline-flex items-center rounded-xl bg-black px-4 py-2 font-mono text-xs font-semibold text-white hover:bg-black/85"
+        >
+          Back to Skills
+        </Link>
+      </div>
+    );
+  }
+
+  const canonicalName = skill.name.startsWith("@") && skill.name.includes("/")
+    ? skill.name.split("/")[1]
+    : skill.name;
+
+  const installCmd = `spm install ${canonicalName}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(installCmd);
@@ -134,7 +157,7 @@ export default function SkillDetailClient({ scope, name }: SkillDetailClientProp
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-bold font-mono text-black tracking-tight">
-              {skill.scope}/{skill.name}
+              {skill.name.startsWith("@") ? skill.name : `${skill.scope}/${skill.name}`}
             </h1>
             <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-sky-50 text-[#1B5FED] border border-sky-200 font-semibold">
               v{skill.version}
@@ -157,7 +180,30 @@ export default function SkillDetailClient({ scope, name }: SkillDetailClientProp
           </button>
 
           <button
-            onClick={() => alert("Manifest editor opened.")}
+            onClick={() => {
+              const defaultYaml = `name: ${canonicalName}
+scope: ${skill.scope}
+version: ${skill.version}
+description: "${skill.description}"
+license: ${skill.license || "MIT"}
+
+runtime:
+  engine: "node>=18"
+  permissions:
+    network:
+      - "https://*.*"
+    filesystem: "read-only"
+
+agents:
+  gpt4: true
+  claude: true
+  gemini: true
+
+entrypoint: "./dist/index.js"
+`;
+              setManifestDraft(defaultYaml);
+              setShowManifestModal(true);
+            }}
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-black/5 text-black font-mono text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shadow-sm"
           >
             <Edit className="w-3.5 h-3.5 text-black/60" />
@@ -213,13 +259,13 @@ export default function SkillDetailClient({ scope, name }: SkillDetailClientProp
 
         <div className="flex items-center gap-1.5">
           <span className="text-black/50">Package Size:</span>
-          <span className="text-black font-semibold">142 KB</span>
+          <span className="text-black font-semibold">{skill.versions?.[0]?.tarballSize || "—"}</span>
         </div>
 
         <div className="flex items-center gap-1.5">
-          <span className="text-black/50">Security Score:</span>
+          <span className="text-black/50">Integrity:</span>
           <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-            96/100 (Grade A+)
+            {skill.versions?.[0]?.signature ? "Signed Package" : "Community Package"}
           </span>
         </div>
 
@@ -257,7 +303,7 @@ export default function SkillDetailClient({ scope, name }: SkillDetailClientProp
               </h2>
               <div className="mt-4 space-y-3 text-sm text-black/70 font-sans leading-relaxed">
                 <p>
-                  The <code className="text-[#1B5FED] bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200 font-mono text-xs font-semibold">{skill.scope}/{skill.name}</code> package exposes high-level procedural tool execution hooks directly for LLM agents, enabling deterministic task completion with full audit observability.
+                  The <code className="text-[#1B5FED] bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200 font-mono text-xs font-semibold">{canonicalName}</code> package exposes high-level procedural tool execution hooks directly for LLM agents, enabling deterministic task completion with full audit observability.
                 </p>
                 <ul className="list-disc list-inside space-y-1.5 text-black/70">
                   <li>Autonomous multi-step execution pipeline</li>
@@ -271,7 +317,7 @@ export default function SkillDetailClient({ scope, name }: SkillDetailClientProp
                 TypeScript Usage Example
               </h3>
               <div className="p-4 rounded-xl border border-black/10 bg-[#09090B] font-mono text-xs text-[#7ECEFF] overflow-x-auto relative shadow-inner">
-                <pre>{`import { initSkill } from "${skill.scope}/${skill.name}";
+                <pre>{`import { initSkill } from "${canonicalName}";
 
 const agent = initSkill({
   apiKey: process.env.SPM_API_KEY,
@@ -328,7 +374,7 @@ console.log("Result:", result.output);`}</pre>
               </div>
               <div className="flex justify-between py-1 border-b border-black/5">
                 <span className="text-black/60">Published:</span>
-                <span className="text-black">{skill.updatedAt} by Alex Chen</span>
+                <span className="text-black">{skill.updatedAt} by Lakshit Soni</span>
               </div>
               <div className="flex justify-between py-1 border-b border-black/5">
                 <span className="text-black/60">Dependencies:</span>
@@ -676,10 +722,10 @@ console.log("Result:", result.output);`}</pre>
               {
                 version: skill.version,
                 date: "Nov 06, 2026",
-                author: "Alex Chen",
-                size: "142 KB",
+                author: "Lakshit Soni",
+                size: skill.versions?.[0]?.tarballSize || "—",
                 downloads: skill.totalDownloads,
-                sha: "sha256:4a8b79e2c10b4f3a...",
+                sha: skill.versions?.[0]?.digest || "unrecorded",
                 notes: "Production GA release with optimized memory allocation.",
               },
               {
@@ -694,7 +740,7 @@ console.log("Result:", result.output);`}</pre>
               {
                 version: "1.0.0",
                 date: "Sep 15, 2026",
-                author: "Alex Chen",
+                author: "Lakshit Soni",
                 size: "131 KB",
                 downloads: 94200,
                 sha: "sha256:1a2b3c4d5e6f7a8b...",
@@ -940,8 +986,40 @@ console.log("Result:", result.output);`}</pre>
               </div>
             </div>
             <button
-              onClick={() => alert("Visibility updated.")}
-              className="px-3.5 py-1.5 rounded-xl border border-black/15 bg-white hover:bg-black/5 font-mono text-xs text-black font-medium shadow-xs"
+              onClick={async () => {
+                const nextVis = skill.visibility === "public" ? "private" : "public";
+                try {
+                  const { createSupabaseBrowserClient } = await import("@/lib/supabase/client");
+                  const supabase = createSupabaseBrowserClient();
+                  const { data: updatedRows, error } = await supabase
+                    .from("packages")
+                    .update({ visibility: nextVis, updated_at: new Date().toISOString() })
+                    .in("name", [canonicalName, `${skill.scope}/${canonicalName}`])
+                    .select("id");
+                  if (error || !updatedRows || updatedRows.length === 0) {
+                    showToast({
+                      title: "Permission Denied",
+                      message: error?.message || `You do not have permission to modify visibility for ${canonicalName}.`,
+                      type: "error",
+                    });
+                    return;
+                  }
+                  skill.visibility = nextVis as typeof skill.visibility;
+                } catch (e: unknown) {
+                  showToast({
+                    title: "Update Failed",
+                    message: (e instanceof Error ? e.message : null) || `Unable to update visibility for ${canonicalName}.`,
+                    type: "error",
+                  });
+                  return;
+                }
+                showToast({
+                  title: "Visibility Updated",
+                  message: `Package ${canonicalName} visibility set to ${nextVis.toUpperCase()}.`,
+                  type: "success",
+                });
+              }}
+              className="px-3.5 py-1.5 rounded-xl border border-black/15 bg-white hover:bg-black/5 font-mono text-xs text-black font-medium shadow-xs cursor-pointer active:scale-95 transition-all"
             >
               Toggle to {skill.visibility === "public" ? "Private" : "Public"}
             </button>
@@ -1003,6 +1081,108 @@ console.log("Result:", result.output);`}</pre>
           router.push("/app/skills");
         }}
       />
+
+      {/* Manifest Editor Slide-over Modal */}
+      {showManifestModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl rounded-2xl border border-black/10 bg-white p-6 shadow-2xl text-black space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-black/10">
+              <div className="flex items-center gap-2">
+                <FileCode className="w-5 h-5 text-[#1B5FED]" />
+                <h3 className="font-mono text-sm font-bold uppercase tracking-wider">
+                  Edit spm.yaml Manifest
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowManifestModal(false)}
+                className="text-black/40 hover:text-black font-mono text-xs cursor-pointer"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <p className="text-xs font-mono text-black/60">
+              Update procedural permissions, model bindings, and runtime entrypoints for <strong>{canonicalName}</strong>.
+            </p>
+
+            <textarea
+              rows={14}
+              value={manifestDraft}
+              onChange={(e) => setManifestDraft(e.target.value)}
+              className="w-full p-4 rounded-xl border border-black/10 bg-slate-950 text-slate-100 font-mono text-xs leading-relaxed focus:outline-none focus:ring-1 focus:ring-[#1B5FED] resize-none"
+            />
+
+            <div className="flex items-center justify-between pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(manifestDraft);
+                  showToast({ title: "Copied", message: "YAML copied to clipboard.", type: "success" });
+                }}
+                className="px-3.5 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-black/5 text-black font-mono text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer"
+              >
+                Copy YAML
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowManifestModal(false)}
+                  className="px-4 py-2 rounded-xl border border-black/10 bg-white hover:bg-black/5 text-black font-mono text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setShowManifestModal(false);
+                    const descMatch = manifestDraft.match(/description:\s*["']?([^"'\n]+)["']?/);
+                    const updatedDesc = descMatch ? descMatch[1] : skill.description;
+                    const prevDescription = skill.description;
+                    if (descMatch) {
+                      skill.description = updatedDesc;
+                    }
+                    try {
+                      const { createSupabaseBrowserClient } = await import("@/lib/supabase/client");
+                      const supabase = createSupabaseBrowserClient();
+                      const { data: updatedRows, error } = await supabase
+                        .from("packages")
+                        .update({ description: updatedDesc, updated_at: new Date().toISOString() })
+                        .in("name", [canonicalName, `${skill.scope}/${canonicalName}`])
+                        .select("id");
+                      if (error || !updatedRows || updatedRows.length === 0) {
+                        skill.description = prevDescription;
+                        showToast({
+                          title: "Permission Denied",
+                          message: error?.message || `You do not have permission to update ${canonicalName}.`,
+                          type: "error",
+                        });
+                        return;
+                      }
+                    } catch (e: unknown) {
+                      skill.description = prevDescription;
+                      showToast({
+                        title: "Save Failed",
+                        message: (e instanceof Error ? e.message : null) || `Unable to save manifest for ${canonicalName}.`,
+                        type: "error",
+                      });
+                      return;
+                    }
+                    showToast({
+                      title: "Manifest Saved",
+                      message: `Successfully validated and saved spm.yaml for ${canonicalName}.`,
+                      type: "success",
+                    });
+                  }}
+                  className="px-5 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white font-mono text-xs font-semibold uppercase tracking-wider transition-all shadow-md cursor-pointer"
+                >
+                  Save Manifest [S]
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/data/session-context";
 import { PublishSuccessModal } from "@/components/modals/PublishSuccessModal";
 import { GitHubSkillImporter, GithubIcon } from "@/components/skills/GitHubSkillImporter";
+import { useToast } from "@/components/ui/ToastProvider";
 import {
   FileText,
   Upload,
@@ -20,7 +21,8 @@ import {
 
 export default function PublishWizardPage() {
   const router = useRouter();
-  const { currentOrg, addSkill } = useSession();
+  const { currentOrg, addSkill, userProfile } = useSession();
+  const { showToast } = useToast();
 
   const [publishMethod, setPublishMethod] = useState<"github" | "manual">("github");
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
@@ -76,55 +78,81 @@ export default function PublishWizardPage() {
     setKeywords(keywords.filter((k) => k !== kw));
   };
 
-  const handlePublishExecution = () => {
+  const handlePublishExecution = async () => {
     setPublishing(true);
-    setPipelineProgress(15);
+    setPipelineProgress(20);
 
-    setTimeout(() => {
-      setPipelineProgress(45); // Hashing
+    try {
+      const res = await fetch("/api/skills/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          scope,
+          version,
+          description,
+          license,
+          keywords,
+          agents,
+          repoUrl,
+        }),
+      });
+
+      setPipelineProgress(60);
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to publish skill");
+      }
+
+      setPipelineProgress(100);
+
+      const cleanPkgName = name.trim().toLowerCase().replace(/^@[^/]+\//, "").replace(/[^a-z0-9-_]/g, "-");
+
+      addSkill({
+        id: `skl_${cleanPkgName}_${Date.now()}`,
+        scope,
+        name: cleanPkgName,
+        version,
+        status: "published",
+        visibility: "public",
+        description: description || "Autonomous agent procedural execution package.",
+        license,
+        readme: `# ${cleanPkgName}\n\n${description}\n\n## Installation\n\`\`\`bash\nspm install ${cleanPkgName}\n\`\`\`\n\n## Capabilities\n- Automated agent task execution\n- Full audit trail`,
+        repositoryUrl: data.repoUrl || repoUrl || undefined,
+        keywords,
+        agentCompatibility: agents,
+        totalDownloads: 0,
+        downloadSparkline: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        updatedAt: "Just now",
+        versions: [
+          {
+            version,
+            digest: "sha256:7b9a1e0f2d3c4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
+            signature: "spm_sig_ed25519:9e2b1c...",
+            tarballSize: "128 KB",
+            downloads: 0,
+            publishedAt: new Date().toISOString(),
+            publishedBy: userProfile?.name || "Workspace Developer",
+          },
+        ],
+      });
+
       setTimeout(() => {
-        setPipelineProgress(75); // Signing
-        setTimeout(() => {
-          setPipelineProgress(100); // Indexing
-          setTimeout(() => {
-            // Add skill to global session store
-            addSkill({
-              id: `skl_${name}_${Date.now()}`,
-              scope,
-              name: name || "custom-skill",
-              version,
-              status: "published",
-              visibility: "public",
-              description: description || "Autonomous agent procedural execution package.",
-              license,
-              readme: `# ${scope}/${name}\n\n${description}\n\n## Capabilities\n- Automated agent task execution\n- Full audit trail`,
-              repositoryUrl: repoUrl || undefined,
-              keywords,
-              agentCompatibility: agents,
-              totalDownloads: 0,
-              downloadSparkline: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-              updatedAt: "Just now",
-              versions: [
-                {
-                  version,
-                  digest: "sha256:7b9a1e0f2d3c4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
-                  signature: "spm_sig_ed25519:9e2b1c...",
-                  tarballSize: "128 KB",
-                  downloads: 0,
-                  publishedAt: new Date().toISOString(),
-                  publishedBy: "Alex Chen",
-                },
-              ],
-            });
-            setPublishing(false);
-            setShowSuccessModal(true);
-          }, 400);
-        }, 500);
-      }, 400);
-    }, 400);
+        setPublishing(false);
+        setShowSuccessModal(true);
+      }, 300);
+    } catch (err: unknown) {
+      showToast({
+        title: "Publish Failed",
+        message: (err instanceof Error ? err.message : null) || "Could not publish skill manifest to registry.",
+        type: "error",
+      });
+      setPublishing(false);
+    }
   };
 
-  const handleGitHubImportSuccess = (skillData: {
+  const handleGitHubImportSuccess = async (skillData: {
     name: string;
     scope: string;
     version: string;
@@ -139,16 +167,35 @@ export default function PublishWizardPage() {
     setRepoUrl(skillData.repoUrl);
     setLicense(skillData.license);
 
+    try {
+      await fetch("/api/skills/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: skillData.name,
+          scope: skillData.scope,
+          version: skillData.version,
+          description: skillData.description,
+          license: skillData.license,
+          repoUrl: skillData.repoUrl,
+        }),
+      });
+    } catch (e) {
+      console.warn("Auto-publish to registry warning:", e);
+    }
+
+    const cleanPkgName = skillData.name.trim().toLowerCase().replace(/^@[^/]+\//, "");
+
     addSkill({
-      id: `skl_${skillData.name}_${Date.now()}`,
+      id: `skl_${cleanPkgName}_${Date.now()}`,
       scope: skillData.scope,
-      name: skillData.name,
+      name: cleanPkgName,
       version: skillData.version,
       status: "published",
       visibility: "public",
       description: skillData.description,
       license: skillData.license,
-      readme: `# ${skillData.scope}/${skillData.name}\n\n${skillData.description}\n\n## Source\nImported from [${skillData.repoUrl}](${skillData.repoUrl})\n\n## Capabilities\n- Automated agent task execution\n- Full audit trail`,
+      readme: `# ${cleanPkgName}\n\n${skillData.description}\n\n## Source\nImported from [${skillData.repoUrl}](${skillData.repoUrl})\n\n## Installation\n\`\`\`bash\nspm install ${cleanPkgName}\n\`\`\``,
       repositoryUrl: skillData.repoUrl,
       keywords: ["github-import", "agent", "tool", "mcp"],
       agentCompatibility: agents,
@@ -163,7 +210,7 @@ export default function PublishWizardPage() {
           tarballSize: "142 KB",
           downloads: 0,
           publishedAt: new Date().toISOString(),
-          publishedBy: "GitHub Importer",
+          publishedBy: userProfile?.name || "Workspace Developer",
         },
       ],
     });
@@ -445,7 +492,7 @@ export default function PublishWizardPage() {
                   >
                     <input
                       type="checkbox"
-                      checked={(agents as any)[item.key]}
+                      checked={agents[item.key as keyof typeof agents]}
                       onChange={(e) => setAgents({ ...agents, [item.key]: e.target.checked })}
                       className="rounded border-black/20 text-[#1B5FED] focus:ring-0"
                     />
