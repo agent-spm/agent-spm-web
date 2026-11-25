@@ -25,8 +25,9 @@ export function PublishSuccessModal({
 
   if (!isOpen) return null;
 
-  const fullId = `${skillScope}/${skillName}`;
-  const installCmd = `spm install ${fullId}`;
+  const canonicalName = skillName.startsWith("@") && skillName.includes("/") ? skillName.split("/")[1] : skillName;
+  const fullId = skillScope.startsWith("@") ? `${skillScope}/${canonicalName}` : `@${skillScope}/${canonicalName}`;
+  const installCmd = `spm install ${canonicalName}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(installCmd);

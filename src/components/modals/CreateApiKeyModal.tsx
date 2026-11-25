@@ -18,10 +18,10 @@ export function CreateApiKeyModal({ isOpen, onClose }: CreateApiKeyModalProps) {
 
   if (!isOpen) return null;
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    const fullKey = createApiKey(name.trim(), type);
+    const fullKey = await createApiKey(name.trim(), type);
     setGeneratedKey(fullKey);
   };
 
