@@ -4,6 +4,7 @@ import { requireAuthenticatedUser } from "@/lib/auth/server-auth";
 import { getSupabaseServiceClient } from "@/lib/supabase/service";
 import { getClientIp, publishApiLimiter } from "@/lib/security/rate-limit";
 import { sanitizeIdentifier } from "@/lib/security/sanitize";
+import { isMissingColumnError } from "@/lib/supabase/postgrest-errors";
 
 const GITHUB_API = "https://api.github.com";
 const GITHUB_ORG = process.env.GITHUB_ORG || "agent-spm-registry";
@@ -233,21 +234,41 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Register package exclusively under authorized owner's scoped identifier
-    const { error: pkgError } = await adminSupabase.from("packages").upsert(
+    // Resolve owning organization ID for strict tenant scoping
+    const { data: targetOrgRow } = await adminSupabase
+      .from("organizations")
+      .select("id")
+      .eq("slug", requestedSlug)
+      .maybeSingle();
+
+    const basePackagePayload = {
+      name: scopedPkgName,
+      description: String(description || "").slice(0, 500),
+      latest_version: String(version).trim(),
+      owner_id: String(canonicalOwnerId),
+      visibility: "public",
+      github_repo: repoFullName,
+      ...(existingScoped ? {} : { total_downloads: 0 }),
+      verified: githubProvisioned,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Register package exclusively under authorized owner's scoped identifier + org_id
+    let { error: pkgError } = await adminSupabase.from("packages").upsert(
       {
-        name: scopedPkgName,
-        description: String(description || "").slice(0, 500),
-        latest_version: String(version).trim(),
-        owner_id: String(canonicalOwnerId),
-        visibility: "public",
-        github_repo: repoFullName,
-        ...(existingScoped ? {} : { total_downloads: 0 }),
-        verified: githubProvisioned,
-        updated_at: new Date().toISOString(),
+        ...basePackagePayload,
+        ...(targetOrgRow?.id ? { org_id: targetOrgRow.id } : {}),
       },
       { onConflict: "name" }
     );
+
+    // Graceful fallback if org_id column migration has not been applied yet
+    if (isMissingColumnError(pkgError, "org_id")) {
+      const retry = await adminSupabase.from("packages").upsert(basePackagePayload, {
+        onConflict: "name",
+      });
+      pkgError = retry.error;
+    }
 
     if (pkgError) {
       return NextResponse.json(
