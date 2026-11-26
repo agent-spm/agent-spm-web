@@ -14,6 +14,8 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
       smoothWheel: true,
       wheelMultiplier: 1.1, // Responsive scroll speed modifier
       anchors: true,
+      allowNestedScroll: true,
+      prevent: (node) => Boolean(node.closest("[data-lenis-prevent]")),
     });
 
     // Expose lenis instance globally for smooth programmatic scrolling

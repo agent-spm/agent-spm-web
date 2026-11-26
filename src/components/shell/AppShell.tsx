@@ -7,10 +7,19 @@ import { Topbar } from "./Topbar";
 import { CommandPalette } from "../modals/CommandPalette";
 import { InviteMemberModal } from "../modals/InviteMemberModal";
 import { CreateApiKeyModal } from "../modals/CreateApiKeyModal";
-import { X } from "lucide-react";
+import { useSession } from "@/lib/data/session-context";
+import { X, Eye, ArrowLeft, AlertTriangle } from "lucide-react";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const {
+    impersonation,
+    exitImpersonation,
+    maintenanceBanner,
+    isActualSuperAdmin,
+    isMemberOfActiveOrg,
+    currentOrg,
+  } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -66,7 +75,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen bg-[#F5F5F7] text-black font-sans flex selection:bg-[#1B5FED] selection:text-white">
       {/* Desktop Persistent Sidebar */}
-      <div className="hidden lg:block w-64 flex-shrink-0 sticky top-0 h-screen z-30">
+      <div className="hidden lg:flex lg:flex-col w-64 flex-shrink-0 sticky top-0 h-screen overflow-hidden z-30">
         <SidebarNav />
       </div>
 
@@ -91,7 +100,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <SidebarNav
                 onCloseMobile={() => setMobileMenuOpen(false)}
               />
@@ -102,6 +111,56 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Main Content Viewport */}
       <div className="flex-1 flex flex-col min-w-0 bg-[#F5F5F7]">
+        {maintenanceBanner?.enabled && (
+          <div className="bg-red-50 border-b border-red-200 px-4 sm:px-6 py-2 flex items-center gap-2 font-mono text-xs text-red-900">
+            <AlertTriangle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
+            <span className="truncate font-semibold">{maintenanceBanner.message}</span>
+          </div>
+        )}
+
+        {impersonation?.active && (
+          <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-amber-950">
+            <div className="flex items-center gap-2 min-w-0">
+              <Eye className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
+              <span className="font-bold uppercase">VIEW AS ACTIVE</span>
+              <span className="truncate">
+                Inspecting <strong>{impersonation.targetOrgSlug}</strong>
+                {impersonation.targetUserEmail ? ` (${impersonation.targetUserEmail})` : ""}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={async () => {
+                await exitImpersonation();
+                router.push("/admin/organizations");
+              }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-black text-white hover:bg-black/80 font-mono text-[11px] font-bold uppercase cursor-pointer transition-colors"
+            >
+              <ArrowLeft className="w-3 h-3" />
+              <span>Exit View As</span>
+            </button>
+          </div>
+        )}
+
+        {!impersonation?.active && isActualSuperAdmin && !isMemberOfActiveOrg && currentOrg.id && (
+          <div className="bg-[#1B5FED]/10 border-b border-[#1B5FED]/25 px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-[#0B328A]">
+            <div className="flex items-center gap-2 min-w-0">
+              <Eye className="w-3.5 h-3.5 text-[#1B5FED] flex-shrink-0" />
+              <span className="font-bold uppercase">CROSS-TENANT WORKSPACE VIEW</span>
+              <span className="truncate">
+                Viewing <strong>{currentOrg.slug}</strong> as Superadmin without impersonation
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push("/admin/organizations")}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#1B5FED] text-white hover:bg-[#154EC9] font-mono text-[11px] font-bold uppercase cursor-pointer transition-colors"
+            >
+              <span>Manage in Admin</span>
+            </button>
+          </div>
+        )}
+
         <Topbar
           onOpenMobileMenu={() => setMobileMenuOpen(true)}
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}
