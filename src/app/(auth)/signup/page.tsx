@@ -85,6 +85,10 @@ function SignUpFormContent() {
         options: {
           redirectTo: callbackUrl,
           scopes: "read:user user:email repo",
+          skipBrowserRedirect: true,
+          queryParams: {
+            prompt: "select_account",
+          },
         },
       });
 
@@ -113,6 +117,11 @@ function SignUpFormContent() {
         provider: "github",
         options: {
           redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent("/app")}`,
+          scopes: "read:user user:email repo",
+          skipBrowserRedirect: true,
+          queryParams: {
+            prompt: "select_account",
+          },
         },
       });
       if (error) {

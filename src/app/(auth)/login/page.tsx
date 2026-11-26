@@ -35,6 +35,8 @@ function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get("redirect") || "/app";
+  const authErrorParam = searchParams.get("error");
+  const loggedOutParam = searchParams.get("logged_out");
 
   const { setPersona } = useSession();
   const [authMethod, setAuthMethod] = useState<"otp" | "sso">("otp");
@@ -43,9 +45,27 @@ function LoginFormContent() {
   const [otpCode, setOtpCode] = useState("");
   const [ssoDomain, setSsoDomain] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(
+    authErrorParam === "account_suspended"
+      ? "Your account has been suspended by a platform administrator."
+      : authErrorParam === "auth_exchange_failed"
+        ? "GitHub authentication could not be completed. Please try signing in again."
+        : null
+  );
   const [cooldown, setCooldown] = useState(0);
   const [showGithubSetupModal, setShowGithubSetupModal] = useState(false);
+
+  // Ensure local stale auth artifacts are cleared if user arrived from logout
+  useEffect(() => {
+    if (loggedOutParam === "1" && typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("spm_persona");
+        sessionStorage.clear();
+      } catch {
+        // ignore storage errors
+      }
+    }
+  }, [loggedOutParam]);
 
   // Countdown timer for resending OTP
   useEffect(() => {
@@ -181,6 +201,10 @@ function LoginFormContent() {
         options: {
           redirectTo: callbackUrl,
           scopes: "read:user user:email repo",
+          skipBrowserRedirect: true,
+          queryParams: {
+            prompt: "select_account",
+          },
         },
       });
 
@@ -210,6 +234,10 @@ function LoginFormContent() {
         options: {
           redirectTo: callbackUrl,
           scopes: "read:user user:email repo",
+          skipBrowserRedirect: true,
+          queryParams: {
+            prompt: "select_account",
+          },
         },
       });
       if (data?.url) {

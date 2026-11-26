@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
     // 1. Exact match on packages.name
     let { data: pkg } = await supabase
       .from("packages")
-      .select("id, name, description, owner_id, visibility, github_repo, latest_version, total_downloads")
+      .select("*")
       .eq("name", rawPkg)
       .maybeSingle();
 
@@ -153,7 +153,7 @@ export async function GET(request: NextRequest) {
       const unscoped = rawPkg.split("/")[1];
       const fallback = await supabase
         .from("packages")
-        .select("id, name, description, owner_id, visibility, github_repo, latest_version, total_downloads")
+        .select("*")
         .eq("name", unscoped)
         .maybeSingle();
       if (fallback.data) pkg = fallback.data;
@@ -163,7 +163,7 @@ export async function GET(request: NextRequest) {
     if (!pkg && !rawPkg.includes("/")) {
       const fallback = await supabase
         .from("packages")
-        .select("id, name, description, owner_id, visibility, github_repo, latest_version, total_downloads")
+        .select("*")
         .like("name", `%/${rawPkg}`)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -173,6 +173,13 @@ export async function GET(request: NextRequest) {
 
     if (!pkg) {
       return NextResponse.json({ error: "Package not found." }, { status: 404 });
+    }
+
+    if (pkg.status === "quarantined") {
+      return NextResponse.json(
+        { error: "This package has been quarantined by platform moderation and is unavailable for download." },
+        { status: 403 }
+      );
     }
 
     if (pkg.visibility !== "public") {

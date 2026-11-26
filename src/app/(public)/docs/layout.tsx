@@ -117,7 +117,10 @@ export default function DocsLayout({
         <div className="flex flex-col lg:flex-row gap-12 items-start">
 
           {/* Desktop Sticky Sidebar (Hidden on Mobile) */}
-          <aside className="hidden lg:block w-[380px] shrink-0 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-black/10 hover:scrollbar-thumb-black/25">
+          <aside
+            data-lenis-prevent
+            className="hidden lg:block w-[380px] shrink-0 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto overscroll-contain pr-4 scrollbar-thin scrollbar-thumb-black/10 hover:scrollbar-thumb-black/25"
+          >
             <DocsSidebar />
           </aside>
 

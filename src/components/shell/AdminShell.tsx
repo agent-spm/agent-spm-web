@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "@/lib/data/session-context";
+import { performFullLogout } from "@/lib/auth/logout-client";
 import {
   LayoutDashboard,
   Users,
@@ -15,6 +17,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 
 const ADMIN_NAV_ITEMS = [
@@ -28,7 +31,12 @@ const ADMIN_NAV_ITEMS = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { userProfile, impersonation } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const staffDisplayEmail =
+    (impersonation?.active ? impersonation.actorEmail : userProfile?.email) ||
+    "superadmin@agent-spm.com";
 
   return (
     <div className="relative min-h-screen bg-[#F5F5F7] text-black font-sans flex flex-col selection:bg-amber-500 selection:text-black">
@@ -69,7 +77,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex-1 flex min-h-0">
         {/* ── DESKTOP PERSISTENT SIDEBAR ── */}
-        <aside className="hidden lg:flex w-64 flex-col border-r border-black/10 bg-white p-4 space-y-6 shrink-0 shadow-sm">
+        <aside className="hidden lg:flex lg:sticky lg:top-0 lg:h-screen w-64 flex-col border-r border-black/10 bg-white p-4 space-y-4 shrink-0 shadow-sm min-h-0">
           <div className="flex items-center gap-2.5 px-2 py-2 border-b border-black/5">
             <div className="w-7 h-7 rounded bg-amber-500/15 border border-amber-500/30 flex items-center justify-center p-1 text-amber-800 font-mono font-bold text-xs shadow-sm">
               SPM
@@ -80,7 +88,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          <nav className="flex-1 space-y-1 font-mono text-xs">
+          <nav
+            data-lenis-prevent
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain space-y-1 font-mono text-xs"
+          >
             {ADMIN_NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
@@ -101,13 +112,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <div className="p-3 rounded-[6px] border border-black/10 bg-[#FAFAFA] font-mono text-[11px] text-black/60 space-y-1 shadow-sm">
+          <div className="p-3 rounded-[6px] border border-black/10 bg-[#FAFAFA] font-mono text-[11px] text-black/60 space-y-2 shadow-sm">
             <div className="text-black font-bold flex items-center justify-between">
               <span>Staff Session:</span>
               <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-800 font-bold">STAFF</span>
             </div>
-            <div className="truncate">root@agent-spm.com</div>
-            <div className="text-[#1B5FED] font-semibold text-[10px]">Cluster: us-east-prod-04</div>
+            <div suppressHydrationWarning className="truncate">{staffDisplayEmail}</div>
+            <button
+              type="button"
+              onClick={() => performFullLogout()}
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-[4px] border border-black/10 bg-white hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-black/70 font-mono text-[11px] font-semibold uppercase transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3 h-3" />
+              <span>Sign Out</span>
+            </button>
           </div>
         </aside>
 
@@ -159,13 +177,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 })}
               </nav>
 
-              <div className="p-3 rounded-[6px] border border-black/10 bg-[#FAFAFA] font-mono text-[11px] text-black/60 space-y-1 shadow-sm">
+              <div className="p-3 rounded-[6px] border border-black/10 bg-[#FAFAFA] font-mono text-[11px] text-black/60 space-y-2 shadow-sm">
                 <div className="text-black font-bold flex items-center justify-between">
                   <span>Staff Session:</span>
                   <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-800 font-bold">STAFF</span>
                 </div>
-                <div className="truncate">root@agent-spm.com</div>
-                <div className="text-[#1B5FED] font-semibold text-[10px]">Cluster: us-east-prod-04</div>
+                <div suppressHydrationWarning className="truncate">{staffDisplayEmail}</div>
+                <button
+                  type="button"
+                  onClick={() => performFullLogout()}
+                  className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-[4px] border border-black/10 bg-white hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-black/70 font-mono text-[11px] font-semibold uppercase transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-3 h-3" />
+                  <span>Sign Out</span>
+                </button>
               </div>
             </div>
           </div>

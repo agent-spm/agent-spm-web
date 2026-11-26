@@ -19,21 +19,30 @@ import {
 } from "lucide-react";
 
 export default function SettingsPage() {
-  const { currentOrg, userProfile, currentPersona, apiKeys, revokeApiKey } = useSession();
+  const { currentOrg, userProfile, currentPersona, apiKeys, revokeApiKey, refreshSession } = useSession();
   const { showToast } = useToast();
+  const [savingSettings, setSavingSettings] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"profile" | "organization" | "keys" | "notifications" | "billing">("keys");
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
-  // Editable Profile fields
+  // Editable Profile fields synced with active/impersonated user profile
   const [profileName, setProfileName] = useState(userProfile?.name || currentPersona.name || "");
   const [profileGithub, setProfileGithub] = useState(userProfile?.githubUsername || "");
   const [profileBio, setProfileBio] = useState("Full-stack engineer & AI registry architect");
 
-  // Editable Organization fields
+  // Editable Organization fields synced with active workspace
   const [orgName, setOrgName] = useState(currentOrg.name || "");
   const [orgSlug, setOrgSlug] = useState(currentOrg.slug || "");
   const [orgBillingEmail, setOrgBillingEmail] = useState(userProfile?.email || currentPersona.email || "");
+
+  useEffect(() => {
+    setProfileName(userProfile?.name || currentPersona.name || "");
+    setProfileGithub(userProfile?.githubUsername || "");
+    setOrgName(currentOrg.name || "");
+    setOrgSlug(currentOrg.slug || "");
+    setOrgBillingEmail(userProfile?.email || currentPersona.email || "");
+  }, [userProfile?.name, userProfile?.githubUsername, userProfile?.email, currentPersona.name, currentPersona.email, currentOrg.name, currentOrg.slug]);
 
   // Notification toggles
   const [notifications, setNotifications] = useState({
@@ -70,22 +79,74 @@ export default function SettingsPage() {
     });
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast({
-      title: "Profile Updated",
-      message: `Changes saved for ${profileName}.`,
-      type: "success",
-    });
+    setSavingSettings(true);
+    try {
+      const res = await fetch("/api/workspace/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          section: "profile",
+          orgId: currentOrg.id,
+          displayName: profileName,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update profile.");
+      }
+      await refreshSession(currentOrg.id || null);
+      showToast({
+        title: "Profile Saved",
+        message: `Display name updated to ${data.displayName}.`,
+        type: "success",
+      });
+    } catch (err: unknown) {
+      showToast({
+        title: "Save Failed",
+        message: err instanceof Error ? err.message : "Could not save profile changes.",
+        type: "error",
+      });
+    } finally {
+      setSavingSettings(false);
+    }
   };
 
-  const handleSaveOrg = (e: React.FormEvent) => {
+  const handleSaveOrg = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast({
-      title: "Organization Updated",
-      message: `Organization "${orgName}" details synchronized.`,
-      type: "success",
-    });
+    if (!currentOrg.id) return;
+    setSavingSettings(true);
+    try {
+      const res = await fetch("/api/workspace/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          section: "organization",
+          orgId: currentOrg.id,
+          name: orgName,
+          slug: orgSlug,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update organization.");
+      }
+      await refreshSession(currentOrg.id);
+      showToast({
+        title: "Organization Saved",
+        message: `Updated ${data.organization?.name} (${data.organization?.slug}) in Postgres.`,
+        type: "success",
+      });
+    } catch (err: unknown) {
+      showToast({
+        title: "Save Failed",
+        message: err instanceof Error ? err.message : "Could not save organization settings.",
+        type: "error",
+      });
+    } finally {
+      setSavingSettings(false);
+    }
   };
 
   return (
@@ -194,7 +255,8 @@ export default function SettingsPage() {
             <div className="pt-2">
               <button
                 type="submit"
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white uppercase font-bold text-xs shadow-md cursor-pointer transition-all active:scale-95"
+                disabled={savingSettings}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white uppercase font-bold text-xs shadow-md cursor-pointer transition-all active:scale-95 disabled:opacity-50"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>Save Profile</span>
@@ -269,7 +331,8 @@ export default function SettingsPage() {
             <div className="pt-2">
               <button
                 type="submit"
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white uppercase font-bold text-xs shadow-md cursor-pointer transition-all active:scale-95"
+                disabled={savingSettings}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white uppercase font-bold text-xs shadow-md cursor-pointer transition-all active:scale-95 disabled:opacity-50"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>Save Organization</span>
@@ -464,7 +527,7 @@ export default function SettingsPage() {
                 price: "$29",
                 period: "/ month",
                 skills: "50 skills",
-                seats: "10 seats",
+                seats: "100 seats",
                 support: "Priority email & chat",
                 current: currentOrg.plan === "pro",
               },
@@ -473,8 +536,8 @@ export default function SettingsPage() {
                 name: "Enterprise",
                 price: "Custom",
                 period: "annual",
-                skills: "Unlimited skills",
-                seats: "Unlimited seats",
+                skills: "500 skills",
+                seats: "500 seats",
                 support: "24/7 Dedicated SLA",
                 current: currentOrg.plan === "enterprise",
               },

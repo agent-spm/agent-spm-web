@@ -4,27 +4,49 @@ import { getTrustedOrigin } from "@/lib/security/sanitize";
 
 function purgeAuthCookies(request: NextRequest, response: NextResponse) {
   const allCookies = request.cookies.getAll();
+  const isProd = process.env.NODE_ENV === "production";
+
   for (const cookie of allCookies) {
     if (
       cookie.name.startsWith("sb-") ||
       cookie.name.includes("-auth-token") ||
       cookie.name.startsWith("spm_")
     ) {
-      try {
-        response.cookies.delete(cookie.name);
-      } catch (e) {
-        // ignore
-      }
+      const isServerOnly =
+        cookie.name === "spm_gh_token" || cookie.name === "spm_impersonate";
+
       response.cookies.set(cookie.name, "", {
         path: "/",
         maxAge: 0,
         expires: new Date(0),
-        httpOnly: true,
+        httpOnly: isServerOnly,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: isProd,
       });
     }
   }
+
+  // Always explicitly expire known app cookies even if omitted from incoming jar
+  for (const cookieName of ["spm_gh_token", "spm_impersonate"]) {
+    response.cookies.set(cookieName, "", {
+      path: "/",
+      maxAge: 0,
+      expires: new Date(0),
+      httpOnly: true,
+      sameSite: "lax",
+      secure: isProd,
+    });
+  }
+  response.cookies.set("spm_persona", "", {
+    path: "/",
+    maxAge: 0,
+    expires: new Date(0),
+    httpOnly: false,
+    sameSite: "lax",
+    secure: isProd,
+  });
+
+  response.headers.set("Cache-Control", "no-store, max-age=0");
 }
 
 export async function POST(request: NextRequest) {

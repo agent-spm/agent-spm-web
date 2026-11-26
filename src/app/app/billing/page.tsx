@@ -34,7 +34,7 @@ interface Invoice {
 }
 
 export default function WorkspaceBillingPage() {
-  const { currentOrg, teamMembers, skills, userProfile } = useSession();
+  const { currentOrg, teamMembers, skills, userProfile, refreshSession } = useSession();
   const { showToast } = useToast();
 
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
@@ -198,6 +198,7 @@ For billing inquiries: billing@agent-spm.com
               if (verifyRes.ok) {
                 const nextOrgPlan = verifyData.orgPlan || (planId.includes("enterprise") ? "enterprise" : "pro");
                 setUpgradedPlan(nextOrgPlan);
+                await refreshSession();
                 setInvoices((prev) => [
                   {
                     id: String(response.razorpay_order_id),
@@ -247,6 +248,7 @@ For billing inquiries: billing@agent-spm.com
         if (verifyRes.ok) {
           const nextOrgPlan = verifyData.orgPlan || (planId.includes("enterprise") ? "enterprise" : "pro");
           setUpgradedPlan(nextOrgPlan);
+          await refreshSession();
           setInvoices((prev) => [
             {
               id: String(orderId),
@@ -434,43 +436,50 @@ For billing inquiries: billing@agent-spm.com
           </div>
         </div>
 
-        {/* Metric 3: Fleet API Calls */}
+        {/* Metric 3: Total Package Downloads */}
         <div className="rounded-xl border border-black/10 bg-white p-5 shadow-xs space-y-3">
           <div className="flex items-center justify-between text-black/50">
-            <span className="font-mono text-xs uppercase font-semibold">Fleet RPC Calls</span>
+            <span className="font-mono text-xs uppercase font-semibold">Workspace Downloads</span>
             <Activity className="w-4 h-4 text-amber-600" />
           </div>
           <div>
             <div className="text-2xl font-bold font-sans text-black">
-              1.42 M <span className="text-xs font-mono text-black/50 font-normal">/ 5.0 M max</span>
+              {skills.reduce((sum, s) => sum + (s.totalDownloads || 0), 0).toLocaleString()}
+              <span className="text-xs font-mono text-black/50 font-normal"> total pulls</span>
             </div>
             <div className="w-full bg-black/5 rounded-full h-1.5 mt-2 overflow-hidden">
-              <div className="bg-amber-600 h-1.5 rounded-full transition-all" style={{ width: "28.4%" }} />
+              <div
+                className="bg-amber-600 h-1.5 rounded-full transition-all"
+                style={{ width: skills.length > 0 ? "100%" : "0%" }}
+              />
             </div>
           </div>
           <div className="flex items-center justify-between text-[11px] font-mono text-black/50">
-            <span>28.4% monthly cycle</span>
-            <span className="text-emerald-700 font-semibold">Healthy</span>
+            <span>{skills.filter((s) => s.visibility === "private").length} private pkgs</span>
+            <span className="text-emerald-700 font-semibold">Metered</span>
           </div>
         </div>
 
-        {/* Metric 4: Schema Compression */}
+        {/* Metric 4: Visibility & Governance */}
         <div className="rounded-xl border border-black/10 bg-white p-5 shadow-xs space-y-3">
           <div className="flex items-center justify-between text-black/50">
-            <span className="font-mono text-xs uppercase font-semibold">Token Diet Engine</span>
+            <span className="font-mono text-xs uppercase font-semibold">Tier Entitlements</span>
             <Zap className="w-4 h-4 text-purple-600" />
           </div>
           <div>
-            <div className="text-2xl font-bold font-sans text-black">
-              48.2 MB <span className="text-xs font-mono text-black/50 font-normal">/ 100 MB</span>
+            <div className="text-2xl font-bold font-sans text-black uppercase">
+              {activePlan}
             </div>
             <div className="w-full bg-black/5 rounded-full h-1.5 mt-2 overflow-hidden">
-              <div className="bg-purple-600 h-1.5 rounded-full transition-all" style={{ width: "48.2%" }} />
+              <div
+                className="bg-purple-600 h-1.5 rounded-full transition-all"
+                style={{ width: isEnterprisePlan ? "100%" : isProPlan ? "65%" : "25%" }}
+              />
             </div>
           </div>
           <div className="flex items-center justify-between text-[11px] font-mono text-black/50">
-            <span>48.2% compressed</span>
-            <Link href="/app/tools/schema-diet" className="text-[#1B5FED] hover:underline font-semibold">Open Tool →</Link>
+            <span>{seatsAllowed} max seats</span>
+            <Link href="/app/tools/schema-diet" className="text-[#1B5FED] hover:underline font-semibold">Schema Diet →</Link>
           </div>
         </div>
       </div>

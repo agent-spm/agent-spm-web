@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "@/lib/data/session-context";
-import { SEED_ORGANIZATIONS } from "@/lib/data/mock-store";
 import { ChevronDown, Check, Plus, ExternalLink, ShieldCheck } from "lucide-react";
 
 export function OrgSwitcher() {
@@ -75,36 +74,42 @@ export function OrgSwitcher() {
             Switch Organization
           </div>
 
-          <div className="space-y-1">
-            {(organizations.length > 0 ? organizations : SEED_ORGANIZATIONS).map((org) => {
-              const active = org.id === currentOrg.id;
-              return (
-                <button
-                  key={org.id}
-                  onClick={() => {
-                    setOrg(org.id);
-                    setOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-[4px] text-left transition-all cursor-pointer ${
-                    active
-                      ? "bg-[#1B5FED]/10 border border-[#1B5FED]/30 text-black"
-                      : "text-black/70 hover:bg-black/5 hover:text-black"
-                  }`}
-                >
-                  <div className="min-w-0 flex-1 pr-2">
-                    <div className="flex items-center gap-1.5 font-mono text-xs">
-                      <span className="font-bold text-black">{org.slug}</span>
-                      {getPlanBadge(org.plan)}
+          <div className="space-y-1 max-h-64 overflow-y-auto">
+            {organizations.length === 0 ? (
+              <div className="px-2.5 py-2 text-[11px] font-mono text-black/50">
+                No active workspaces loaded
+              </div>
+            ) : (
+              organizations.map((org) => {
+                const active = org.id === currentOrg.id;
+                return (
+                  <button
+                    key={org.id}
+                    onClick={() => {
+                      setOrg(org.id);
+                      setOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-[4px] text-left transition-all cursor-pointer ${
+                      active
+                        ? "bg-[#1B5FED]/10 border border-[#1B5FED]/30 text-black"
+                        : "text-black/70 hover:bg-black/5 hover:text-black"
+                    }`}
+                  >
+                    <div className="min-w-0 flex-1 pr-2">
+                      <div className="flex items-center gap-1.5 font-mono text-xs">
+                        <span className="font-bold text-black">{org.slug}</span>
+                        {getPlanBadge(org.plan)}
+                      </div>
+                      <div className="text-[11px] text-black/50 truncate font-sans">
+                        {org.name} ({org.skillsCount} skills)
+                      </div>
                     </div>
-                    <div className="text-[11px] text-black/50 truncate font-sans">
-                      {org.name} ({org.skillsCount} skills)
-                    </div>
-                  </div>
 
-                  {active && <Check className="w-3.5 h-3.5 text-[#1B5FED] flex-shrink-0" />}
-                </button>
-              );
-            })}
+                    {active && <Check className="w-3.5 h-3.5 text-[#1B5FED] flex-shrink-0" />}
+                  </button>
+                );
+              })
+            )}
           </div>
 
           <div className="mt-1 pt-1 border-t border-black/5">

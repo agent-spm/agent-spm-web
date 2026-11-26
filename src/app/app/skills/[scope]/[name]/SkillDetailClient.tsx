@@ -43,7 +43,7 @@ export default function SkillDetailClient({ scope, name }: SkillDetailClientProp
   const rawName = decodeURIComponent(name);
   const normalizedScope = rawScope.startsWith("@") ? rawScope : `@${rawScope}`;
 
-  const { skills, deleteSkill, updateSkillStatus } = useSession();
+  const { skills, deleteSkill, updateSkillStatus, userProfile } = useSession();
   const { showToast } = useToast();
   
   // Navigation & Modal States
@@ -374,7 +374,9 @@ console.log("Result:", result.output);`}</pre>
               </div>
               <div className="flex justify-between py-1 border-b border-black/5">
                 <span className="text-black/60">Published:</span>
-                <span className="text-black">{skill.updatedAt} by Lakshit Soni</span>
+                <span className="text-black">
+                  {skill.updatedAt} by {skill.versions?.[0]?.publishedBy || userProfile?.name || "Publisher"}
+                </span>
               </div>
               <div className="flex justify-between py-1 border-b border-black/5">
                 <span className="text-black/60">Dependencies:</span>
@@ -718,36 +720,21 @@ console.log("Result:", result.output);`}</pre>
           </div>
 
           <div className="space-y-3">
-            {[
-              {
-                version: skill.version,
-                date: "Nov 06, 2026",
-                author: "Lakshit Soni",
-                size: skill.versions?.[0]?.tarballSize || "—",
-                downloads: skill.totalDownloads,
-                sha: skill.versions?.[0]?.digest || "unrecorded",
-                notes: "Production GA release with optimized memory allocation.",
-              },
-              {
-                version: "1.1.0",
-                date: "Oct 20, 2026",
-                author: "Sarah Lin",
-                size: "138 KB",
-                downloads: 48900,
-                sha: "sha256:8b9a1e0f2d3c4a5b...",
-                notes: "Added support for streaming DOM snapshot nodes.",
-              },
-              {
-                version: "1.0.0",
-                date: "Sep 15, 2026",
-                author: "Lakshit Soni",
-                size: "131 KB",
-                downloads: 94200,
-                sha: "sha256:1a2b3c4d5e6f7a8b...",
-                notes: "Initial public stable release.",
-              },
-            ].map((v, idx) => (
-              <div key={v.version} className="p-4 rounded-xl border border-black/10 bg-white hover:border-black/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            {(skill.versions && skill.versions.length > 0
+              ? skill.versions
+              : [
+                  {
+                    version: skill.version,
+                    publishedAt: skill.updatedAt,
+                    publishedBy: userProfile?.name || "Publisher",
+                    tarballSize: "—",
+                    downloads: skill.totalDownloads,
+                    digest: "unrecorded",
+                    changelog: "Active registry release.",
+                  },
+                ]
+            ).map((v, idx) => (
+              <div key={`${v.version}-${idx}`} className="p-4 rounded-xl border border-black/10 bg-white hover:border-black/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm font-bold text-black">v{v.version}</span>
@@ -756,14 +743,18 @@ console.log("Result:", result.output);`}</pre>
                         LATEST
                       </span>
                     )}
-                    <span className="font-mono text-xs text-black/60">• {v.date}</span>
-                    <span className="text-xs text-black/60 font-sans">by {v.author}</span>
+                    <span className="font-mono text-xs text-black/60">• {v.publishedAt}</span>
+                    <span className="text-xs text-black/60 font-sans">by {v.publishedBy}</span>
                   </div>
-                  <p className="text-xs text-black/70 mt-1 font-sans">{v.notes}</p>
+                  <p className="text-xs text-black/70 mt-1 font-sans">
+                    {v.changelog || "Published skill version."}
+                  </p>
                   <div className="font-mono text-[11px] text-black/60 mt-1 flex items-center gap-2">
-                    <span>{v.sha}</span>
+                    <span>{v.digest}</span>
                     <span>•</span>
-                    <span>{v.size}</span>
+                    <span>{v.tarballSize}</span>
+                    <span>•</span>
+                    <span>{(v.downloads || 0).toLocaleString()} downloads</span>
                   </div>
                 </div>
 
@@ -779,19 +770,13 @@ console.log("Result:", result.output);`}</pre>
                     <GitCompare className="w-3.5 h-3.5 text-black/60" />
                     <span>Diff Schema</span>
                   </button>
-                  <button
-                    onClick={() => {
-                      showToast({
-                        title: "Tarball Download Initiated",
-                        message: `Downloading ${skill.scope}-${skill.name}-${v.version}.tgz`,
-                        type: "info",
-                      });
-                    }}
+                  <a
+                    href={`/api/packages/download?name=${encodeURIComponent(`${skill.scope}/${skill.name}`)}&version=${encodeURIComponent(v.version)}`}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-black/10 hover:bg-black/5 font-mono text-xs text-black/70 cursor-pointer shadow-2xs"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>.tgz</span>
-                  </button>
+                  </a>
                 </div>
               </div>
             ))}
@@ -856,115 +841,80 @@ console.log("Result:", result.output);`}</pre>
         <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm space-y-6">
           <div>
             <h3 className="text-base font-semibold text-black">Skill Consumption Metrics</h3>
-            <p className="text-xs font-mono text-black/60">Per-package execution volume and geographical latency</p>
+            <p className="text-xs font-mono text-black/60">
+              Live package counters from PostgreSQL · Per-call runtime latency appears in{" "}
+              <Link href="/app/fleet" className="text-[#1B5FED] underline">
+                Fleet War-Room
+              </Link>{" "}
+              once instrumented
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-4 rounded-xl border border-black/10 bg-black/[0.02]">
-              <div className="font-mono text-xs text-black/60">P50 Latency</div>
-              <div className="text-2xl font-bold font-sans text-black mt-1">14 ms</div>
-              <div className="text-[11px] font-mono text-emerald-600 font-medium mt-0.5">-3ms vs global average</div>
+              <div className="font-mono text-xs text-black/60">Total Recorded Pulls</div>
+              <div className="text-2xl font-bold font-sans text-black mt-1">
+                {(skill.totalDownloads || 0).toLocaleString()}
+              </div>
+              <div className="text-[11px] font-mono text-black/55 mt-0.5">
+                Tracked via registry resolve &amp; .tgz download
+              </div>
             </div>
             <div className="p-4 rounded-xl border border-black/10 bg-black/[0.02]">
-              <div className="font-mono text-xs text-black/60">Success Rate</div>
-              <div className="text-2xl font-bold font-sans text-black mt-1">99.94%</div>
-              <div className="text-[11px] font-mono text-emerald-600 font-medium mt-0.5">8 errors in 142k runs</div>
+              <div className="font-mono text-xs text-black/60">Indexed Releases</div>
+              <div className="text-2xl font-bold font-sans text-black mt-1">
+                {skill.versions?.length || 1}
+              </div>
+              <div className="text-[11px] font-mono text-black/55 mt-0.5">
+                Latest tag v{skill.version}
+              </div>
             </div>
             <div className="p-4 rounded-xl border border-black/10 bg-black/[0.02]">
-              <div className="font-mono text-xs text-black/60">Top Ingestion Region</div>
-              <div className="text-2xl font-bold font-sans text-black mt-1">US-East</div>
-              <div className="text-[11px] font-mono text-black/60 font-medium mt-0.5">58% of global volume</div>
+              <div className="font-mono text-xs text-black/60">Package Status</div>
+              <div className="text-2xl font-bold font-sans text-black mt-1 uppercase">
+                {skill.status}
+              </div>
+              <div className="text-[11px] font-mono text-black/55 mt-0.5">
+                Visibility: {skill.visibility}
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── TAB 5: SPM SECURITY SHIELD & AST TAINT ANALYZER ── */}
+      {/* ── TAB 5: SPM SECURITY SHIELD & ATTESTATION STATUS ── */}
       {activeTab === "security" && (
         <div className="rounded-2xl border border-black/10 bg-white p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/10">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold font-mono text-black">SPM Security Shield</h2>
-                <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold">
-                  96 / 100 • GRADE A+
+                <h2 className="text-lg font-bold font-mono text-black">Package Verification Status</h2>
+                <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-black/[0.05] text-black/75 border border-black/15 font-bold">
+                  {skill.repositoryUrl ? "SOURCE LINKED" : "REGISTRY PACKAGE"}
                 </span>
               </div>
               <p className="text-xs text-black/60 font-sans mt-0.5">
-                Cryptographic provenance, static AST taint flow analysis, and prompt injection defense.
+                Recorded integrity digest and repository source metadata from Postgres. Automated AST &amp; SLSA pipelines run on external CI builders when configured.
               </p>
             </div>
             <div className="font-mono text-xs text-black/50">
-              Verified: <strong className="text-black">SLSA Level 3 Compliant</strong>
+              Latest Tag: <strong className="text-black">v{skill.version}</strong>
             </div>
           </div>
 
-          {/* 4 Pillars Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-xs font-bold text-emerald-900">SLSA Provenance</span>
-                <span className="font-mono text-xs font-bold text-emerald-700">10 / 10</span>
-              </div>
-              <p className="text-xs text-emerald-900/80 font-sans leading-relaxed">
-                Sigstore Rekor transparency ledger attestation verified via GitHub Actions OIDC builder.
-              </p>
+          <div className="rounded-xl border border-black/10 overflow-hidden text-xs font-mono">
+            <div className="grid grid-cols-12 bg-black/[0.03] p-2.5 font-bold text-black/60 border-b border-black/10">
+              <div className="col-span-4">Release</div>
+              <div className="col-span-5">Integrity Digest</div>
+              <div className="col-span-3 text-right">Size</div>
             </div>
-
-            <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-xs font-bold text-emerald-900">AST Taint Check</span>
-                <span className="font-mono text-xs font-bold text-emerald-700">9.4 / 10</span>
+            {(skill.versions?.length ? skill.versions : [{ version: skill.version, digest: "unrecorded", tarballSize: "—" }]).map((ver, idx) => (
+              <div key={`${ver.version}-${idx}`} className="grid grid-cols-12 p-2.5 border-b border-black/5 items-center">
+                <div className="col-span-4 font-semibold text-black">v{ver.version}</div>
+                <div className="col-span-5 text-black/55 truncate pr-2">{ver.digest || "unrecorded"}</div>
+                <div className="col-span-3 text-right text-black/70">{ver.tarballSize || "—"}</div>
               </div>
-              <p className="text-xs text-emerald-900/80 font-sans leading-relaxed">
-                0 SSRF sinks (AWS metadata 169.254.169.254 filtered), 0 RCE sinks (zero child_process.exec).
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-xs font-bold text-emerald-900">Prompt Injection</span>
-                <span className="font-mono text-xs font-bold text-emerald-700">9.8 / 10</span>
-              </div>
-              <p className="text-xs text-emerald-900/80 font-sans leading-relaxed">
-                Output wrapped in nonce-delimited &lt;spm_tool_result&gt; enclosures to prevent LLM hijacking.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-xs font-bold text-emerald-900">Network Egress</span>
-                <span className="font-mono text-xs font-bold text-emerald-700">10 / 10</span>
-              </div>
-              <p className="text-xs text-emerald-900/80 font-sans leading-relaxed">
-                Outbound requests restricted strictly to declared domains in spm.yaml manifest.
-              </p>
-            </div>
-          </div>
-
-          {/* Scanned Source Files Audit Table */}
-          <div className="space-y-3">
-            <h3 className="font-mono text-xs font-bold text-black uppercase tracking-wider">
-              Scanned Source Artifacts
-            </h3>
-            <div className="rounded-xl border border-black/10 overflow-hidden text-xs font-mono">
-              <div className="grid grid-cols-12 bg-black/[0.03] p-2.5 font-bold text-black/60 border-b border-black/10">
-                <div className="col-span-5">Source File Path</div>
-                <div className="col-span-4">SHA-256 Digest</div>
-                <div className="col-span-3 text-right">Taint Verdict</div>
-              </div>
-              {[
-                { file: "src/tools/dom-snapshot.ts", sha: "sha256:7b9a1c...4f0e", verdict: "Clean • 0 Sinks" },
-                { file: "src/tools/click.ts", sha: "sha256:3a1e9b...7c8d", verdict: "Clean • 0 Sinks" },
-                { file: "src/runtime/sandbox.ts", sha: "sha256:8f4c2e...1a9b", verdict: "Hermetic Isolated" },
-              ].map((row) => (
-                <div key={row.file} className="grid grid-cols-12 p-2.5 border-b border-black/5 hover:bg-black/[0.01] items-center">
-                  <div className="col-span-5 font-semibold text-black">{row.file}</div>
-                  <div className="col-span-4 text-black/50">{row.sha}</div>
-                  <div className="col-span-3 text-right text-emerald-700 font-semibold">{row.verdict}</div>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
       )}
@@ -994,7 +944,7 @@ console.log("Result:", result.output);`}</pre>
                   const { data: updatedRows, error } = await supabase
                     .from("packages")
                     .update({ visibility: nextVis, updated_at: new Date().toISOString() })
-                    .in("name", [canonicalName, `${skill.scope}/${canonicalName}`])
+                    .eq("id", skill.id)
                     .select("id");
                   if (error || !updatedRows || updatedRows.length === 0) {
                     showToast({
@@ -1148,7 +1098,7 @@ console.log("Result:", result.output);`}</pre>
                       const { data: updatedRows, error } = await supabase
                         .from("packages")
                         .update({ description: updatedDesc, updated_at: new Date().toISOString() })
-                        .in("name", [canonicalName, `${skill.scope}/${canonicalName}`])
+                        .eq("id", skill.id)
                         .select("id");
                       if (error || !updatedRows || updatedRows.length === 0) {
                         skill.description = prevDescription;

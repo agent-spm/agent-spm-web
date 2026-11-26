@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/data/session-context";
 import { SEED_WEBHOOK_DELIVERIES } from "@/lib/data/mock-store";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -18,13 +18,49 @@ import {
 } from "lucide-react";
 
 export default function IntegrationsPage() {
-  const { webhooks: initialWebhooks, currentOrg, userProfile } = useSession();
+  const { currentOrg, skills } = useSession();
   const { showToast } = useToast();
 
-  const [localWebhooks, setLocalWebhooks] = useState(initialWebhooks);
+  const [localWebhooks, setLocalWebhooks] = useState<
+    Array<{
+      id: string;
+      url: string;
+      events: string[];
+      status: "Active" | "Paused";
+      lastStatusCode: number | null;
+      lastTriggered: string;
+      secretPrefix: string;
+      retryCount?: number;
+    }>
+  >([]);
   const [deliveries, setDeliveries] = useState<typeof SEED_WEBHOOK_DELIVERIES>([]);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>(null);
   const [isSendingPing, setIsSendingPing] = useState(false);
+  const [migrationRequired, setMigrationRequired] = useState(false);
+
+  const loadWebhooks = useCallback(async () => {
+    if (!currentOrg.id) {
+      setLocalWebhooks([]);
+      return;
+    }
+    try {
+      const res = await fetch(
+        `/api/workspace/webhooks?orgId=${encodeURIComponent(currentOrg.id)}`,
+        { cache: "no-store" }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        setLocalWebhooks(Array.isArray(data.webhooks) ? data.webhooks : []);
+        setMigrationRequired(Boolean(data.migrationRequired));
+      }
+    } catch {
+      // Keep current list on transient error
+    }
+  }, [currentOrg.id]);
+
+  useEffect(() => {
+    loadWebhooks();
+  }, [loadWebhooks]);
 
   // Webhook Modal State
   const [showWebhookModal, setShowWebhookModal] = useState(false);
@@ -44,14 +80,16 @@ export default function IntegrationsPage() {
     value: string;
   } | null>(null);
 
-  // Pre-built integration cards
+  const githubLinkedReposCount = skills.filter((s) => Boolean(s.repositoryUrl)).length;
+
+  // Pre-built integration cards (truthful status reflecting workspace state)
   const [integrations, setIntegrations] = useState([
     {
       id: "slack",
       name: "Slack",
       desc: "Post instant notifications to engineering channels on publish or fatal errors.",
-      connected: true,
-      statusLine: "Connected to #agent-releases (Last synced 14 mins ago)",
+      connected: false,
+      statusLine: undefined as string | undefined,
       fieldLabel: "Slack Incoming Webhook URL",
       placeholder: "https://hooks.slack.com/services/T00/B00/XXXX",
     },
@@ -59,8 +97,11 @@ export default function IntegrationsPage() {
       id: "github",
       name: "GitHub",
       desc: "Link source repositories and auto-publish skills on Git Release tagging.",
-      connected: true,
-      statusLine: "Linked to organization agent-spm-registry (22 repositories)",
+      connected: githubLinkedReposCount > 0,
+      statusLine:
+        githubLinkedReposCount > 0
+          ? `${githubLinkedReposCount} published package(s) linked via GitHub in ${currentOrg.slug}`
+          : undefined,
       fieldLabel: "GitHub Personal Access Token / App Installation ID",
       placeholder: "ghp_xxxxxxxxxxxxxxxxxxxx",
     },
@@ -135,96 +176,95 @@ export default function IntegrationsPage() {
     setShowWebhookModal(true);
   };
 
-  const handleSaveWebhook = (e: React.FormEvent) => {
+  const handleSaveWebhook = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!webhookUrl.trim()) return;
+    if (!webhookUrl.trim() || !currentOrg.id) return;
 
-    if (editingWebhookId) {
-      setLocalWebhooks((prev) =>
-        prev.map((wh) =>
-          wh.id === editingWebhookId
-            ? { ...wh, url: webhookUrl.trim(), events: selectedEvents }
-            : wh
-        )
-      );
+    try {
+      const res = await fetch("/api/workspace/webhooks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: editingWebhookId ? "update" : "create",
+          id: editingWebhookId || undefined,
+          orgId: currentOrg.id,
+          url: webhookUrl.trim(),
+          events: selectedEvents,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to save webhook endpoint.");
+      }
+
       showToast({
-        title: "Webhook Updated",
-        message: `Endpoint ${webhookUrl} updated with ${selectedEvents.length} events.`,
+        title: editingWebhookId ? "Webhook Updated" : "Webhook Endpoint Saved",
+        message: `${webhookUrl.trim()} persisted for ${currentOrg.slug}.`,
         type: "success",
       });
-    } else {
-      const newWh = {
-        id: `wh_${Date.now()}`,
-        url: webhookUrl.trim(),
-        events: selectedEvents,
-        status: "Active" as const,
-        lastStatusCode: 200,
-        lastTriggered: "Just now",
-        secretPrefix: "whsec_live",
-      };
-      setLocalWebhooks((prev) => [...prev, newWh]);
+      setShowWebhookModal(false);
+      await loadWebhooks();
+    } catch (err: unknown) {
       showToast({
-        title: "Webhook Endpoint Created",
-        message: `Listening on ${selectedEvents.length} events. Ed25519 signing secret generated.`,
-        type: "success",
+        title: "Webhook Save Error",
+        message: err instanceof Error ? err.message : "Could not save webhook.",
+        type: "error",
       });
     }
-    setShowWebhookModal(false);
   };
 
-  const handleRedeliver = (id: string) => {
-    showToast({
-      title: "Webhook Redelivery Dispatched",
-      message: `Event ${id} resent to subscriber. Response: HTTP 200 OK (54ms).`,
-      type: "success",
-    });
+  const handleRedeliver = async (del: (typeof SEED_WEBHOOK_DELIVERIES)[0]) => {
+    const matchedWebhookId = localWebhooks.find((w) => w.url === del.endpointUrl)?.id;
+    await handleSendTestPing(del.endpointUrl, matchedWebhookId);
   };
 
-  const handleSendTestPing = () => {
-    setIsSendingPing(true);
-    setTimeout(() => {
-      setIsSendingPing(false);
-      const newDel = {
-        id: `del_sim_${Date.now()}`,
-        webhookId: "wh_1",
-        endpointUrl: localWebhooks[0]?.url || "https://api.acme.labs/spm-events",
-        event: "skill.published",
-        timestamp: new Date().toISOString(),
-        statusCode: 200,
-        latencyMs: 76,
-        requestBody: JSON.stringify(
-          {
-            event: "skill.published",
-            timestamp: new Date().toISOString(),
-            actor: userProfile?.email || "member@workspace",
-            data: {
-              scope: currentOrg.slug,
-              name: "sample-skill",
-              version: "1.0.0",
-              tarballSha: "sha256:7b9a1c4f0e9b41a998b2c8",
-            },
-          },
-          null,
-          2
-        ),
-        responseBody: JSON.stringify(
-          {
-            received: true,
-            status: "ok",
-            processedBy: "spm-ingest-receiver",
-          },
-          null,
-          2
-        ),
-      };
-      setDeliveries([newDel, ...deliveries]);
-      setExpandedDelivery(newDel.id);
+  const handleSendTestPing = async (overrideUrl?: string, overrideWebhookId?: string) => {
+    const targetUrl = overrideUrl || localWebhooks[0]?.url;
+    const targetId = overrideWebhookId || localWebhooks[0]?.id;
+    if (!targetUrl && !targetId) {
       showToast({
-        title: "Test Webhook Ping Delivered",
-        message: `POST ${newDel.endpointUrl} responded HTTP 200 OK in 76ms.`,
-        type: "success",
+        title: "No Webhook Endpoint Configured",
+        message: "Add a public HTTPS webhook endpoint first before sending a test ping.",
+        type: "warning",
       });
-    }, 600);
+      return;
+    }
+
+    setIsSendingPing(true);
+    try {
+      const res = await fetch("/api/workspace/webhooks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "test_ping",
+          orgId: currentOrg.id,
+          webhookId: targetId,
+          url: targetUrl,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Webhook ping failed.");
+      }
+      if (data.delivery) {
+        setDeliveries((prev) => [data.delivery, ...prev]);
+        setExpandedDelivery(data.delivery.id);
+        showToast({
+          title: data.success ? "Webhook Ping Delivered" : "Webhook Returned Error",
+          message: `POST ${data.delivery.endpointUrl} -> HTTP ${data.delivery.statusCode} (${data.delivery.latencyMs}ms).`,
+          type: data.success ? "success" : "warning",
+        });
+      }
+      await loadWebhooks();
+    } catch (err: unknown) {
+      showToast({
+        title: "Webhook Ping Failed",
+        message: err instanceof Error ? err.message : "Could not send webhook test ping.",
+        type: "error",
+      });
+    } finally {
+      setIsSendingPing(false);
+    }
   };
 
   const handleSaveConnector = (e: React.FormEvent) => {
@@ -287,8 +327,8 @@ export default function IntegrationsPage() {
 
           <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={handleSendTestPing}
-              disabled={isSendingPing}
+              onClick={() => handleSendTestPing()}
+              disabled={isSendingPing || migrationRequired}
               className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-[#1B5FED] font-mono text-xs font-semibold uppercase tracking-wider transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-50"
             >
               {isSendingPing ? (
@@ -314,6 +354,16 @@ export default function IntegrationsPage() {
           </div>
         </div>
 
+        {migrationRequired && (
+          <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 font-mono text-xs text-amber-950">
+            Webhooks table not migrated yet. Run{" "}
+            <code className="px-1 py-0.5 rounded bg-amber-100">
+              supabase/migrations/20261126_admin_control_plane_and_tenant_scoping.sql
+            </code>{" "}
+            in Supabase SQL Editor to persist webhook endpoints.
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse font-mono text-xs">
             <thead>
@@ -326,7 +376,14 @@ export default function IntegrationsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
-              {localWebhooks.map((wh) => (
+              {localWebhooks.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-6 px-4 text-center text-black/45">
+                    No webhook endpoints registered for {currentOrg.slug}.
+                  </td>
+                </tr>
+              ) : (
+                localWebhooks.map((wh) => (
                 <tr key={wh.id} className="hover:bg-black/[0.02] transition-colors">
                   <td className="py-3.5 px-4 font-bold text-black truncate max-w-xs">
                     {wh.url}
@@ -353,7 +410,7 @@ export default function IntegrationsPage() {
                   </td>
 
                   <td className="py-3.5 px-4 whitespace-nowrap text-black/60">
-                    <span className="text-black font-bold">{wh.lastStatusCode}</span> • {wh.lastTriggered}
+                    <span className="text-black font-bold">{wh.lastStatusCode ?? "—"}</span> • {wh.lastTriggered}
                   </td>
 
                   <td className="py-3.5 px-4 text-right whitespace-nowrap space-x-2">
@@ -364,11 +421,19 @@ export default function IntegrationsPage() {
                       Edit
                     </button>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         const nextStatus: typeof wh.status = wh.status === "Active" ? "Paused" : "Active";
-                        setLocalWebhooks((prev) =>
-                          prev.map((w) => (w.id === wh.id ? { ...w, status: nextStatus } : w))
-                        );
+                        await fetch("/api/workspace/webhooks", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            action: "toggle_status",
+                            id: wh.id,
+                            orgId: currentOrg.id,
+                            status: nextStatus,
+                          }),
+                        });
+                        await loadWebhooks();
                         showToast({
                           title: `Webhook ${nextStatus}`,
                           message: `${wh.url} is now ${nextStatus.toLowerCase()}.`,
@@ -381,7 +446,8 @@ export default function IntegrationsPage() {
                     </button>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -435,7 +501,7 @@ export default function IntegrationsPage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleRedeliver(del.id);
+                            handleRedeliver(del);
                           }}
                           className="flex items-center gap-1 ml-auto px-2.5 py-1 rounded-xl bg-white border border-black/10 hover:bg-black/5 text-black text-[11px] shadow-xs cursor-pointer"
                         >

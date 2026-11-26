@@ -28,19 +28,19 @@ export default function AccessPoliciesPage() {
       id: "cr_1",
       name: "Release Manager",
       description: "Can publish and deprecate skills; no team or billing management permissions.",
-      memberCount: 2,
+      memberCount: 0,
     },
     {
       id: "cr_2",
       name: "Analytics Reader",
       description: "Read-only access to all ingestion graphs and CSV exports across packages.",
-      memberCount: 1,
+      memberCount: 0,
     },
     {
       id: "cr_3",
       name: "Security Auditor",
-      description: "Full visibility into immutable audit logs, IP geolocations, and API key prefixes.",
-      memberCount: 1,
+      description: "Full visibility into audit logs and API key prefixes.",
+      memberCount: 0,
     },
   ]);
 
@@ -166,7 +166,7 @@ export default function AccessPoliciesPage() {
       <div className="rounded-2xl border border-black/10 bg-white p-4 font-mono text-xs text-black/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div className="flex items-center gap-2">
           <Shield className="w-4 h-4 text-[#1B5FED] shrink-0" />
-          <span>Permissions are inherited org-wide. Per-skill granular overrides take priority.</span>
+          <span>Built-in Owner/Admin/Member/Viewer roles are enforced server-side. Custom roles and overrides below are local policy drafts.</span>
         </div>
         <button
           onClick={openCreateRoleModal}

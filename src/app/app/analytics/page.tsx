@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useSession } from "@/lib/data/session-context";
 import { useToast } from "@/components/ui/ToastProvider";
-import { DownloadsOverTimeChart } from "@/components/dashboard/DownloadsOverTimeChart";
+import { DownloadsOverTimeChart, type ChartRange } from "@/components/dashboard/DownloadsOverTimeChart";
 import { escapeCsvCell } from "@/lib/security/sanitize";
 import {
   DownloadCloud,
@@ -15,223 +15,54 @@ import {
   ExternalLink,
   ChevronLeft,
   ChevronRight,
-  Filter,
-  CheckCircle2,
-  Clock,
-  Zap,
 } from "lucide-react";
 
-type TimeRange = "7D" | "30D" | "90D" | "Custom";
-
-interface RegionStat {
-  country: string;
-  code: string;
-  downloads: string;
-  pct: string;
-}
-
-interface RangeMetrics {
-  totalDownloadsStr: string;
-  totalNum: number;
-  totalDownloadsDelta: string;
-  uniqueInstallersStr: string;
-  uniqueInstallersDelta: string;
-  avgInstallTime: string;
-  avgInstallTimeDelta: string;
-  errorRate: string;
-  errorRateSubtext: string;
-  regions: RegionStat[];
-  cliPct: number;
-  apiPct: number;
-  playgroundPct: number;
-  cacheHitRatio: string;
-}
-
-const METRICS_BY_RANGE: Record<TimeRange, RangeMetrics> = {
-  "7D": {
-    totalDownloadsStr: "84,210",
-    totalNum: 84210,
-    totalDownloadsDelta: "+24.2% vs previous 7d",
-    uniqueInstallersStr: "3,420",
-    uniqueInstallersDelta: "+18.4% unique machines",
-    avgInstallTime: "9.8 ms",
-    avgInstallTimeDelta: "-3.2ms lower latency",
-    errorRate: "0.01%",
-    errorRateSubtext: "4 failed installs across 84k",
-    regions: [
-      { country: "United States", code: "US", downloads: "48,840", pct: "58%" },
-      { country: "Germany", code: "DE", downloads: "15,150", pct: "18%" },
-      { country: "United Kingdom", code: "GB", downloads: "8,420", pct: "10%" },
-      { country: "Japan", code: "JP", downloads: "6,730", pct: "8%" },
-      { country: "India", code: "IN", downloads: "5,070", pct: "6%" },
-    ],
-    cliPct: 72,
-    apiPct: 22,
-    playgroundPct: 6,
-    cacheHitRatio: "99.88%",
-  },
-  "30D": {
-    totalDownloadsStr: "368,450",
-    totalNum: 368450,
-    totalDownloadsDelta: "+18.4% vs previous 30d",
-    uniqueInstallersStr: "14,290",
-    uniqueInstallersDelta: "+12.1% unique machines",
-    avgInstallTime: "12.4 ms",
-    avgInstallTimeDelta: "-2.1ms lower latency",
-    errorRate: "0.02%",
-    errorRateSubtext: "18 failed installs across 368k",
-    regions: [
-      { country: "United States", code: "US", downloads: "214,200", pct: "58%" },
-      { country: "Germany", code: "DE", downloads: "64,800", pct: "18%" },
-      { country: "United Kingdom", code: "GB", downloads: "36,900", pct: "10%" },
-      { country: "Japan", code: "JP", downloads: "28,100", pct: "8%" },
-      { country: "India", code: "IN", downloads: "24,450", pct: "6%" },
-    ],
-    cliPct: 68,
-    apiPct: 24,
-    playgroundPct: 8,
-    cacheHitRatio: "99.82%",
-  },
-  "90D": {
-    totalDownloadsStr: "1,142,800",
-    totalNum: 1142800,
-    totalDownloadsDelta: "+31.5% vs previous 90d",
-    uniqueInstallersStr: "42,800",
-    uniqueInstallersDelta: "+22.8% unique machines",
-    avgInstallTime: "14.1 ms",
-    avgInstallTimeDelta: "-1.8ms lower latency",
-    errorRate: "0.03%",
-    errorRateSubtext: "82 failed installs across 1.1M",
-    regions: [
-      { country: "United States", code: "US", downloads: "628,540", pct: "55%" },
-      { country: "Germany", code: "DE", downloads: "205,700", pct: "18%" },
-      { country: "United Kingdom", code: "GB", downloads: "125,700", pct: "11%" },
-      { country: "Japan", code: "JP", downloads: "102,850", pct: "9%" },
-      { country: "India", code: "IN", downloads: "80,010", pct: "7%" },
-    ],
-    cliPct: 64,
-    apiPct: 28,
-    playgroundPct: 8,
-    cacheHitRatio: "99.74%",
-  },
-  Custom: {
-    totalDownloadsStr: "524,190",
-    totalNum: 524190,
-    totalDownloadsDelta: "+21.0% customized window",
-    uniqueInstallersStr: "19,840",
-    uniqueInstallersDelta: "+15.2% unique machines",
-    avgInstallTime: "11.9 ms",
-    avgInstallTimeDelta: "-2.4ms lower latency",
-    errorRate: "0.02%",
-    errorRateSubtext: "24 failed installs across 524k",
-    regions: [
-      { country: "United States", code: "US", downloads: "304,030", pct: "58%" },
-      { country: "Germany", code: "DE", downloads: "94,350", pct: "18%" },
-      { country: "United Kingdom", code: "GB", downloads: "52,420", pct: "10%" },
-      { country: "Japan", code: "JP", downloads: "41,935", pct: "8%" },
-      { country: "India", code: "IN", downloads: "31,455", pct: "6%" },
-    ],
-    cliPct: 67,
-    apiPct: 25,
-    playgroundPct: 8,
-    cacheHitRatio: "99.80%",
-  },
-};
-
 export default function AnalyticsPage() {
-  const { skills } = useSession();
+  const { skills, currentOrg, auditEvents } = useSession();
   const { showToast } = useToast();
 
-  const [range, setRange] = useState<TimeRange>("30D");
+  const [range, setRange] = useState<ChartRange>("30D");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortField, setSortField] = useState<"name" | "downloads" | "latency" | "trend">("downloads");
+  const [sortField, setSortField] = useState<"name" | "downloads" | "updated">("downloads");
   const [sortAsc, setSortAsc] = useState(false);
   const [pageSize, setPageSize] = useState<number>(10);
   const [pageIndex, setPageIndex] = useState<number>(0);
 
-  const activeMetrics = METRICS_BY_RANGE[range];
+  const totalDownloads = useMemo(
+    () => skills.reduce((sum, s) => sum + (s.totalDownloads || 0), 0),
+    [skills]
+  );
 
-  // Helper to get deterministic realistic metrics per skill
-  const getSkillMetrics = (name: string, index: number) => {
-    // Proportional multipliers for range
-    const rangeMultiplier = range === "7D" ? 0.23 : range === "90D" ? 3.1 : range === "Custom" ? 1.42 : 1.0;
-
-    // Deterministic distribution: top skills get highest baseline
-    const baseDownloads = Math.max(
-      42000 - index * 1650,
-      1200 + ((name.charCodeAt(0) * 83) % 4500)
-    );
-    const downloads = Math.round(baseDownloads * rangeMultiplier);
-
-    const latencies = ["9ms", "11ms", "12ms", "14ms", "15ms", "17ms"];
-    const latency = latencies[(index + name.length) % latencies.length];
-
-    const regions = [
-      "United States (US)",
-      "Germany (DE)",
-      "United Kingdom (GB)",
-      "Japan (JP)",
-      "India (IN)",
-      "Singapore (SG)",
-    ];
-    const topRegion = regions[index % regions.length];
-
-    const trends = ["+28%", "+22%", "+18%", "+14%", "+11%", "+9%", "+34%"];
-    const trend = trends[(index * 3) % trends.length];
-
-    return {
-      downloads,
-      downloadsFormatted: downloads.toLocaleString(),
-      latency,
-      topRegion,
-      trend,
-    };
-  };
-
-  // Enriched, filtered, and sorted skills list
   const enrichedSkills = useMemo(() => {
-    const list = skills.map((sk, idx) => {
-      const metrics = getSkillMetrics(sk.name, idx);
-      const effectiveDownloads = sk.totalDownloads > 0 ? sk.totalDownloads : metrics.downloads;
+    const list = skills.map((sk) => ({
+      id: sk.id,
+      name: sk.name,
+      scope: sk.scope,
+      fullName: sk.name.startsWith("@") ? sk.name : `${sk.scope}/${sk.name}`,
+      downloads: sk.totalDownloads || 0,
+      downloadsFormatted: (sk.totalDownloads || 0).toLocaleString(),
+      visibility: sk.visibility,
+      updatedAt: sk.updatedAt || "—",
+      version: sk.version,
+    }));
 
-      return {
-        id: sk.id,
-        name: sk.name,
-        scope: sk.scope,
-        fullName: `${sk.scope}/${sk.name}`,
-        downloads: effectiveDownloads,
-        downloadsFormatted: effectiveDownloads.toLocaleString(),
-        latency: metrics.latency,
-        latencyNum: parseInt(metrics.latency.replace("ms", ""), 10) || 12,
-        topRegion: metrics.topRegion,
-        trend: metrics.trend,
-        trendNum: parseInt(metrics.trend.replace(/[%+]/g, ""), 10) || 10,
-        version: sk.version,
-      };
-    });
-
-    // Filter by search query
     const filtered = list.filter((item) =>
       item.fullName.toLowerCase().includes(searchQuery.toLowerCase().trim())
     );
 
-    // Sort
     return filtered.sort((a, b) => {
       let cmp = 0;
       if (sortField === "downloads") {
         cmp = b.downloads - a.downloads;
       } else if (sortField === "name") {
         cmp = a.name.localeCompare(b.name);
-      } else if (sortField === "latency") {
-        cmp = a.latencyNum - b.latencyNum;
-      } else if (sortField === "trend") {
-        cmp = b.trendNum - a.trendNum;
+      } else {
+        cmp = b.updatedAt.localeCompare(a.updatedAt);
       }
       return sortAsc ? -cmp : cmp;
     });
-  }, [skills, range, searchQuery, sortField, sortAsc]);
+  }, [skills, searchQuery, sortField, sortAsc]);
 
-  // Paginated slice
   const paginatedSkills = useMemo(() => {
     const start = pageIndex * pageSize;
     return enrichedSkills.slice(start, start + pageSize);
@@ -249,16 +80,15 @@ export default function AnalyticsPage() {
   };
 
   const handleExportCSV = () => {
-    const headers = ["Skill Name", "Scope", "Downloads", "Top Region", "P50 Latency", "Trend", "Period", "Exported At"];
+    const headers = ["Skill Name", "Scope", "Version", "Downloads", "Visibility", "Updated At", "Period"];
     const rows = enrichedSkills.map((sk) => [
       escapeCsvCell(sk.name),
       escapeCsvCell(sk.scope),
+      escapeCsvCell(sk.version),
       escapeCsvCell(sk.downloads),
-      escapeCsvCell(sk.topRegion),
-      escapeCsvCell(sk.latency),
-      escapeCsvCell(sk.trend),
+      escapeCsvCell(sk.visibility),
+      escapeCsvCell(sk.updatedAt),
       escapeCsvCell(range),
-      escapeCsvCell(new Date().toISOString()),
     ]);
 
     const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
@@ -266,7 +96,7 @@ export default function AnalyticsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `spm-registry-telemetry-${range.toLowerCase()}-${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute("download", `spm-analytics-${currentOrg.slug.replace(/^@/, "")}-${range.toLowerCase()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -274,7 +104,7 @@ export default function AnalyticsPage() {
 
     showToast({
       title: "Telemetry Exported (CSV)",
-      message: `Downloaded CSV telemetry for ${enrichedSkills.length} skills across ${range}.`,
+      message: `Downloaded live telemetry for ${enrichedSkills.length} skills in ${currentOrg.slug}.`,
       type: "success",
     });
   };
@@ -287,18 +117,17 @@ export default function AnalyticsPage() {
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold font-sans text-black">Registry Telemetry & Ingestion</h1>
             <span className="font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-              LIVE INGESTION
+              {currentOrg.slug}
             </span>
           </div>
           <p className="text-xs font-mono text-black/60 mt-0.5">
-            Real-time package runtime execution, latency percentiles, and geographic edge dispersion.
+            Live workspace package counts, download totals, and audit stream activity.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Time Range Selector */}
           <div className="flex items-center gap-1 p-1 rounded-xl bg-white border border-black/10 font-mono text-xs shadow-xs">
-            {(["7D", "30D", "90D", "Custom"] as const).map((r) => (
+            {(["7D", "30D", "90D", "1Y"] as const).map((r) => (
               <button
                 key={r}
                 onClick={() => {
@@ -316,7 +145,6 @@ export default function AnalyticsPage() {
             ))}
           </div>
 
-          {/* Real CSV Export Button */}
           <button
             onClick={handleExportCSV}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-black/10 bg-white hover:bg-black/5 text-black font-mono text-xs uppercase font-semibold transition-all shadow-xs cursor-pointer active:scale-95"
@@ -328,128 +156,71 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* ── 4 LIVE KPI CARDS (DYNAMICS ACCORDING TO RANGE) ── */}
+      {/* ── 4 REAL WORKSPACE KPI CARDS ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition-all hover:border-black/20">
           <div className="font-mono text-xs uppercase text-black/60 mb-2 font-semibold">Total Downloads</div>
-          <div className="text-3xl font-bold font-sans text-black">{activeMetrics.totalDownloadsStr}</div>
+          <div className="text-3xl font-bold font-sans text-black">{totalDownloads.toLocaleString()}</div>
           <div className="mt-1 flex items-center gap-1 text-xs font-mono text-emerald-700 font-medium">
             <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{activeMetrics.totalDownloadsDelta}</span>
+            <span>Across {skills.length} workspace skill{skills.length === 1 ? "" : "s"}</span>
           </div>
         </div>
 
         <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition-all hover:border-black/20">
-          <div className="font-mono text-xs uppercase text-black/60 mb-2 font-semibold">Unique Installers</div>
-          <div className="text-3xl font-bold font-sans text-black">{activeMetrics.uniqueInstallersStr}</div>
-          <div className="mt-1 flex items-center gap-1 text-xs font-mono text-emerald-700 font-medium">
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{activeMetrics.uniqueInstallersDelta}</span>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition-all hover:border-black/20">
-          <div className="font-mono text-xs uppercase text-black/60 mb-2 font-semibold">Avg Install Time (P50)</div>
-          <div className="text-3xl font-bold font-sans text-black">{activeMetrics.avgInstallTime}</div>
-          <div className="mt-1 flex items-center gap-1 text-xs font-mono text-emerald-700 font-medium">
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{activeMetrics.avgInstallTimeDelta}</span>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition-all hover:border-black/20">
-          <div className="font-mono text-xs uppercase text-black/60 mb-2 font-semibold">Error Rate</div>
-          <div className="text-3xl font-bold font-sans text-black">{activeMetrics.errorRate}</div>
+          <div className="font-mono text-xs uppercase text-black/60 mb-2 font-semibold">Published Packages</div>
+          <div className="text-3xl font-bold font-sans text-black">{skills.length}</div>
           <div className="mt-1 text-xs font-mono text-black/60">
-            {activeMetrics.errorRateSubtext}
+            Quota: {skills.length} / {currentOrg.skillsAllowed} ({currentOrg.plan.toUpperCase()})
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition-all hover:border-black/20">
+          <div className="font-mono text-xs uppercase text-black/60 mb-2 font-semibold">Audit Events</div>
+          <div className="text-3xl font-bold font-sans text-black">{auditEvents.length}</div>
+          <div className="mt-1 text-xs font-mono text-black/60">
+            Recorded workspace mutations
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition-all hover:border-black/20">
+          <div className="font-mono text-xs uppercase text-black/60 mb-2 font-semibold">Public vs Private</div>
+          <div className="text-3xl font-bold font-sans text-black">
+            {skills.filter((s) => s.visibility === "public").length} / {skills.filter((s) => s.visibility === "private").length}
+          </div>
+          <div className="mt-1 text-xs font-mono text-black/60">
+            Public / private packages
           </div>
         </div>
       </div>
 
-      {/* ── INTERACTIVE INGESTION TIME-SERIES CHART ── */}
+      {/* ── SYNCHRONIZED TIME-SERIES CHART ── */}
       <DownloadsOverTimeChart
-        title={`Telemetry Ingestion Throughput (${range})`}
-        totalDownloads={activeMetrics.totalNum}
+        title={`Workspace Downloads (${range})`}
+        totalDownloads={totalDownloads}
+        range={range}
+        onRangeChange={setRange}
+        events={skills.map((s) => ({
+          date: s.updatedAt,
+          downloads: s.totalDownloads || 0,
+        }))}
       />
 
-      {/* ── TOP REGIONS & PROTOCOLS ROW ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Regions */}
-        <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-base font-semibold text-black">Top Regions by Traffic</h3>
-              <p className="text-xs text-black/60 font-mono mt-0.5">Global edge distribution ({range})</p>
-            </div>
-            <Globe className="w-4 h-4 text-[#1B5FED]" />
-          </div>
-
-          <div className="space-y-3">
-            {activeMetrics.regions.map((rg) => (
-              <div key={rg.code} className="space-y-1">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-black font-semibold">{rg.country} ({rg.code})</span>
-                  <span className="text-black/60">{rg.downloads} ({rg.pct})</span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-black/5 overflow-hidden">
-                  <div
-                    style={{ width: rg.pct }}
-                    className="h-full rounded-full bg-[#1B5FED] transition-all duration-300"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Ingestion Protocols */}
-        <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm flex flex-col justify-between">
-          <div>
-            <h3 className="text-base font-semibold text-black">Ingestion Protocols</h3>
-            <p className="text-xs text-black/60 font-mono mt-0.5">Execution clients connecting to registry ({range})</p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 my-4">
-            <div className="p-4 rounded-xl border border-black/10 bg-black/[0.02] text-center">
-              <div className="font-mono text-2xl font-bold text-[#1B5FED]">{activeMetrics.cliPct}%</div>
-              <div className="font-mono text-xs font-bold text-black mt-1">CLI</div>
-              <div className="font-mono text-[10px] text-black/50">spm install</div>
-            </div>
-            <div className="p-4 rounded-xl border border-black/10 bg-black/[0.02] text-center">
-              <div className="font-mono text-2xl font-bold text-purple-700">{activeMetrics.apiPct}%</div>
-              <div className="font-mono text-xs font-bold text-black mt-1">Agent API</div>
-              <div className="font-mono text-[10px] text-black/50">MCP runner</div>
-            </div>
-            <div className="p-4 rounded-xl border border-black/10 bg-black/[0.02] text-center">
-              <div className="font-mono text-2xl font-bold text-emerald-700">{activeMetrics.playgroundPct}%</div>
-              <div className="font-mono text-xs font-bold text-black mt-1">Playground</div>
-              <div className="font-mono text-[10px] text-black/50">Browser test</div>
-            </div>
-          </div>
-
-          <div className="p-3 rounded-xl border border-black/10 bg-black/[0.02] font-mono text-xs text-black/70 flex items-center justify-between">
-            <span>Cache Hit Ratio:</span>
-            <span className="text-emerald-700 font-bold">{activeMetrics.cacheHitRatio}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── BY-SKILL PAGINATED & SORTABLE TABLE ── */}
-      <div className="rounded-2xl border border-black/10 bg-white shadow-sm overflow-hidden space-y-0">
+      {/* ── BY-SKILL TABLE ── */}
+      <div className="rounded-2xl border border-black/10 bg-white shadow-sm overflow-hidden">
         <div className="p-4 sm:p-6 border-b border-black/10 bg-[#F5F5F7]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-semibold text-black">By-Skill Ingestion Breakdown</h3>
+              <h3 className="text-base font-semibold text-black">By-Skill Performance</h3>
               <span className="font-mono text-xs bg-black/5 text-black/70 px-2 py-0.5 rounded-full font-bold">
                 {enrichedSkills.length} skills indexed
               </span>
             </div>
             <p className="text-xs text-black/60 font-mono mt-0.5">
-              Granular package performance table • Range: {range}
+              Tenant-scoped downloads & release tracking • {currentOrg.slug}
             </p>
           </div>
 
-          {/* Search Filter */}
           <div className="relative w-full sm:w-64">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black/40" />
             <input
@@ -478,6 +249,7 @@ export default function AnalyticsPage() {
                     <ArrowUpDown className="w-3 h-3 text-black/40" />
                   </div>
                 </th>
+                <th className="py-3 px-4">Version</th>
                 <th
                   onClick={() => handleSort("downloads")}
                   className="py-3 px-4 cursor-pointer hover:text-black transition-colors"
@@ -487,22 +259,13 @@ export default function AnalyticsPage() {
                     <ArrowUpDown className="w-3 h-3 text-black/40" />
                   </div>
                 </th>
-                <th className="py-3 px-4">Top Region</th>
+                <th className="py-3 px-4">Visibility</th>
                 <th
-                  onClick={() => handleSort("latency")}
-                  className="py-3 px-4 cursor-pointer hover:text-black transition-colors"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span>Avg Install Time</span>
-                    <ArrowUpDown className="w-3 h-3 text-black/40" />
-                  </div>
-                </th>
-                <th
-                  onClick={() => handleSort("trend")}
+                  onClick={() => handleSort("updated")}
                   className="py-3 px-4 text-right cursor-pointer hover:text-black transition-colors"
                 >
                   <div className="flex items-center justify-end gap-1.5">
-                    <span>Trend</span>
+                    <span>Last Updated</span>
                     <ArrowUpDown className="w-3 h-3 text-black/40" />
                   </div>
                 </th>
@@ -511,8 +274,10 @@ export default function AnalyticsPage() {
             <tbody className="divide-y divide-black/5">
               {paginatedSkills.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-black/40 font-mono text-xs">
-                    No skills matched &quot;{searchQuery}&quot;
+                  <td colSpan={5} className="py-10 text-center text-black/45 font-mono text-xs">
+                    {searchQuery
+                      ? `No skills matched "${searchQuery}"`
+                      : `No skills published in ${currentOrg.slug} yet.`}
                   </td>
                 </tr>
               ) : (
@@ -527,18 +292,15 @@ export default function AnalyticsPage() {
                         <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 text-[#1B5FED] transition-opacity" />
                       </Link>
                     </td>
-                    <td className="py-3.5 px-4 text-black font-semibold">
-                      {sk.downloadsFormatted}
+                    <td className="py-3.5 px-4 text-[#1B5FED] font-semibold">v{sk.version}</td>
+                    <td className="py-3.5 px-4 text-black font-semibold">{sk.downloadsFormatted}</td>
+                    <td className="py-3.5 px-4">
+                      <span className="inline-flex items-center gap-1 capitalize text-black/70">
+                        <Globe className="w-3 h-3 text-emerald-600" />
+                        <span>{sk.visibility}</span>
+                      </span>
                     </td>
-                    <td className="py-3.5 px-4 text-black/70">
-                      {sk.topRegion}
-                    </td>
-                    <td className="py-3.5 px-4 text-[#1B5FED] font-semibold">
-                      {sk.latency}
-                    </td>
-                    <td className="py-3.5 px-4 text-right text-emerald-700 font-bold">
-                      {sk.trend}
-                    </td>
+                    <td className="py-3.5 px-4 text-right text-black/60">{sk.updatedAt}</td>
                   </tr>
                 ))
               )}
@@ -546,7 +308,6 @@ export default function AnalyticsPage() {
           </table>
         </div>
 
-        {/* ── PAGINATION CONTROLS ── */}
         <div className="px-6 py-3 border-t border-black/10 bg-black/[0.01] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono text-black/60">
           <div className="flex items-center gap-2">
             <span>Rows per page:</span>

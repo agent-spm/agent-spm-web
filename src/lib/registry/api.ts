@@ -237,7 +237,7 @@ class RegistryApiClient {
 
       let query = supabase
         .from("packages")
-        .select("id, name, description, owner_id, visibility, latest_version, total_downloads, verified, created_at, updated_at")
+        .select("*")
         .eq("visibility", "public");
 
       if (sort === "name") {
@@ -261,7 +261,7 @@ class RegistryApiClient {
       }
 
       const q = (params.query || "").toLowerCase().trim();
-      let filtered = data;
+      let filtered = data.filter((p: { status?: string | null }) => p.status !== "quarantined");
       if (q) {
         filtered = filtered.filter((p) => {
           const pkgName = p.name.toLowerCase();
@@ -365,7 +365,9 @@ class RegistryApiClient {
         .select("*")
         .eq("visibility", "public")
         .in("name", candidateNames);
-      const rows = (res.data as RawPackageRow[] | null) || [];
+      const rows = ((res.data as Array<RawPackageRow & { status?: string | null }> | null) || []).filter(
+        (r) => r.status !== "quarantined"
+      );
       pkgData =
         rows.find((row) => row.name === fullName) ||
         rows[0] ||

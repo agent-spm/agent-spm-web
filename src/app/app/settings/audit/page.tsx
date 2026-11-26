@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export default function AuditLogsPage() {
-  const { auditEvents } = useSession();
+  const { auditEvents, currentOrg, refreshSession } = useSession();
   const { showToast } = useToast();
   const [range, setRange] = useState("7D");
   const [liveTail, setLiveTail] = useState(false);
@@ -58,7 +58,7 @@ export default function AuditLogsPage() {
     const jsonContent = JSON.stringify(
       {
         exportedAt: new Date().toISOString(),
-        organization: "acme-labs",
+        organization: currentOrg.slug,
         filter: { search, severity: severityFilter, range },
         totalEvents: filteredEvents.length,
         events: filteredEvents,
@@ -78,19 +78,29 @@ export default function AuditLogsPage() {
 
     showToast({
       title: "Audit Trail Exported (JSON)",
-      message: `Downloaded structured payload formatted for SIEM / SOC 2 ingestion.`,
+      message: `Downloaded structured payload for ${currentOrg.slug}.`,
       type: "success",
     });
   };
 
-  // Simulated live tail event generation
+  // Real background polling when Live Tail is active
   useEffect(() => {
     if (!liveTail) return;
+    refreshSession(currentOrg.id || null);
     const interval = setInterval(() => {
-      // live streaming indicator ping
-    }, 3000);
+      refreshSession(currentOrg.id || null);
+    }, 5000);
     return () => clearInterval(interval);
-  }, [liveTail]);
+  }, [liveTail, currentOrg.id, refreshSession]);
+
+  const nowMs = Date.now();
+  const rangeMsMap: Record<string, number> = {
+    "24H": 24 * 60 * 60 * 1000,
+    "7D": 7 * 24 * 60 * 60 * 1000,
+    "30D": 30 * 24 * 60 * 60 * 1000,
+    "1Y": 365 * 24 * 60 * 60 * 1000,
+  };
+  const cutoffMs = nowMs - (rangeMsMap[range] ?? rangeMsMap["7D"]);
 
   const filteredEvents = auditEvents.filter((evt) => {
     const matchesSearch =
@@ -100,7 +110,9 @@ export default function AuditLogsPage() {
       evt.ipAddress.includes(search);
 
     const matchesSeverity = severityFilter === "all" ? true : evt.severity === severityFilter;
-    return matchesSearch && matchesSeverity;
+    const evtTime = new Date(evt.timestamp).getTime();
+    const matchesRange = Number.isNaN(evtTime) ? true : evtTime >= cutoffMs;
+    return matchesSearch && matchesSeverity && matchesRange;
   });
 
   const getSeverityBadge = (sev: AuditSeverity) => {
@@ -121,13 +133,13 @@ export default function AuditLogsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold font-sans text-black">Enterprise Audit Trail</h2>
+              <h2 className="text-xl font-bold font-sans text-black">Workspace Audit Trail</h2>
               <span className="font-mono text-[10px] uppercase font-bold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-300">
-                1-YEAR RETENTION
+                POSTGRES AUDIT LOG
               </span>
             </div>
             <p className="text-xs font-mono text-black/60 mt-0.5">
-              Immutable cryptographically verifiable event stream of all sensitive organization actions
+              Immutable organization activity stream recorded in public.audit_log
             </p>
           </div>
 

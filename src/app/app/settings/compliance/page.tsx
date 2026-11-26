@@ -17,7 +17,9 @@ import { useSession } from "@/lib/data/session-context";
 
 export default function CompliancePage() {
   const { showToast } = useToast();
-  const { currentOrg, currentPersona } = useSession();
+  const { currentOrg, currentPersona, skills, teamMembers, auditEvents } = useSession();
+  const cleanOrgRef = currentOrg.slug.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase() || "WORKSPACE";
+  const dpaDocumentId = `DPA-SPM-2026-${cleanOrgRef}`;
   const [selectedRegion, setSelectedRegion] = useState("us-east-1");
   const [exporting, setExporting] = useState(false);
   const [exportComplete, setExportComplete] = useState(false);
@@ -85,40 +87,64 @@ Target Organization: ${currentOrg.name} (${currentOrg.slug})
   };
 
   const handleDownloadDPA = () => {
-    const dpaContent = `DATA PROCESSING AGREEMENT (GDPR ART. 28)
-Document ID: DPA-SPM-2026-ACME-0941
-Version: 3.2 (2026 European Union Revision)
+    const dpaContent = `DATA PROCESSING AGREEMENT TEMPLATE (GDPR ART. 28)
+Document Reference: ${dpaDocumentId}
+Prepared: ${new Date().toISOString().split("T")[0]}
 
 PARTIES:
 1. CUSTOMER: ${currentOrg.name} (${currentOrg.slug})
-2. SERVICE PROVIDER: Agent SPM Inc.
+2. SERVICE PROVIDER: Agent SPM
 
-TERMS & SUBPROCESSORS:
-- Physical Cloud Host: Supabase Inc. (AWS us-east-1)
-- Ingestion Gateway: Fastly / Cloudflare Enterprise Edge
-- AI Sandbox Runtime: Firecracker microVM isolated runners
+SUBPROCESSORS:
+- Database & Auth Host: Supabase (AWS us-east-1)
+- Web Delivery: Edge Hosting
+- Billing Processing: Razorpay (when configured)
 
-Executed on January 15, 2026.
+NOTE: Execute counter-signature via Enterprise onboarding to activate bespoke SLA terms.
 `;
-    triggerDownload("DPA-SPM-2026-ACME-0941.txt", dpaContent);
+    triggerDownload(`${dpaDocumentId}.txt`, dpaContent);
     showToast({
-      title: "DPA Agreement Downloaded",
-      message: "Saved DPA-SPM-2026-ACME-0941.txt to your device.",
+      title: "DPA Template Downloaded",
+      message: `Saved ${dpaDocumentId}.txt to your device.`,
       type: "success",
     });
   };
 
   const handleExport = () => {
     setExporting(true);
-    setTimeout(() => {
-      setExporting(false);
-      setExportComplete(true);
-      showToast({
-        title: "Export Archive Requested",
-        message: `An encrypted download link has been dispatched to ${currentPersona.email}.`,
-        type: "success",
-      });
-    }, 1200);
+    const archivePayload = {
+      exportedAt: new Date().toISOString(),
+      organization: {
+        id: currentOrg.id,
+        name: currentOrg.name,
+        slug: currentOrg.slug,
+        plan: currentOrg.plan,
+      },
+      dataResidencySelection: selectedRegion,
+      teamCount: teamMembers.length,
+      skillsCount: skills.length,
+      skills: skills.map((s) => ({
+        scope: s.scope,
+        name: s.name,
+        version: s.version,
+        status: s.status,
+        visibility: s.visibility,
+        totalDownloads: s.totalDownloads,
+      })),
+      auditEvents,
+    };
+    triggerDownload(
+      `spm-workspace-export-${cleanOrgRef.toLowerCase()}.json`,
+      JSON.stringify(archivePayload, null, 2),
+      "application/json"
+    );
+    setExporting(false);
+    setExportComplete(true);
+    showToast({
+      title: "Workspace Data Exported",
+      message: `Downloaded JSON compliance bundle for ${currentOrg.slug}.`,
+      type: "success",
+    });
   };
 
   const handleConfirmDeletion = (e: React.FormEvent) => {
@@ -199,18 +225,18 @@ Executed on January 15, 2026.
         <div className="p-5 rounded-2xl border border-emerald-300 bg-emerald-50 flex flex-col justify-between shadow-xs">
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-emerald-950">SOC 2 Type II</span>
-              <span className="text-[10px] font-bold text-emerald-800 uppercase px-1.5 py-0.5 rounded bg-emerald-100 border border-emerald-300">CERTIFIED</span>
+              <span className="text-sm font-bold text-emerald-950">Security Controls</span>
+              <span className="text-[10px] font-bold text-emerald-800 uppercase px-1.5 py-0.5 rounded bg-emerald-100 border border-emerald-300">SELF-ASSESSED</span>
             </div>
             <p className="text-emerald-900 text-xs mt-1.5 font-sans leading-relaxed">
-              Verified security, confidentiality, and availability controls by Deloitte LLP.
+              Supabase RLS tenant isolation, TLS 1.3 transport, and SHA-256 package digests. External SOC 2 audit in roadmap.
             </p>
           </div>
           <button
             onClick={() => setActiveModal("soc2")}
             className="mt-4 text-[#1B5FED] hover:underline text-left text-xs font-bold cursor-pointer"
           >
-            View Report →
+            View Security Summary →
           </button>
         </div>
 
@@ -359,20 +385,22 @@ Executed on January 15, 2026.
 
         <div className="p-4 rounded-xl border border-black/10 bg-black/[0.02] font-mono text-xs text-black/80 space-y-2">
           <div className="flex justify-between border-b border-black/5 pb-1.5">
-            <span className="text-black/60">Document ID:</span>
-            <span className="text-black font-semibold">DPA-SPM-2026-ACME-0941</span>
+            <span className="text-black/60">Template Reference:</span>
+            <span className="text-black font-semibold">{dpaDocumentId}</span>
           </div>
           <div className="flex justify-between border-b border-black/5 pb-1.5">
-            <span className="text-black/60">Version:</span>
-            <span className="text-black font-semibold">v3.2 (2026 Revision)</span>
+            <span className="text-black/60">Revision:</span>
+            <span className="text-black font-semibold">EU SCC 2021/914 Module 2 Template</span>
           </div>
           <div className="flex justify-between border-b border-black/5 pb-1.5">
-            <span className="text-black/60">Signed By:</span>
-            <span className="text-black">Lakshit Soni (Organization Controller) on Jan 15, 2026</span>
+            <span className="text-black/60">Workspace Controller:</span>
+            <span className="text-black">
+              {currentPersona.name} ({currentOrg.name})
+            </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-black/60">Counter-Signed By:</span>
-            <span className="text-black">Agent SPM Trust & Safety Officer on Jan 15, 2026</span>
+            <span className="text-black/60">Execution Status:</span>
+            <span className="text-black">Download template or request counter-signature</span>
           </div>
         </div>
 
@@ -382,7 +410,7 @@ Executed on January 15, 2026.
             className="flex items-center gap-2 text-xs font-mono text-[#1B5FED] font-semibold hover:underline cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Download Signed Agreement PDF</span>
+            <span>Download DPA Template</span>
           </button>
         </div>
       </div>
@@ -397,18 +425,18 @@ Executed on January 15, 2026.
         {/* ZIP Export */}
         <div className="p-4 rounded-xl border border-black/10 bg-black/[0.01] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="font-mono text-xs font-bold text-black">Full Organization Data Export</div>
-            <div className="text-xs text-black/70 mt-0.5 font-sans leading-relaxed">
-              Generates a comprehensive ZIP archive containing all skill manifests, code versions, analytics CSVs, team lists, and immutable audit logs. An encrypted link is emailed upon generation (~5 mins).
+              <div className="font-mono text-xs font-bold text-black">Full Organization JSON Export</div>
+              <div className="text-xs text-black/70 mt-0.5 font-sans leading-relaxed">
+                Immediately downloads a structured JSON archive containing your organization metadata, published skill manifests, member counts, and live Postgres audit logs.
+              </div>
             </div>
-          </div>
-          <button
-            onClick={handleExport}
-            disabled={exporting}
-            className="px-4 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white font-mono text-xs font-semibold uppercase tracking-wider flex-shrink-0 cursor-pointer shadow-sm transition-all"
-          >
-            {exporting ? "Generating Archive..." : exportComplete ? "Link Emailed ✓" : "Export All Data (ZIP)"}
-          </button>
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              className="px-4 py-2 rounded-xl bg-[#1B5FED] hover:bg-[#1B5FED]/90 text-white font-mono text-xs font-semibold uppercase tracking-wider flex-shrink-0 cursor-pointer shadow-sm transition-all"
+            >
+              {exporting ? "Exporting..." : exportComplete ? "Downloaded ✓" : "Export Data (JSON)"}
+            </button>
         </div>
 
         {/* Delete Organization */}
@@ -453,21 +481,21 @@ Executed on January 15, 2026.
               <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <span>
-                  Deloitte LLP has issued an unqualified opinion covering period Nov 1, 2025 to Oct 31, 2026.
+                  Internal platform baseline controls summary for {currentOrg.slug}. External third-party SOC 2 Type II audit can be requested via Enterprise onboarding.
                 </span>
               </div>
 
               <div className="space-y-1.5 border border-black/10 rounded-xl p-3 bg-black/[0.01]">
                 <div className="flex justify-between">
-                  <span className="text-black/50">Auditor:</span>
-                  <span className="font-semibold text-black">Deloitte & Touche LLP</span>
+                  <span className="text-black/50">Control Scope:</span>
+                  <span className="font-semibold text-black">RLS Tenant Isolation & Audit Logging</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-black/50">Report ID:</span>
-                  <span className="font-semibold text-black">SOC2-SPM-2026-981-A</span>
+                  <span className="text-black/50">Reference ID:</span>
+                  <span className="font-semibold text-black">SEC-BASELINE-{cleanOrgRef}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-black/50">Tested Principles:</span>
+                  <span className="text-black/50">Principles:</span>
                   <span className="font-semibold text-black">Security, Confidentiality, Availability</span>
                 </div>
               </div>

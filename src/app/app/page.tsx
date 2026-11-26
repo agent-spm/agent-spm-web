@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/data/session-context";
-import { SEED_OVERVIEW_KPIS } from "@/lib/data/mock-store";
 import {
   TerminalSquare,
   Download,
@@ -120,7 +119,14 @@ export default function OverviewPage() {
       </div>
 
       {/* ── LIVE DOWNLOADS TIME-SERIES CHART ── */}
-      <DownloadsOverTimeChart title="Downloads over time" totalDownloads={totalDownloads} />
+      <DownloadsOverTimeChart
+        title="Downloads over time"
+        totalDownloads={totalDownloads}
+        events={skills.map((s) => ({
+          date: s.updatedAt,
+          downloads: s.totalDownloads || 0,
+        }))}
+      />
 
       {/* ── SPLIT ROW: TOP SKILLS & INSTALL METHODS & ACTIVITY FEED ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -139,28 +145,43 @@ export default function OverviewPage() {
             </div>
 
             <div className="space-y-4">
-              {topSkills.map((sk) => {
-                const pct = Math.round((sk.totalDownloads / topSkillMax) * 100);
-                return (
-                  <div key={sk.id} className="space-y-1.5 group">
-                    <div className="flex items-center justify-between text-xs font-mono">
-                      <Link
-                        href={`/app/skills/${encodeURIComponent(sk.scope)}/${encodeURIComponent(sk.name)}`}
-                        className="font-bold text-black group-hover:text-[#1B5FED] transition-colors"
-                      >
-                        {sk.scope}/{sk.name} <span className="text-black/40 font-normal">v{sk.version}</span>
-                      </Link>
-                      <span className="text-black font-bold">{sk.totalDownloads.toLocaleString()}</span>
+              {topSkills.length === 0 ? (
+                <div className="py-8 text-center rounded-[6px] border border-dashed border-black/15 bg-[#FAFAFA]">
+                  <p className="font-mono text-xs text-black/55">
+                    No skill packages published in {currentOrg.slug} yet.
+                  </p>
+                  <Link
+                    href="/app/skills/publish"
+                    className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[4px] bg-[#1B5FED] text-white font-mono text-xs font-semibold uppercase"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Publish First Skill</span>
+                  </Link>
+                </div>
+              ) : (
+                topSkills.map((sk) => {
+                  const pct = Math.round((sk.totalDownloads / topSkillMax) * 100);
+                  return (
+                    <div key={sk.id} className="space-y-1.5 group">
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <Link
+                          href={`/app/skills/${encodeURIComponent(sk.scope)}/${encodeURIComponent(sk.name)}`}
+                          className="font-bold text-black group-hover:text-[#1B5FED] transition-colors"
+                        >
+                          {sk.scope}/{sk.name} <span className="text-black/40 font-normal">v{sk.version}</span>
+                        </Link>
+                        <span className="text-black font-bold">{sk.totalDownloads.toLocaleString()}</span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-black/5 overflow-hidden">
+                        <div
+                          style={{ width: `${pct}%` }}
+                          className="h-full rounded-full bg-[#1B5FED] transition-all duration-500"
+                        />
+                      </div>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-black/5 overflow-hidden">
-                      <div
-                        style={{ width: `${pct}%` }}
-                        className="h-full rounded-full bg-[#1B5FED] transition-all duration-500"
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 

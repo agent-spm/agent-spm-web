@@ -82,3 +82,5 @@ export const checkoutApiLimiter = createRateLimiter({ windowMs: 60_000, max: 15 
 export const publishApiLimiter = createRateLimiter({ windowMs: 60_000, max: 10 });
 export const downloadApiLimiter = createRateLimiter({ windowMs: 60_000, max: 30 });
 export const demoInspectLimiter = createRateLimiter({ windowMs: 60_000, max: 60 });
+export const telemetryIngestLimiter = createRateLimiter({ windowMs: 60_000, max: 120 });
+export const workspaceWriteLimiter = createRateLimiter({ windowMs: 60_000, max: 30 });
