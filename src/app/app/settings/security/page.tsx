@@ -19,7 +19,8 @@ import { useSession } from "@/lib/data/session-context";
 
 export default function SecuritySettingsPage() {
   const supabase = createSupabaseBrowserClient();
-  const { userProfile, currentPersona } = useSession();
+  const { userProfile, currentPersona, currentOrg } = useSession();
+  const cleanOrgSlug = currentOrg.slug.replace(/^@/, "") || "workspace";
 
   // Personal Credential & Biometrics State
   const [newPassword, setNewPassword] = useState("");
@@ -40,8 +41,9 @@ export default function SecuritySettingsPage() {
   const [totpError, setTotpError] = useState<string | null>(null);
 
   // SAML SSO State
-  const [ssoEnabled, setSsoEnabled] = useState(true);
+  const [ssoEnabled, setSsoEnabled] = useState(false);
   const [idp, setIdp] = useState("okta");
+  const [ssoUrl, setSsoUrl] = useState("");
   const [copiedAcs, setCopiedAcs] = useState(false);
   const [copiedEntity, setCopiedEntity] = useState(false);
 
@@ -54,14 +56,9 @@ export default function SecuritySettingsPage() {
   const [sessionDuration, setSessionDuration] = useState("8 hours");
   const [concurrentSessions, setConcurrentSessions] = useState("3");
 
-  const acsUrl = "https://auth.agent-spm.com/sso/saml/v1/acme-labs/callback";
-  const entityId = "https://agent-spm.com/saml/metadata/acme-labs";
-  const [cert, setCert] = useState(`-----BEGIN CERTIFICATE-----
-MIIDpDCCAoygAwIBAgIGAXk4f31cMA0GCSqGSIb3DQEBCwUAMIGSMQswCQYDVQQG
-EwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNj
-bzESMBAGA1UECgwJT2t0YSwgSW5jMRMwEQYDVQQLDApUZWNoIFN1cHBvcnQxEjAQ
-BgNVBAMMCWFjbWUtbGFiczAeFw0yNjAxMDEwODAwMDBaFw0yODAxMDEwODAwMDBa
------END CERTIFICATE-----`);
+  const acsUrl = `https://www.agent-spm.com/sso/saml/v1/${cleanOrgSlug}/callback`;
+  const entityId = `https://www.agent-spm.com/saml/metadata/${cleanOrgSlug}`;
+  const [cert, setCert] = useState("");
 
   const handleCopy = (text: string, isAcs: boolean) => {
     navigator.clipboard.writeText(text);
@@ -396,8 +393,8 @@ BgNVBAMMCWFjbWUtbGFiczAeFw0yNjAxMDEwODAwMDBaFw0yODAxMDEwODAwMDBa
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-[#1B5FED]" />
               <h3 className="text-base font-semibold text-black">SAML 2.0 Single Sign-On</h3>
-              <span className="font-mono text-[10px] uppercase font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
-                ● ACTIVE
+              <span className="font-mono text-[10px] uppercase font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300">
+                {ssoEnabled ? "PREVIEW CONFIG" : "UNCONFIGURED"}
               </span>
             </div>
             <p className="text-xs font-mono text-black/60 mt-0.5">
@@ -433,8 +430,8 @@ BgNVBAMMCWFjbWUtbGFiczAeFw0yNjAxMDEwODAwMDBaFw0yODAxMDEwODAwMDBa
                   <option value="google">Google Workspace SAML</option>
                   <option value="ping">PingIdentity</option>
                 </select>
-                <div className="mt-1 text-[11px] font-mono text-emerald-700 font-medium">
-                  Last verified: Today at 04:12 UTC (Connection healthy)
+                <div className="mt-1 text-[11px] font-mono text-black/55 font-medium">
+                  Enterprise IdP provisioning preview (contact sales for production IdP enforcement)
                 </div>
               </div>
 
@@ -443,10 +440,11 @@ BgNVBAMMCWFjbWUtbGFiczAeFw0yNjAxMDEwODAwMDBaFw0yODAxMDEwODAwMDBa
                   Single Sign-On URL
                 </label>
                 <input
-                  type="text"
-                  readOnly
-                  value="https://acme-labs.okta.com/app/agent-spm/sso/saml"
-                  className="w-full rounded-xl border border-black/10 bg-black/[0.02] px-3 py-2 text-xs font-mono text-black/70"
+                  type="url"
+                  value={ssoUrl}
+                  onChange={(e) => setSsoUrl(e.target.value)}
+                  placeholder={`https://${cleanOrgSlug}.okta.com/app/agent-spm/sso/saml`}
+                  className="w-full rounded-xl border border-black/15 bg-white px-3 py-2 text-xs font-mono text-black focus:border-[#1B5FED] focus:outline-none"
                 />
               </div>
             </div>
@@ -603,7 +601,7 @@ BgNVBAMMCWFjbWUtbGFiczAeFw0yNjAxMDEwODAwMDBaFw0yODAxMDEwODAwMDBa
               <Laptop className="w-5 h-5 text-emerald-700" />
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-emerald-950">macOS 15.1 • Chrome (Active)</span>
+                  <span className="font-bold text-emerald-950">Current Authenticated Session</span>
                   <span className="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full font-bold">
                     THIS DEVICE
                   </span>
