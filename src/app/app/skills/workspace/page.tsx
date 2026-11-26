@@ -31,6 +31,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
+import { useSession } from "@/lib/data/session-context";
 
 type NodeType = "agent" | "skill" | "tool";
 type SecurityTier = "safe" | "moderate" | "restricted" | "elevated";
@@ -94,7 +95,7 @@ const PRESET_TOPOLOGIES: PresetTopology[] = [
         id: "skill-browser",
         name: "@spm/browser-tools",
         type: "skill",
-        roleOrScope: "acme-labs/v1.4.0",
+        roleOrScope: "sample-org/v1.4.0",
         description: "Headless Chromium automation runtime with screenshot and DOM extraction capabilities.",
         securityTier: "moderate",
         x: 320,
@@ -261,16 +262,88 @@ const PRESET_TOPOLOGIES: PresetTopology[] = [
 
 export default function WorkspaceDAGStudioPage() {
   const { showToast } = useToast();
-  const [selectedPresetId, setSelectedPresetId] = useState<string>("triage-fleet");
+  const { currentOrg, skills } = useSession();
+  const [selectedPresetId, setSelectedPresetId] = useState<string>("workspace-live");
   const [activeTab, setActiveTab] = useState<"topology" | "simulation" | "blast-radius">("topology");
-  const [selectedNodeId, setSelectedNodeId] = useState<string>("agent-triage");
+  const [selectedNodeId, setSelectedNodeId] = useState<string>("workspace-orchestrator");
   const [isSimulating, setIsSimulating] = useState(true);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [searchFilter, setSearchFilter] = useState("");
 
+  const liveWorkspaceTopology: PresetTopology = useMemo(() => {
+    const displayedSkills = skills.slice(0, 8);
+    const orchestrator: DAGNode = {
+      id: "workspace-orchestrator",
+      name: `${currentOrg.slug} Workspace Agent`,
+      type: "agent",
+      roleOrScope: `${currentOrg.name} (${currentOrg.plan.toUpperCase()})`,
+      description:
+        displayedSkills.length > 0
+          ? `Dynamically mapped topology across ${skills.length} published skill package(s) in ${currentOrg.slug}.`
+          : `No skills published in ${currentOrg.slug} yet. Publish a skill or switch to a Sample Preview topology.`,
+      securityTier: "safe",
+      x: 60,
+      y: 180,
+      tokens: 900,
+      latencyAvg: "—",
+      egress: ["registry-api"],
+      permissions: ["read:skills", "invoke:mcp"],
+      inputs: ["Workspace Prompt", "Agent Task"],
+      outputs: ["Tool Execution Result", "Audit Log"],
+    };
+
+    const skillNodes: DAGNode[] = displayedSkills.map((sk, idx) => {
+      const col = Math.floor(idx / 4);
+      const row = idx % 4;
+      return {
+        id: `skill-${sk.id}`,
+        name: `${sk.scope}/${sk.name}`,
+        type: "skill",
+        roleOrScope: `v${sk.version} · ${sk.visibility}`,
+        description: sk.description || "Published workspace skill package.",
+        securityTier: sk.visibility === "private" ? "restricted" : "moderate",
+        x: 340 + col * 280,
+        y: 50 + row * 110,
+        tokens: 800,
+        latencyAvg: "—",
+        egress: sk.repositoryUrl ? [sk.repositoryUrl] : ["registry"],
+        permissions: [`status:${sk.status}`],
+        inputs: ["JSON-RPC Request"],
+        outputs: [`${sk.totalDownloads || 0} pulls`],
+      };
+    });
+
+    const edges: DAGEdge[] = skillNodes.map((node, idx) => ({
+      id: `edge-ws-${idx}`,
+      from: orchestrator.id,
+      to: node.id,
+      label: "tools/call",
+      animated: true,
+    }));
+
+    return {
+      id: "workspace-live",
+      name: `Live Workspace (${currentOrg.slug} · ${skills.length} skills)`,
+      description: `Auto-generated dependency graph from ${currentOrg.slug}'s real published PostgreSQL packages.`,
+      nodes: [orchestrator, ...skillNodes],
+      edges,
+    };
+  }, [currentOrg, skills]);
+
+  const allTopologies = useMemo(
+    () => [
+      liveWorkspaceTopology,
+      ...PRESET_TOPOLOGIES.map((p) => ({
+        ...p,
+        name: `Sample Preview: ${p.name}`,
+      })),
+    ],
+    [liveWorkspaceTopology]
+  );
+
   const currentPreset = useMemo(
-    () => PRESET_TOPOLOGIES.find((p) => p.id === selectedPresetId) || PRESET_TOPOLOGIES[0],
-    [selectedPresetId]
+    () => allTopologies.find((p) => p.id === selectedPresetId) || liveWorkspaceTopology,
+    [allTopologies, selectedPresetId, liveWorkspaceTopology]
   );
 
   const selectedNode = useMemo(
@@ -441,12 +514,12 @@ ${currentPreset.edges.map((e) => `    - ${e.from} -> ${e.to}`).join("\n")}`;
             onChange={(e) => {
               setSelectedPresetId(e.target.value);
               setSelectedNodeId(
-                PRESET_TOPOLOGIES.find((p) => p.id === e.target.value)?.nodes[0]?.id || ""
+                allTopologies.find((p) => p.id === e.target.value)?.nodes[0]?.id || ""
               );
             }}
             className="rounded-xl border border-black/10 bg-[#FAFAFA] px-3 py-1.5 text-xs font-medium text-black focus:border-[#1B5FED] focus:outline-none font-sans cursor-pointer"
           >
-            {PRESET_TOPOLOGIES.map((preset) => (
+            {allTopologies.map((preset) => (
               <option key={preset.id} value={preset.id}>
                 {preset.name}
               </option>
@@ -476,7 +549,7 @@ ${currentPreset.edges.map((e) => `    - ${e.from} -> ${e.to}`).join("\n")}`;
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
-            Live Traffic
+            Simulated Flow
           </button>
           <button
             onClick={() => setActiveTab("blast-radius")}
@@ -835,7 +908,7 @@ ${currentPreset.edges.map((e) => `    - ${e.from} -> ${e.to}`).join("\n")}`;
           {/* Quick Node Action Footer */}
           <div className="pt-4 border-t border-black/10 space-y-2">
             <Link
-              href={`/tools/schema-diet?tool=${encodeURIComponent(selectedNode.name)}`}
+              href={`/app/tools/schema-diet?tool=${encodeURIComponent(selectedNode.name)}`}
               className="w-full py-2 px-3 rounded-xl border border-black/10 bg-white hover:bg-black/5 text-xs font-mono font-semibold text-black flex items-center justify-center gap-1.5 transition-colors shadow-xs"
             >
               <Zap className="w-3.5 h-3.5 text-amber-500" />

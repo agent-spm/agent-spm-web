@@ -21,7 +21,7 @@ import {
 
 export default function MySkillsPage() {
   const router = useRouter();
-  const { skills, updateSkillStatus, deleteSkill } = useSession();
+  const { skills, currentOrg, updateSkillStatus, deleteSkill } = useSession();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -76,14 +76,11 @@ export default function MySkillsPage() {
     }
   };
 
-  // Render SVG Sparkline matching Image 1
+  // Render SVG Sparkline from real downloads (flat baseline when 0 downloads)
   const renderSparkline = (points: number[], status: SkillStatus, id: string) => {
     let data = points;
-    if (!data || data.length === 0 || data.every(v => v === 0)) {
-      data = [10, 18, 14, 25, 21, 34, 29, 42, 38, 51, 46, 62, 58, 74];
-    } else {
-      // Sawtooth ripple pattern matching reference
-      data = data.map((v, i) => (i % 2 === 1 ? v * 1.14 : v * 0.92));
+    if (!data || data.length === 0 || data.every((v) => v === 0)) {
+      data = [0, 0, 0, 0, 0, 0, 0, 0];
     }
 
     const max = Math.max(...data, 1);
@@ -227,7 +224,9 @@ export default function MySkillsPage() {
                 <tr>
                   <td colSpan={6} className="py-12 text-center">
                     <div className="font-mono text-xs text-black/50">
-                      No skills found matching &ldquo;{search}&rdquo;
+                      {search.trim()
+                        ? `No skills found matching "${search}"`
+                        : `No skills published in ${currentOrg.slug} yet.`}
                     </div>
                     <Link
                       href="/app/skills/publish"

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/data/session-context";
@@ -21,7 +21,7 @@ import {
 
 export default function PublishWizardPage() {
   const router = useRouter();
-  const { currentOrg, addSkill, userProfile } = useSession();
+  const { currentOrg, addSkill, userProfile, refreshSession } = useSession();
   const { showToast } = useToast();
 
   const [publishMethod, setPublishMethod] = useState<"github" | "manual">("github");
@@ -29,6 +29,12 @@ export default function PublishWizardPage() {
 
   // Step 1: Manifest Fields
   const [scope, setScope] = useState(currentOrg.slug);
+
+  useEffect(() => {
+    if (currentOrg.slug && currentOrg.slug !== "@workspace") {
+      setScope(currentOrg.slug);
+    }
+  }, [currentOrg.slug]);
   const [name, setName] = useState("");
   const [version, setVersion] = useState("0.1.0");
   const [license, setLicense] = useState("MIT");
@@ -138,6 +144,8 @@ export default function PublishWizardPage() {
         ],
       });
 
+      await refreshSession();
+
       setTimeout(() => {
         setPublishing(false);
         setShowSuccessModal(true);
@@ -215,6 +223,7 @@ export default function PublishWizardPage() {
       ],
     });
 
+    await refreshSession();
     setShowSuccessModal(true);
   };
 
